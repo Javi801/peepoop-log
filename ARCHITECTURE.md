@@ -1,0 +1,366 @@
+# Architecture
+
+## Overview
+
+This application is a fully offline mobile app for tracking urination and defecation events. It is designed for Android, EMUI-based Android devices, and iPhone using Flutter.
+
+The app must not depend on Google, Meta, Firebase, cloud login, cloud storage, analytics SDKs, or remote services. All user data is stored locally on the device.
+
+## Core Principles
+
+* 100% offline-first.
+* No user account or login.
+* No cloud synchronization.
+* No Google or Meta services.
+* No analytics or tracking SDKs.
+* No external backend.
+* Minimal permissions.
+* User-controlled manual CSV export.
+* Sensitive health-related data remains on the device.
+
+## Technology Stack
+
+* Framework: Flutter
+* Local database: SQLite
+* Suggested database abstraction: Drift or equivalent SQLite wrapper
+* State management: project-dependent, but should remain lightweight
+* Export format: CSV
+* Supported platforms:
+
+  * Android
+  * EMUI-based Android devices
+  * iOS
+
+## Data Model
+
+### Record
+
+A record represents one timestamped bathroom event. A record may include urination, defecation, or both.
+
+```text
+Record
+- id
+- occurred_at
+- has_urination
+- has_defecation
+```
+
+Rules:
+
+* `occurred_at` must be editable.
+* At least one of `has_urination` or `has_defecation` must be true.
+* A record can contain both urination and defecation details.
+
+### Urination Detail
+
+```text
+UrinationDetail
+- record_id
+- description
+```
+
+Rules:
+
+* Exists only when `Record.has_urination = true`.
+* Description is optional.
+* Tags are attached through a many-to-many relationship.
+
+### Defecation Detail
+
+```text
+DefecationDetail
+- record_id
+- description
+```
+
+Rules:
+
+* Exists only when `Record.has_defecation = true`.
+* Description is optional.
+* Tags are attached through a many-to-many relationship.
+
+### Tag
+
+```text
+Tag
+- id
+- name
+- normalized_name UNIQUE
+- color_hex
+```
+
+Rules:
+
+* Tags are global.
+* Tags must not be duplicated.
+* Duplicate detection is based on normalized name.
+* `normalized_name` should be generated using `lower(trim(name))`.
+* Tags do not require `created_at` or `updated_at`.
+* `color_hex` is randomly assigned by default and editable by the user.
+* Editing a tag name or color propagates to all records using that tag.
+* Deleting a tag removes its associations from records after confirmation.
+
+### Record Tag Association
+
+Tags must be associated with a specific detail type, not only with the parent record.
+
+```text
+RecordTag
+- record_id
+- type: urination | defecation
+- tag_id
+```
+
+Rules:
+
+* A single record can have different tags for urination and defecation.
+* The same tag may be used in both urination and defecation contexts.
+* The same tag must not be duplicated within the same record/type pair.
+
+## Suggested SQLite Structure
+
+```sql
+CREATE TABLE records (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  occurred_at TEXT NOT NULL,
+  has_urination INTEGER NOT NULL,
+  has_defecation INTEGER NOT NULL
+);
+
+CREATE TABLE urination_details (
+  record_id INTEGER PRIMARY KEY,
+  description TEXT,
+  FOREIGN KEY (record_id) REFERENCES records(id) ON DELETE CASCADE
+);
+
+CREATE TABLE defecation_details (
+  record_id INTEGER PRIMARY KEY,
+  description TEXT,
+  FOREIGN KEY (record_id) REFERENCES records(id) ON DELETE CASCADE
+);
+
+CREATE TABLE tags (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  name TEXT NOT NULL,
+  normalized_name TEXT NOT NULL UNIQUE,
+  color_hex TEXT NOT NULL
+);
+
+CREATE TABLE record_tags (
+  record_id INTEGER NOT NULL,
+  type TEXT NOT NULL CHECK (type IN ('urination', 'defecation')),
+  tag_id INTEGER NOT NULL,
+  PRIMARY KEY (record_id, type, tag_id),
+  FOREIGN KEY (record_id) REFERENCES records(id) ON DELETE CASCADE,
+  FOREIGN KEY (tag_id) REFERENCES tags(id) ON DELETE CASCADE
+);
+```
+
+## App Layers
+
+### Presentation Layer
+
+Contains Flutter screens, widgets, forms, dialogs, and navigation.
+
+Main responsibilities:
+
+* Record creation and editing.
+* Record history display.
+* Filtering UI.
+* Tag management UI.
+* Settings and export UI.
+* Confirmation dialogs.
+
+### Application Layer
+
+Contains use cases and business logic.
+
+Examples:
+
+* Create record.
+* Edit record.
+* Delete one record.
+* Delete multiple records.
+* Delete all records.
+* Create or resolve tags from user input.
+* Normalize tag names.
+* Export records to CSV.
+* Apply filters.
+
+### Data Layer
+
+Contains SQLite access and local repositories.
+
+Examples:
+
+* Record repository.
+* Tag repository.
+* Export repository.
+* Database migrations.
+
+## Main Screens
+
+### Quick Record Screen
+
+Used to create or edit a record.
+
+Fields:
+
+* Date and time.
+* Urination checkbox.
+* Defecation checkbox.
+* Urination description.
+* Urination tags.
+* Defecation description.
+* Defecation tags.
+* Save button.
+
+Behavior:
+
+* Urination fields appear only when urination is selected.
+* Defecation fields appear only when defecation is selected.
+* At least one type must be selected.
+* Tags are created automatically when the user enters a new valid tag name.
+
+### History Screen
+
+Displays all records chronologically.
+
+Features:
+
+* List of records.
+* Date and time.
+* Urination/defecation indicators.
+* Tags with color.
+* Short description preview.
+* Tap to edit.
+* Multi-select mode.
+* Delete one or multiple records with confirmation.
+
+### Filters Screen or Filter Panel
+
+Filters can be combined.
+
+Supported filters:
+
+* Date range.
+* Event type:
+
+  * Urination.
+  * Defecation.
+  * Both.
+* Multiple tags.
+
+Tag filter behavior:
+
+* Search input below the filter title.
+* Show the top 3 tags by usage count first.
+* Allow expanding to show all tags.
+* Display usage count next to each tag name, for example: `pain (4)`.
+
+### Tag Management Screen
+
+Features:
+
+* List all tags.
+* Create tag.
+* Edit tag name.
+* Edit tag hexadecimal color.
+* Delete tag with confirmation.
+* Show usage count.
+* Prevent duplicate tags based on normalized name.
+
+### Settings Screen
+
+Features:
+
+* Manual CSV export.
+* Delete all records with confirmation.
+* Privacy statement.
+* App version.
+* Owner/developer information.
+* Contact option for feedback, bug reports, or feature requests.
+
+## Launcher Widget
+
+The app should support a launcher widget to make logging faster.
+
+Recommended widget actions:
+
+* `+ Urination`
+* `+ Defecation`
+* `+ Both`
+* `Open full record`
+
+Behavior:
+
+* Quick actions create a new record using the current date and time.
+* Quick-created records have no description or tags by default.
+* Users can edit the record later from the history screen.
+* The widget must not display recent records, to preserve privacy.
+
+Implementation note:
+
+* Android widget support should be prioritized first.
+* iOS widget support may be implemented later if it increases complexity.
+
+## CSV Export
+
+CSV export should be manual and local.
+
+The export should use one row per physiological event, not one row per parent record.
+
+If a record contains both urination and defecation, it should produce two CSV rows.
+
+Recommended columns:
+
+```text
+occurred_at,type,description,tags
+```
+
+Example:
+
+```csv
+occurred_at,type,description,tags
+2026-06-19T08:30:00,urination,"Light description","tag1;tag2"
+2026-06-19T08:30:00,defecation,"Another description","tag3"
+```
+
+Rules:
+
+* Tags should be separated with semicolons.
+* CSV export must not require cloud storage.
+* The app should use the system file picker/share sheet where possible.
+* The app should avoid broad storage permissions.
+
+## Privacy
+
+The app handles sensitive health-related information.
+
+Privacy requirements:
+
+* Data is stored locally on the device.
+* No login.
+* No cloud storage.
+* No analytics.
+* No advertising SDKs.
+* No external tracking.
+* No Google or Meta services.
+* The app must clearly explain this in Settings.
+
+PIN or biometric lock is not part of the app scope. Users may rely on device-level security settings.
+
+## Future Considerations
+
+Potential future features:
+
+* Import from CSV.
+* Statistics and trends.
+* Tag categories.
+* Structured observations such as:
+
+  * `color: yellow`
+  * `odor: none`
+  * `pain: none`
+* Advanced filtering.
+* iOS launcher widget support if not included in MVP.
