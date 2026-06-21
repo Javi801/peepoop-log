@@ -1,0 +1,29 @@
+Title	URL	Assignees	Status	Linked pull requests	Sub-issues progress	Priority	Estimate	Size	Labels	Reviewers
+Set up Flutter project structure for offline mobile app			Backlog						feature, documentation	
+Define local SQLite schema and migrations			Backlog						Data, feature	
+Implement record repository and data access layer			Backlog						Data, feature	
+Implement tag repository and normalized tag lookup			Backlog						Data, feature	
+Build quick record create and edit screen			Backlog						feature, UI, UX	
+Validate that at least one event type is selected			Backlog						feature, UX	
+Keep urination and defecation details independent			Backlog						Data, feature, UX	
+Automatically create tags from record forms			Backlog						Data, feature, UX	
+Prevent empty and duplicate tag names			Backlog						Data, feature, UX	
+Add editable hexadecimal tag colors			Backlog						Data, feature, UI	
+Build history list with record summaries			Backlog						feature, UI, UX	
+Add record editing from history			Backlog						feature, UX	
+Add single, multiple, and all-record deletion flows			Backlog						feature, UX	
+Require confirmation before every delete operation			Backlog						feature, UX	
+Build combined filters for date range, event type, and tags			Backlog						feature, UI, UX	
+Implement tag filter search, top tags, expansion, and usage counts			Backlog						Data, feature, UI, UX	
+Build tag management screen			Backlog						Data, feature, UI, UX	
+Propagate tag edits and deletions across records			Backlog						Data, feature	
+Implement manual CSV export with one row per event			Backlog						Data, feature	
+Add settings screen with privacy, export, app info, and contact			Backlog						feature, UI, UX	
+Document offline privacy guarantees in the app			Backlog						documentation, UX	
+Implement Android launcher widget quick actions			Backlog						feature, UX	
+Decide whether iOS launcher widget belongs in MVP			Backlog						decision-needed, feature	
+Avoid Google, Meta, Firebase, analytics, and remote services			Backlog						Data, decision-needed, documentation	
+Minimize mobile permissions for storage and export			Backlog						decision-needed, UX	
+Add app version and owner/developer information			Backlog						documentation, UI	
+Add feedback, bug report, or feature request contact option			Backlog						feature, UX	
+Document future import, statistics, and structured observation scope			Backlog						documentation, decision-needed	

@@ -1,0 +1,47 @@
+[
+  {
+    "name": "bug",
+    "color": "a32d2d",
+    "description": "Something is broken or behaving incorrectly"
+  },
+  {
+    "name": "Data",
+    "color": "0e478a",
+    "description": "Data model, logic, or persistence issues"
+  },
+  {
+    "name": "decision-needed",
+    "color": "a66321",
+    "description": "Requires a product or technical decision before implementation"
+  },
+  {
+    "name": "documentation",
+    "color": "b4c500",
+    "description": "Improvements or additions to documentation"
+  },
+  {
+    "name": "enhancement",
+    "color": "a8447b",
+    "description": "Improvement to existing functionality or UI"
+  },
+  {
+    "name": "feature",
+    "color": "00a31a",
+    "description": "New functionality to be added"
+  },
+  {
+    "name": "UI",
+    "color": "6b4fa3",
+    "description": "Visual design, layout, or display issues"
+  },
+  {
+    "name": "UX",
+    "color": "087c86",
+    "description": "User interaction and behavior improvements"
+  },
+  {
+    "name": "wont-fix",
+    "color": "6e7781",
+    "description": "Will not be implemented or addressed"
+  }
+]

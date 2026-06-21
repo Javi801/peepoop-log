@@ -1,0 +1,86 @@
+{
+  "Set up Flutter project structure for offline mobile app": {
+    "body": "## Context\nCreate the initial Flutter app foundation described in README.md and ARCHITECTURE.md.\n\n## Acceptance criteria\n- Flutter project is initialized for Android and iOS.\n- The app can run without login, cloud services, analytics, or remote backend configuration.\n- Basic folder structure reflects presentation, application, and data layers.\n- README development instructions are updated if setup commands are added."
+  },
+  "Define local SQLite schema and migrations": {
+    "body": "## Context\nThe app stores all health-related data locally. ARCHITECTURE.md defines records, urination details, defecation details, tags, and record tag associations.\n\n## Acceptance criteria\n- SQLite tables exist for records, urination_details, defecation_details, tags, and record_tags.\n- Records require occurred_at and at least one event type at application validation level.\n- Tags use normalized_name as a unique value.\n- record_tags associates tags with record_id and type: urination or defecation.\n- Foreign keys cascade appropriately when records or tags are deleted."
+  },
+  "Implement record repository and data access layer": {
+    "body": "## Context\nRecord persistence should be isolated in the data layer.\n\n## Acceptance criteria\n- Records can be created, read, updated, and deleted locally.\n- Detail rows are created only for selected event types.\n- Updating event type keeps detail rows and tag associations consistent.\n- Repository methods support loading records with descriptions and tags for history and editing."
+  },
+  "Implement tag repository and normalized tag lookup": {
+    "body": "## Context\nTags are global and reused across records using lower(trim(name)) normalization.\n\n## Acceptance criteria\n- Tags can be created, listed, updated, and deleted.\n- Lookup by normalized name is available.\n- Tag usage counts can be queried for filters and tag management.\n- Duplicate normalized names are rejected or resolved to the existing tag."
+  },
+  "Build quick record create and edit screen": {
+    "body": "## Context\nThe main input flow lets users create or edit a bathroom record quickly.\n\n## Acceptance criteria\n- User can set date and time manually.\n- User can select urination, defecation, or both.\n- Urination fields appear only when urination is selected.\n- Defecation fields appear only when defecation is selected.\n- Save creates a new record or updates the existing record."
+  },
+  "Validate that at least one event type is selected": {
+    "body": "## Context\nA record is invalid unless it includes urination, defecation, or both.\n\n## Acceptance criteria\n- Save is blocked or shows a clear validation message when neither type is selected.\n- Validation applies during both creation and editing.\n- The invalid state does not create partial database rows."
+  },
+  "Keep urination and defecation details independent": {
+    "body": "## Context\nA record can contain both event types, but each type has its own description and tags.\n\n## Acceptance criteria\n- Urination description is stored separately from defecation description.\n- Urination tags are stored separately from defecation tags.\n- Editing one event detail does not overwrite the other.\n- History and CSV export display the correct detail per type."
+  },
+  "Automatically create tags from record forms": {
+    "body": "## Context\nWhen users type a new valid tag while creating or editing a record, the app should create it automatically.\n\n## Acceptance criteria\n- New typed tag names create tags when saved or confirmed.\n- Existing tags are reused by normalized name.\n- Newly created tags receive a default random hexadecimal color.\n- Empty tag names are never created."
+  },
+  "Prevent empty and duplicate tag names": {
+    "body": "## Context\nTags must be unique by lower(trim(name)) and cannot be empty.\n\n## Acceptance criteria\n- Empty or whitespace-only names are rejected.\n- Names differing only by case or surrounding spaces are treated as duplicates.\n- Duplicate attempts show a useful user-facing response or reuse the existing tag where appropriate.\n- The same tag cannot be duplicated within the same record and event type."
+  },
+  "Add editable hexadecimal tag colors": {
+    "body": "## Context\nEach tag has a color stored on the tag entity, not copied into records.\n\n## Acceptance criteria\n- New tags receive a random color_hex value.\n- Users can edit color_hex manually from tag management.\n- Invalid hex values are rejected.\n- Updated colors appear wherever the tag is displayed."
+  },
+  "Build history list with record summaries": {
+    "body": "## Context\nUsers need a chronological view of all records.\n\n## Acceptance criteria\n- History shows date and time for each record.\n- History indicates whether each record includes urination, defecation, or both.\n- Associated tags are visible with their colors.\n- Description previews appear when available.\n- The list remains usable with many records."
+  },
+  "Add record editing from history": {
+    "body": "## Context\nUsers should be able to open existing records from history and edit them.\n\n## Acceptance criteria\n- Tapping a history item opens the edit flow with existing values populated.\n- Saving updates the existing record instead of creating a duplicate.\n- Cancel/back returns to history without unintended changes."
+  },
+  "Add single, multiple, and all-record deletion flows": {
+    "body": "## Context\nThe requirements include deleting one record, multiple selected records, and all records.\n\n## Acceptance criteria\n- A single record can be deleted.\n- History supports multi-select deletion.\n- Settings or another suitable place supports deleting all records.\n- Deletions remove associated details and record tag rows."
+  },
+  "Require confirmation before every delete operation": {
+    "body": "## Context\nEvery delete operation must ask for confirmation before removing local health data.\n\n## Acceptance criteria\n- Single record delete shows confirmation.\n- Multi-record delete shows confirmation.\n- Delete-all shows confirmation with clear wording.\n- Canceling a confirmation leaves data untouched."
+  },
+  "Build combined filters for date range, event type, and tags": {
+    "body": "## Context\nFilters must be combinable across date range, event type, and tags.\n\n## Acceptance criteria\n- Date range filter can be applied.\n- Event type filter supports selecting more than one type.\n- Tag filter supports selecting multiple tags.\n- Applying multiple filters narrows results together.\n- Clearing filters restores the full history list."
+  },
+  "Implement tag filter search, top tags, expansion, and usage counts": {
+    "body": "## Context\nThe tag filter should behave like a retail brand filter.\n\n## Acceptance criteria\n- Search input appears below the tag filter title.\n- Top 3 most used tags are shown first.\n- Users can expand to show all tags.\n- Usage count appears next to each tag name, for example: pain (4).\n- Selecting multiple tags works together with other filters."
+  },
+  "Build tag management screen": {
+    "body": "## Context\nUsers need direct control over global tags.\n\n## Acceptance criteria\n- Screen lists all tags.\n- User can create a tag.\n- User can edit tag name.\n- User can edit tag hexadecimal color.\n- User can delete a tag after confirmation.\n- Usage count is visible for each tag."
+  },
+  "Propagate tag edits and deletions across records": {
+    "body": "## Context\nTags are global entities referenced by records.\n\n## Acceptance criteria\n- Editing a tag name updates all records that display that tag.\n- Editing a tag color updates all records that display that tag.\n- Deleting a tag removes its associations from all records after confirmation.\n- Deleting a tag does not delete records."
+  },
+  "Implement manual CSV export with one row per event": {
+    "body": "## Context\nCSV export should be local, manual, and use one row per physiological event.\n\n## Acceptance criteria\n- Export includes columns occurred_at,type,description,tags.\n- A record with both urination and defecation exports two rows.\n- Tags are separated with semicolons.\n- Export does not require cloud storage.\n- Export uses system file picker or share sheet where possible."
+  },
+  "Add settings screen with privacy, export, app info, and contact": {
+    "body": "## Context\nREADME.md lists the Settings screen contents.\n\n## Acceptance criteria\n- Settings includes CSV export.\n- Settings includes delete all records.\n- Settings includes privacy statement.\n- Settings includes app version.\n- Settings includes owner/developer information.\n- Settings includes a contact option for feedback, bug reports, or feature requests."
+  },
+  "Document offline privacy guarantees in the app": {
+    "body": "## Context\nThe app stores sensitive health-related data only on device.\n\n## Acceptance criteria\n- In-app privacy copy explains that data stays local.\n- Copy states there is no login, cloud storage, analytics, ads SDK, Firebase, Google services, Meta services, or external tracking.\n- Copy clarifies that PIN/biometric lock is not implemented in-app and users can rely on device security."
+  },
+  "Implement Android launcher widget quick actions": {
+    "body": "## Context\nAndroid launcher widget support should be prioritized first.\n\n## Acceptance criteria\n- Widget offers + Urination, + Defecation, + Both, and Open full record.\n- Quick actions create a record with the current date and time.\n- Quick-created records have no description or tags by default.\n- Widget does not display recent records.\n- Created records are visible and editable in app history."
+  },
+  "Decide whether iOS launcher widget belongs in MVP": {
+    "body": "## Context\niOS widget support may be added later if it increases MVP complexity.\n\n## Acceptance criteria\n- Product/technical tradeoff is documented.\n- Decision states whether iOS widget support is MVP or post-MVP.\n- Follow-up implementation issue is created or updated if iOS widget support is kept."
+  },
+  "Avoid Google, Meta, Firebase, analytics, and remote services": {
+    "body": "## Context\nThe core privacy promise is that the app is fully offline and avoids external tracking or cloud dependencies.\n\n## Acceptance criteria\n- Dependency choices are reviewed before adding SDKs.\n- No Firebase, analytics, ads SDK, Google services, Meta services, cloud login, cloud storage, or external backend is configured.\n- Any dependency that could perform network access is justified before use."
+  },
+  "Minimize mobile permissions for storage and export": {
+    "body": "## Context\nCSV export should avoid broad storage permissions.\n\n## Acceptance criteria\n- Export implementation uses system picker/share sheet where possible.\n- Android permissions are kept minimal.\n- iOS permissions are kept minimal.\n- Permission prompts, if any, are explained by the OS flow or app UI."
+  },
+  "Add app version and owner/developer information": {
+    "body": "## Context\nSettings should expose basic app and owner/developer information.\n\n## Acceptance criteria\n- App version is visible in Settings.\n- Owner/developer information is visible in Settings.\n- Information is easy to update for releases."
+  },
+  "Add feedback, bug report, or feature request contact option": {
+    "body": "## Context\nUsers should have a way to contact the owner/developer.\n\n## Acceptance criteria\n- Settings includes a contact option.\n- Contact option can support feedback, bug reports, and feature requests.\n- The implementation does not introduce analytics or tracking."
+  },
+  "Document future import, statistics, and structured observation scope": {
+    "body": "## Context\nARCHITECTURE.md lists possible future features outside the current MVP.\n\n## Acceptance criteria\n- Future considerations are documented separately from MVP requirements.\n- Import from CSV, statistics/trends, tag categories, structured observations, advanced filtering, and iOS widget support are clearly marked as future unless promoted by decision.\n- No current MVP issue accidentally depends on these future features."
+  }
+}
