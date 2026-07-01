@@ -137,7 +137,10 @@ Each tag shall include:
 
 * Name.
 * Normalized name.
+* Event type: urination or defecation.
 * Hexadecimal color.
+
+The app shall display tags grouped by event type.
 
 Tags shall not include `created_at` or `updated_at`.
 
@@ -147,7 +150,9 @@ The app shall normalize tag names using:
 lower(trim(name))
 ```
 
-The app shall prevent duplicate tags based on normalized name.
+The app shall prevent duplicate tags based on normalized name within the same event type.
+
+The same normalized name may exist as two independent tags, one per event type.
 
 The app shall not allow empty tag names.
 
@@ -159,13 +164,15 @@ A single urination detail shall support multiple tags.
 
 A single defecation detail shall support multiple tags.
 
-The same tag shall not be duplicated within the same record and event type.
+Urination details shall only use urination tags. Defecation details shall only use defecation tags.
+
+The same tag shall not be duplicated within the same record.
 
 ### 3.9 Automatic Tag Creation
 
-When the user writes a new valid tag name while creating or editing a record, the app shall automatically create that tag if it does not already exist.
+When the user writes a new valid tag name while creating or editing a record, the app shall automatically create that tag with the event type of the detail being edited, if it does not already exist.
 
-If a tag already exists according to normalized name, the app shall reuse the existing tag.
+If a tag already exists according to normalized name and event type, the app shall reuse the existing tag.
 
 ### 3.10 Tag Colors
 
@@ -282,10 +289,11 @@ Filtering should be performed locally.
 
 The app shall enforce:
 
-* No duplicate tags by normalized name.
+* No duplicate tags by normalized name and event type.
 * No empty tag names.
 * No empty records.
-* No duplicated tag association within the same record and event type.
+* No tag associated with a detail of a different event type.
+* No duplicated tag association within the same record.
 
 ### 6.4 Maintainability
 

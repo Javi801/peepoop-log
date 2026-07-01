@@ -43,41 +43,18 @@ Record
 - occurred_at
 - has_urination
 - has_defecation
+- urination_description
+- defecation_description
 ```
 
 Rules:
 
 * `occurred_at` must be editable.
 * At least one of `has_urination` or `has_defecation` must be true.
-* A record can contain both urination and defecation details.
-
-### Urination Detail
-
-```text
-UrinationDetail
-- record_id
-- description
-```
-
-Rules:
-
-* Exists only when `Record.has_urination = true`.
-* Description is optional.
-* Tags are attached through a many-to-many relationship.
-
-### Defecation Detail
-
-```text
-DefecationDetail
-- record_id
-- description
-```
-
-Rules:
-
-* Exists only when `Record.has_defecation = true`.
-* Description is optional.
-* Tags are attached through a many-to-many relationship.
+* A record can contain both urination and defecation events.
+* Descriptions are optional and stored inline on the record, one per event type.
+* A description may only exist when its event type is selected. This is enforced with `CHECK` constraints.
+* Tags are attached through a many-to-many relationship. Urination events use urination-type tags only, and defecation events use defecation-type tags only.
 
 ### Tag
 
@@ -85,15 +62,18 @@ Rules:
 Tag
 - id
 - name
-- normalized_name UNIQUE
+- normalized_name
+- type: urination | defecation
 - color_hex
+- UNIQUE (normalized_name, type)
 ```
 
 Rules:
 
-* Tags are global.
-* Tags must not be duplicated.
-* Duplicate detection is based on normalized name.
+* Each tag belongs to exactly one event type: urination or defecation.
+* Tags are reused across all records of their event type.
+* Tags must not be duplicated within the same event type.
+* Duplicate detection is based on normalized name plus event type. The same normalized name may exist once per type.
 * `normalized_name` should be generated using `lower(trim(name))`.
 * Tags do not require `created_at` or `updated_at`.
 * `color_hex` is randomly assigned by default and editable by the user.
@@ -102,59 +82,58 @@ Rules:
 
 ### Record Tag Association
 
-Tags must be associated with a specific detail type, not only with the parent record.
+The event context of each association is derived from the tag's own type, so the association only links a record with a tag.
 
 ```text
 RecordTag
 - record_id
-- type: urination | defecation
 - tag_id
 ```
 
 Rules:
 
-* A single record can have different tags for urination and defecation.
-* The same tag may be used in both urination and defecation contexts.
-* The same tag must not be duplicated within the same record/type pair.
+* A single record can have different tags for urination and defecation, resolved through each tag's type.
+* Urination details only use urination tags; defecation details only use defecation tags.
+* The same tag must not be duplicated within the same record.
 
 ## Suggested SQLite Structure
 
 ```sql
 CREATE TABLE records (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
-  occurred_at TEXT NOT NULL,
-  has_urination INTEGER NOT NULL,
-  has_defecation INTEGER NOT NULL
+  occurred_at INTEGER NOT NULL, -- unix epoch, UTC
+  has_urination INTEGER NOT NULL DEFAULT 0,
+  has_defecation INTEGER NOT NULL DEFAULT 0,
+  urination_description TEXT,
+  defecation_description TEXT,
+  CHECK (has_urination = 1 OR has_defecation = 1),
+  CHECK (has_urination = 1 OR urination_description IS NULL),
+  CHECK (has_defecation = 1 OR defecation_description IS NULL)
 );
 
-CREATE TABLE urination_details (
-  record_id INTEGER PRIMARY KEY,
-  description TEXT,
-  FOREIGN KEY (record_id) REFERENCES records(id) ON DELETE CASCADE
-);
-
-CREATE TABLE defecation_details (
-  record_id INTEGER PRIMARY KEY,
-  description TEXT,
-  FOREIGN KEY (record_id) REFERENCES records(id) ON DELETE CASCADE
-);
+CREATE INDEX idx_records_occurred_at ON records (occurred_at);
 
 CREATE TABLE tags (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   name TEXT NOT NULL,
-  normalized_name TEXT NOT NULL UNIQUE,
-  color_hex TEXT NOT NULL
+  normalized_name TEXT NOT NULL,
+  type TEXT NOT NULL CHECK (type IN ('urination', 'defecation')),
+  color_hex TEXT NOT NULL,
+  UNIQUE (normalized_name, type)
 );
 
 CREATE TABLE record_tags (
   record_id INTEGER NOT NULL,
-  type TEXT NOT NULL CHECK (type IN ('urination', 'defecation')),
   tag_id INTEGER NOT NULL,
-  PRIMARY KEY (record_id, type, tag_id),
+  PRIMARY KEY (record_id, tag_id),
   FOREIGN KEY (record_id) REFERENCES records(id) ON DELETE CASCADE,
   FOREIGN KEY (tag_id) REFERENCES tags(id) ON DELETE CASCADE
 );
+
+CREATE INDEX idx_record_tags_tag ON record_tags (tag_id);
 ```
+
+Foreign keys must be enabled on every connection with `PRAGMA foreign_keys = ON`, since SQLite disables them by default.
 
 ## App Layers
 
@@ -262,13 +241,13 @@ Tag filter behavior:
 
 Features:
 
-* List all tags.
+* List all tags in two groups: urination tags and defecation tags (for example, using tabs).
 * Create tag.
 * Edit tag name.
 * Edit tag hexadecimal color.
 * Delete tag with confirmation.
 * Show usage count.
-* Prevent duplicate tags based on normalized name.
+* Prevent duplicate tags based on normalized name and event type.
 
 ### Settings Screen
 
