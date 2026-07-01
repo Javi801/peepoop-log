@@ -1,0 +1,1267 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PeePoop Log</title>
+
+  <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <style>
+    :root {
+      --bg: #fff7fb;
+      --surface: #fffefe;
+      --surface-soft: #fff7fb;
+      --primary: #9b7be8;
+      --primary-dark: #7d5bd6;
+      --primary-soft: #eee6ff;
+      --pink: #ff8fa3;
+      --pink-soft: #ffe4ec;
+      --yellow: #ffe8a3;
+      --blue: #cfeeff;
+      --green: #d9f2c7;
+      --red: #ffd3d3;
+      --purple: #eadbff;
+      --text: #44333a;
+      --muted: #8b7b82;
+      --border: #f0dfe7;
+      --danger: #e75b64;
+      --shadow: 0 16px 40px rgba(141, 110, 165, 0.16);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background:
+        radial-gradient(circle at top left, #f1e7ff, transparent 34%),
+        radial-gradient(circle at top right, #ffe5ef, transparent 30%),
+        var(--bg);
+      color: var(--text);
+    }
+
+    button, input, textarea, select { font: inherit; }
+
+    .app {
+      max-width: 430px;
+      min-height: 100vh;
+      margin: 0 auto;
+      background: linear-gradient(#fffafd, #fff5fb);
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .bg-decor {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      opacity: 0.36;
+      z-index: 0;
+    }
+
+    .bg-decor::before {
+      content: "🎋";
+      position: absolute;
+      top: 20px;
+      left: -8px;
+      font-size: 88px;
+      transform: rotate(-12deg);
+    }
+
+    .bg-decor::after {
+      content: "♡  ♡    ♡";
+      position: absolute;
+      top: 110px;
+      right: 24px;
+      color: #ff9fb1;
+      font-size: 18px;
+      letter-spacing: 12px;
+    }
+
+    .topbar {
+      position: relative;
+      z-index: 1;
+      padding: 18px 18px 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: linear-gradient(180deg, #f1e7ff, #fff7fb);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .topbar h1 {
+      margin: 0;
+      font-size: 19px;
+      letter-spacing: -0.02em;
+    }
+
+    .screen {
+      position: relative;
+      z-index: 1;
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px 16px 94px;
+    }
+
+    .bottom-nav {
+      position: fixed;
+      z-index: 3;
+      left: 50%;
+      bottom: 0;
+      transform: translateX(-50%);
+      width: min(430px, 100vw);
+      height: 76px;
+      display: grid;
+      grid-template-columns: 1fr 1fr 76px 1fr 1fr;
+      align-items: center;
+      background: rgba(255, 255, 255, 0.88);
+      backdrop-filter: blur(14px);
+      border-top: 1px solid var(--border);
+    }
+
+    .nav-item {
+      border: 0;
+      background: transparent;
+      color: var(--muted);
+      font-size: 11px;
+      display: grid;
+      place-items: center;
+      gap: 2px;
+      cursor: pointer;
+    }
+
+    .nav-item.active {
+      color: var(--primary-dark);
+      font-weight: 800;
+    }
+
+    .nav-icon { font-size: 18px; }
+
+    .nav-plus {
+      width: 58px;
+      height: 58px;
+      margin: -28px auto 0;
+      border: 0;
+      border-radius: 22px;
+      background: linear-gradient(145deg, var(--pink), var(--primary));
+      color: white;
+      font-size: 34px;
+      font-weight: 900;
+      box-shadow: 0 14px 28px rgba(155, 123, 232, 0.35);
+      cursor: pointer;
+    }
+
+    .btn {
+      border: 0;
+      border-radius: 999px;
+      padding: 11px 16px;
+      background: linear-gradient(145deg, var(--pink), var(--primary));
+      color: white;
+      font-weight: 800;
+      box-shadow: 0 8px 18px rgba(155, 123, 232, 0.2);
+      cursor: pointer;
+    }
+
+    .btn.secondary {
+      background: var(--primary-soft);
+      color: var(--primary-dark);
+      box-shadow: none;
+    }
+
+    .btn.danger {
+      background: #ffe1e3;
+      color: var(--danger);
+      box-shadow: none;
+    }
+
+    .btn.outline {
+      background: white;
+      color: var(--text);
+      border: 1px solid var(--border);
+      box-shadow: none;
+    }
+
+    .btn.full { width: 100%; }
+
+    .card, .field-card {
+      background: rgba(255, 255, 255, 0.92);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      padding: 15px;
+      margin-bottom: 13px;
+      box-shadow: var(--shadow);
+    }
+
+    .field { margin-bottom: 14px; }
+
+    label {
+      display: block;
+      font-size: 12px;
+      font-weight: 800;
+      color: var(--muted);
+      margin-bottom: 7px;
+    }
+
+    input, textarea {
+      width: 100%;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 12px 13px;
+      background: white;
+      color: var(--text);
+      outline: none;
+    }
+
+    textarea {
+      resize: none;
+      min-height: 78px;
+    }
+
+    .toggle {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 22px;
+      padding: 13px;
+      margin-bottom: 13px;
+      box-shadow: var(--shadow);
+    }
+
+    .toggle-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 850;
+    }
+
+    .cute-icon {
+      width: 34px;
+      height: 34px;
+      border-radius: 14px;
+      display: grid;
+      place-items: center;
+      background: var(--yellow);
+      font-size: 18px;
+    }
+
+    .switch {
+      width: 48px;
+      height: 28px;
+      border-radius: 999px;
+      background: #e5dbe8;
+      padding: 3px;
+      cursor: pointer;
+    }
+
+    .switch.on { background: var(--primary); }
+
+    .knob {
+      width: 22px;
+      height: 22px;
+      background: white;
+      border-radius: 50%;
+      transition: .2s;
+    }
+
+    .switch.on .knob { transform: translateX(20px); }
+
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 8px;
+    }
+
+    .chip {
+      border-radius: 999px;
+      padding: 7px 10px;
+      font-size: 12px;
+      font-weight: 800;
+      display: inline-flex;
+      gap: 6px;
+      align-items: center;
+      color: #44333a;
+    }
+
+    .chip button {
+      border: 0;
+      background: transparent;
+      cursor: pointer;
+      color: inherit;
+      font-weight: 900;
+      padding: 0;
+    }
+
+    .section-title {
+      color: var(--primary-dark);
+      font-weight: 900;
+      margin: 18px 0 10px;
+    }
+
+    .muted {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.4;
+    }
+
+    .history-card {
+      display: grid;
+      grid-template-columns: 58px 1fr;
+      gap: 12px;
+    }
+
+    .time {
+      font-size: 13px;
+      font-weight: 900;
+    }
+
+    .record-body strong {
+      display: block;
+      margin-bottom: 6px;
+    }
+
+    .row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .space { justify-content: space-between; }
+
+    .tag-dot {
+      width: 28px;
+      height: 28px;
+      border-radius: 11px;
+      flex-shrink: 0;
+      border: 1px solid rgba(68, 51, 58, .12);
+    }
+
+    .tabs {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+
+    .tab {
+      border: 0;
+      border-radius: 999px;
+      padding: 10px 12px;
+      font-weight: 850;
+      background: white;
+      color: var(--muted);
+      border: 1px solid var(--border);
+      cursor: pointer;
+    }
+
+    .tab.active {
+      background: var(--primary-soft);
+      color: var(--primary-dark);
+      border-color: transparent;
+    }
+
+    .color-picker-row {
+      display: grid;
+      grid-template-columns: 58px 1fr;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .color-preview {
+      width: 52px;
+      height: 52px;
+      border-radius: 18px;
+      border: 1px solid rgba(68, 51, 58, .14);
+      box-shadow: var(--shadow);
+    }
+
+    .native-color-picker {
+      width: 100%;
+      height: 120px;
+      padding: 0;
+      border-radius: 18px;
+      border: 1px solid var(--border);
+      background: white;
+      overflow: hidden;
+      cursor: pointer;
+    }
+
+    .native-color-picker::-webkit-color-swatch-wrapper {
+      padding: 0;
+    }
+
+    .native-color-picker::-webkit-color-swatch {
+      border: 0;
+      border-radius: 16px;
+    }
+
+    .native-color-picker::-moz-color-swatch {
+      border: 0;
+      border-radius: 16px;
+    }
+
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 10;
+      background: rgba(64, 53, 61, 0.48);
+      display: grid;
+      place-items: end center;
+      padding: 14px;
+    }
+
+    .modal {
+      width: min(400px, 100%);
+      max-height: 84vh;
+      overflow-y: auto;
+      background: white;
+      border-radius: 28px;
+      padding: 20px;
+      box-shadow: 0 22px 54px rgba(0, 0, 0, .24);
+    }
+
+    .modal.center { margin: auto; }
+
+    .modal h2 {
+      margin: 0 0 8px;
+      font-size: 20px;
+      text-align: center;
+    }
+
+    .modal-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 18px;
+    }
+
+    .modal-actions .btn { flex: 1; }
+
+    .splash {
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      text-align: center;
+      padding: 28px;
+      background:
+        radial-gradient(circle at top, #f1e7ff, transparent 45%),
+        linear-gradient(180deg, #fff7fb, #f5efff);
+    }
+
+    .splash-card {
+      width: 100%;
+      max-width: 360px;
+      min-height: 620px;
+      border-radius: 34px;
+      background: rgba(255, 255, 255, 0.68);
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow);
+      padding: 38px 22px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .splash-card::before {
+      content: "🎋";
+      position: absolute;
+      top: 18px;
+      left: 10px;
+      font-size: 82px;
+      opacity: .34;
+      transform: rotate(-12deg);
+    }
+
+    .panda {
+      font-size: 94px;
+      margin: 42px 0 10px;
+    }
+
+    .poop {
+      font-size: 84px;
+      margin-bottom: 8px;
+      text-align: center;
+    }
+
+    .loader {
+      width: 160px;
+      height: 9px;
+      border-radius: 999px;
+      background: #eadff5;
+      margin: 26px auto 12px;
+      overflow: hidden;
+    }
+
+    .loader span {
+      display: block;
+      width: 68%;
+      height: 100%;
+      background: linear-gradient(90deg, var(--pink), var(--primary));
+      border-radius: inherit;
+    }
+
+    .export-hero {
+      text-align: center;
+      padding: 30px 12px;
+    }
+
+    .export-hero .panda {
+      margin: 0;
+      font-size: 90px;
+    }
+
+    .empty {
+      text-align: center;
+      padding: 40px 16px;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="root"></div>
+
+  <script type="text/babel">
+    const { useState } = React;
+
+    const legacyColorMap = {
+      "tag-yellow": "#FFE8A3",
+      "tag-blue": "#CFEEFF",
+      "tag-green": "#D9F2C7",
+      "tag-red": "#FFD3D3",
+      "tag-purple": "#EADBFF",
+      "tag-pink": "#FFE4EC"
+    };
+
+    const seedTags = [
+      { id: "t1", name: "light yellow", colorHex: "#FFE8A3", type: "pee" },
+      { id: "t2", name: "normal flow", colorHex: "#CFEEFF", type: "pee" },
+      { id: "t3", name: "urgent", colorHex: "#FFD3D3", type: "pee" },
+      { id: "t4", name: "normal", colorHex: "#D9F2C7", type: "poop" },
+      { id: "t5", name: "strong smell", colorHex: "#EADBFF", type: "poop" }
+    ];
+
+    const seedRecords = [
+      {
+        id: "r1",
+        occurredAt: "2026-06-22T08:30",
+        hasUrination: true,
+        hasDefecation: false,
+        urinationDescription: "No discomfort.",
+        defecationDescription: "",
+        urinationTags: ["t1", "t2"],
+        defecationTags: []
+      },
+      {
+        id: "r2",
+        occurredAt: "2026-06-21T22:10",
+        hasUrination: true,
+        hasDefecation: true,
+        urinationDescription: "Slight urgency before going.",
+        defecationDescription: "",
+        urinationTags: ["t3"],
+        defecationTags: ["t4"]
+      }
+    ];
+
+    function normalizeTag(name) {
+      return name.trim().toLowerCase();
+    }
+
+    function normalizeHex(value) {
+      const raw = String(value || "").trim();
+      if (/^#[0-9A-Fa-f]{6}$/.test(raw)) return raw.toUpperCase();
+      if (/^[0-9A-Fa-f]{6}$/.test(raw)) return `#${raw}`.toUpperCase();
+      return "#FFE8A3";
+    }
+
+    function normalizeStoredTags(rawTags) {
+      return rawTags.map(tag => ({
+        ...tag,
+        colorHex: normalizeHex(tag.colorHex || legacyColorMap[tag.color] || "#FFE8A3"),
+        type: tag.type || "pee"
+      }));
+    }
+
+    function uid() {
+      return crypto.randomUUID ? crypto.randomUUID() : String(Date.now() + Math.random());
+    }
+
+    function randomHexColor() {
+      const colors = ["#FFE8A3", "#CFEEFF", "#D9F2C7", "#FFD3D3", "#EADBFF", "#FFE4EC"];
+      return colors[Math.floor(Math.random() * colors.length)];
+    }
+
+    function downloadCsv(records, tags) {
+      const tagName = id => tags.find(t => t.id === id)?.name ?? "";
+      const rows = [["occurred_at", "type", "description", "tags"]];
+
+      records.forEach(r => {
+        if (r.hasUrination) {
+          rows.push([
+            r.occurredAt,
+            "urination",
+            r.urinationDescription || "",
+            r.urinationTags.map(tagName).join(";")
+          ]);
+        }
+        if (r.hasDefecation) {
+          rows.push([
+            r.occurredAt,
+            "defecation",
+            r.defecationDescription || "",
+            r.defecationTags.map(tagName).join(";")
+          ]);
+        }
+      });
+
+      const csv = rows.map(row =>
+        row.map(cell => `"${String(cell).replaceAll('"', '""')}"`).join(",")
+      ).join("\n");
+
+      const blob = new Blob([csv], { type: "text/csv" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "peepoop-log-export.csv";
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function App() {
+      const [loaded, setLoaded] = useState(false);
+      const [view, setView] = useState("add");
+      const [tags, setTags] = useState(() => {
+        const stored = JSON.parse(localStorage.getItem("pptags") || "null");
+        return stored ? normalizeStoredTags(stored) : seedTags;
+      });
+      const [records, setRecords] = useState(() => {
+        return JSON.parse(localStorage.getItem("pprecords") || "null") || seedRecords;
+      });
+      const [modal, setModal] = useState(null);
+      const [filters, setFilters] = useState({
+        urination: true,
+        defecation: true,
+        tagIds: [],
+        from: "",
+        to: ""
+      });
+
+      React.useEffect(() => {
+        const timer = setTimeout(() => setLoaded(true), 900);
+        return () => clearTimeout(timer);
+      }, []);
+
+      React.useEffect(() => {
+        localStorage.setItem("pptags", JSON.stringify(tags));
+      }, [tags]);
+
+      React.useEffect(() => {
+        localStorage.setItem("pprecords", JSON.stringify(records));
+      }, [records]);
+
+      if (!loaded) return <Splash />;
+
+      const ctx = {
+        tags, setTags, records, setRecords, modal, setModal, filters, setFilters, view, setView
+      };
+
+      return (
+        <div className="app">
+          <div className="bg-decor"></div>
+
+          {view === "add" && <AddRecord {...ctx} />}
+          {view === "history" && <History {...ctx} />}
+          {view === "tags" && <Tags {...ctx} />}
+          {view === "export" && <ExportView {...ctx} />}
+          {view === "settings" && <Settings {...ctx} />}
+
+          <BottomNav view={view} setView={setView} />
+
+          {modal && <ModalRoot {...ctx} />}
+        </div>
+      );
+    }
+
+    function Splash() {
+      return (
+        <div className="splash">
+          <div className="splash-card">
+            <h1>PeePoop<br />Log</h1>
+            <p className="muted">Your health, your log 💜</p>
+            <div className="panda">🐼🚽</div>
+            <div className="loader"><span></span></div>
+            <p className="muted">Loading your data...</p>
+          </div>
+        </div>
+      );
+    }
+
+    function Topbar({ title, action }) {
+      return (
+        <header className="topbar">
+          <h1>{title}</h1>
+          {action}
+        </header>
+      );
+    }
+
+    function BottomNav({ view, setView }) {
+      return (
+        <nav className="bottom-nav">
+          <button className={`nav-item ${view === "history" ? "active" : ""}`} onClick={() => setView("history")}>
+            <span className="nav-icon">📖</span>History
+          </button>
+          <button className={`nav-item ${view === "tags" ? "active" : ""}`} onClick={() => setView("tags")}>
+            <span className="nav-icon">🏷️</span>Tags
+          </button>
+          <button className="nav-plus" onClick={() => setView("add")}>+</button>
+          <button className={`nav-item ${view === "export" ? "active" : ""}`} onClick={() => setView("export")}>
+            <span className="nav-icon">📤</span>Export
+          </button>
+          <button className={`nav-item ${view === "settings" ? "active" : ""}`} onClick={() => setView("settings")}>
+            <span className="nav-icon">⚙️</span>Settings
+          </button>
+        </nav>
+      );
+    }
+
+    function AddRecord({ tags, setTags, records, setRecords }) {
+      const [form, setForm] = useState({
+        occurredAt: new Date().toISOString().slice(0, 16),
+        hasUrination: true,
+        hasDefecation: false,
+        urinationDescription: "",
+        defecationDescription: "",
+        urinationTagInput: "",
+        defecationTagInput: "",
+        urinationTags: [],
+        defecationTags: []
+      });
+
+      function update(key, value) {
+        setForm(prev => ({ ...prev, [key]: value }));
+      }
+
+      function ensureTag(name, type) {
+        const normalized = normalizeTag(name);
+        if (!normalized) return null;
+
+        const found = tags.find(t => normalizeTag(t.name) === normalized && t.type === type);
+        if (found) return found.id;
+
+        const newTag = {
+          id: uid(),
+          name: name.trim(),
+          colorHex: randomHexColor(),
+          type
+        };
+
+        setTags(prev => [...prev, newTag]);
+        return newTag.id;
+      }
+
+      function addTag(type) {
+        const inputKey = type === "pee" ? "urinationTagInput" : "defecationTagInput";
+        const listKey = type === "pee" ? "urinationTags" : "defecationTags";
+        const id = ensureTag(form[inputKey], type);
+        if (!id) return;
+
+        update(listKey, [...new Set([...form[listKey], id])]);
+        update(inputKey, "");
+      }
+
+      function removeTag(type, id) {
+        const listKey = type === "pee" ? "urinationTags" : "defecationTags";
+        update(listKey, form[listKey].filter(x => x !== id));
+      }
+
+      function save() {
+        if (!form.hasUrination && !form.hasDefecation) {
+          alert("Select urination, defecation, or both.");
+          return;
+        }
+
+        setRecords([
+          {
+            id: uid(),
+            occurredAt: form.occurredAt,
+            hasUrination: form.hasUrination,
+            hasDefecation: form.hasDefecation,
+            urinationDescription: form.urinationDescription,
+            defecationDescription: form.defecationDescription,
+            urinationTags: form.urinationTags,
+            defecationTags: form.defecationTags
+          },
+          ...records
+        ]);
+
+        setForm({
+          occurredAt: new Date().toISOString().slice(0, 16),
+          hasUrination: true,
+          hasDefecation: false,
+          urinationDescription: "",
+          defecationDescription: "",
+          urinationTagInput: "",
+          defecationTagInput: "",
+          urinationTags: [],
+          defecationTags: []
+        });
+      }
+
+      return (
+        <>
+          <Topbar title="Add Record" action={<button className="btn secondary" onClick={() => update("occurredAt", new Date().toISOString().slice(0, 16))}>Now</button>} />
+
+          <main className="screen">
+            <div className="field-card">
+              <div className="field">
+                <label>Date and time</label>
+                <input type="datetime-local" value={form.occurredAt} onChange={e => update("occurredAt", e.target.value)} />
+              </div>
+            </div>
+
+            <Toggle label="Urination" icon="💧" value={form.hasUrination} onClick={() => update("hasUrination", !form.hasUrination)} />
+
+            {form.hasUrination && (
+              <div className="field-card">
+                <div className="field">
+                  <label>Urination description</label>
+                  <textarea value={form.urinationDescription} onChange={e => update("urinationDescription", e.target.value)} placeholder="No discomfort." />
+                </div>
+
+                <TagInput
+                  label="Urination tags"
+                  value={form.urinationTagInput}
+                  onChange={v => update("urinationTagInput", v)}
+                  onEnter={() => addTag("pee")}
+                />
+
+                <TagChips tagIds={form.urinationTags} tags={tags} onRemove={id => removeTag("pee", id)} />
+              </div>
+            )}
+
+            <Toggle label="Defecation" icon="💩" value={form.hasDefecation} onClick={() => update("hasDefecation", !form.hasDefecation)} />
+
+            {form.hasDefecation && (
+              <div className="field-card">
+                <div className="field">
+                  <label>Defecation description</label>
+                  <textarea value={form.defecationDescription} onChange={e => update("defecationDescription", e.target.value)} placeholder="Write something..." />
+                </div>
+
+                <TagInput
+                  label="Defecation tags"
+                  value={form.defecationTagInput}
+                  onChange={v => update("defecationTagInput", v)}
+                  onEnter={() => addTag("poop")}
+                />
+
+                <TagChips tagIds={form.defecationTags} tags={tags} onRemove={id => removeTag("poop", id)} />
+              </div>
+            )}
+
+            <button className="btn full" onClick={save}>Save Record</button>
+          </main>
+        </>
+      );
+    }
+
+    function Toggle({ label, icon, value, onClick }) {
+      return (
+        <div className="toggle">
+          <div className="toggle-left">
+            <div className="cute-icon">{icon}</div>
+            {label}
+          </div>
+          <div className={`switch ${value ? "on" : ""}`} onClick={onClick}>
+            <div className="knob"></div>
+          </div>
+        </div>
+      );
+    }
+
+    function TagInput({ label, value, onChange, onEnter }) {
+      return (
+        <div className="field">
+          <label>{label}</label>
+          <input
+            value={value}
+            placeholder="Type a tag and press Enter"
+            onChange={e => onChange(e.target.value)}
+            onKeyDown={e => {
+              if (e.key === "Enter") {
+                e.preventDefault();
+                onEnter();
+              }
+            }}
+          />
+        </div>
+      );
+    }
+
+    function TagChips({ tagIds, tags, onRemove }) {
+      return (
+        <div className="chips">
+          {tagIds.map(id => {
+            const tag = tags.find(t => t.id === id);
+            if (!tag) return null;
+            return (
+              <span className="chip" style={{ background: tag.colorHex || "#FFE8A3" }} key={id}>
+                {tag.name}
+                {onRemove && <button onClick={() => onRemove(id)}>×</button>}
+              </span>
+            );
+          })}
+        </div>
+      );
+    }
+
+    function History({ records, tags, filters, setModal }) {
+      const filtered = records.filter(r => {
+        if (!filters.urination && r.hasUrination) return false;
+        if (!filters.defecation && r.hasDefecation) return false;
+        if (filters.from && r.occurredAt < filters.from) return false;
+        if (filters.to && r.occurredAt > filters.to) return false;
+
+        if (filters.tagIds.length) {
+          const all = [...r.urinationTags, ...r.defecationTags];
+          if (!filters.tagIds.some(id => all.includes(id))) return false;
+        }
+
+        return true;
+      });
+
+      return (
+        <>
+          <Topbar title="History" action={<button className="btn secondary" onClick={() => setModal({ type: "filters" })}>Filters</button>} />
+          <main className="screen">
+            {filtered.length === 0 && <div className="empty muted">No records found.</div>}
+
+            {filtered.map(record => (
+              <div className="card history-card" key={record.id}>
+                <div className="time">
+                  {new Date(record.occurredAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                </div>
+                <div className="record-body">
+                  <strong>
+                    {record.hasUrination && record.hasDefecation
+                      ? "Urination + Defecation"
+                      : record.hasUrination
+                      ? "Urination"
+                      : "Defecation"}
+                  </strong>
+
+                  {record.hasUrination && <TagChips tagIds={record.urinationTags} tags={tags} />}
+                  {record.hasDefecation && <TagChips tagIds={record.defecationTags} tags={tags} />}
+
+                  {record.urinationDescription && <p className="muted">{record.urinationDescription}</p>}
+                  {record.defecationDescription && <p className="muted">{record.defecationDescription}</p>}
+                </div>
+              </div>
+            ))}
+          </main>
+        </>
+      );
+    }
+
+    function Tags({ tags, setModal, records }) {
+      const [tab, setTab] = useState("pee");
+      const [deleteMode, setDeleteMode] = useState(false);
+      const [selected, setSelected] = useState([]);
+
+      const visibleTags = tags.filter(t => t.type === tab);
+
+      const usage = id => records.reduce((sum, r) => {
+        return sum + r.urinationTags.filter(x => x === id).length + r.defecationTags.filter(x => x === id).length;
+      }, 0);
+
+      function toggleSelected(id) {
+        setSelected(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]);
+      }
+
+      return (
+        <>
+          <Topbar
+            title="Tags"
+            action={
+              <div className="row">
+                <button className="btn secondary" onClick={() => setDeleteMode(!deleteMode)}>
+                  {deleteMode ? "Cancel" : "Delete"}
+                </button>
+                <button className="btn secondary" onClick={() => setModal({ type: "editTag", tagType: tab })}>
+                  + New Tag
+                </button>
+              </div>
+            }
+          />
+          <main className="screen">
+            <div className="tabs">
+              <button className={`tab ${tab === "pee" ? "active" : ""}`} onClick={() => { setTab("pee"); setSelected([]); }}>
+                Pee
+              </button>
+              <button className={`tab ${tab === "poop" ? "active" : ""}`} onClick={() => { setTab("poop"); setSelected([]); }}>
+                Poop
+              </button>
+            </div>
+
+            {visibleTags.map(tag => (
+              <div
+                className="card row space"
+                key={tag.id}
+                onClick={() => deleteMode ? toggleSelected(tag.id) : setModal({ type: "editTag", tagId: tag.id, tagType: tab })}
+              >
+                <div className="row">
+                  {deleteMode && <strong>{selected.includes(tag.id) ? "✓" : "○"}</strong>}
+                  <div className="tag-dot" style={{ background: tag.colorHex || "#FFE8A3" }}></div>
+                  <div>
+                    <strong>{tag.name}</strong>
+                    <div className="muted">{usage(tag.id)} uses</div>
+                  </div>
+                </div>
+                {!deleteMode && <strong>›</strong>}
+              </div>
+            ))}
+
+            {deleteMode && (
+              <button
+                className="btn danger full"
+                disabled={selected.length === 0}
+                onClick={() => setModal({ type: "deleteSelectedTags", tagIds: selected, onDone: () => { setSelected([]); setDeleteMode(false); } })}
+              >
+                Delete selected tags
+              </button>
+            )}
+          </main>
+        </>
+      );
+    }
+
+    function ExportView({ records, tags }) {
+      return (
+        <>
+          <Topbar title="Export" />
+          <main className="screen">
+            <div className="export-hero card">
+              <div className="panda">🐼📄</div>
+              <h2>Export your data</h2>
+              <p className="muted">Export one row per urination or defecation event.</p>
+              <button className="btn full" onClick={() => downloadCsv(records, tags)}>Export CSV</button>
+            </div>
+          </main>
+        </>
+      );
+    }
+
+    function Settings({ setModal }) {
+      return (
+        <>
+          <Topbar title="Settings" />
+          <main className="screen">
+            <div className="card" onClick={() => setModal({ type: "deleteAllData" })}>
+              <strong>Delete all app data</strong>
+              <p className="muted">Deletes all records and tags after confirmation.</p>
+            </div>
+
+            <div className="card">
+              <strong>Privacy</strong>
+              <p className="muted">All data is stored only on this device. No login, cloud, analytics, Firebase, Google services, Meta services, or tracking.</p>
+            </div>
+
+            <div className="card">
+              <strong>About</strong>
+              <p className="muted">PeePoop Log<br />Version 0.1.0<br />Developer contact: your.email@example.com</p>
+            </div>
+          </main>
+        </>
+      );
+    }
+
+    function ModalRoot({ modal, setModal, tags, setTags, records, setRecords, filters, setFilters }) {
+      if (modal.type === "filters") {
+        return <FilterModal tags={tags} filters={filters} setFilters={setFilters} close={() => setModal(null)} />;
+      }
+
+      if (modal.type === "editTag") {
+        const tag = tags.find(t => t.id === modal.tagId);
+        return <EditTagModal tag={tag} tagType={modal.tagType} tags={tags} setTags={setTags} setModal={setModal} />;
+      }
+
+      if (modal.type === "deleteSelectedTags") {
+        return (
+          <ConfirmModal
+            title="Delete selected tags?"
+            text="Selected tags will be removed from all records that use them. Records and descriptions will remain."
+            confirm="Delete"
+            onCancel={() => setModal(null)}
+            onConfirm={() => {
+              setTags(tags.filter(t => !modal.tagIds.includes(t.id)));
+              setRecords(records.map(r => ({
+                ...r,
+                urinationTags: r.urinationTags.filter(id => !modal.tagIds.includes(id)),
+                defecationTags: r.defecationTags.filter(id => !modal.tagIds.includes(id))
+              })));
+              modal.onDone?.();
+              setModal(null);
+            }}
+          />
+        );
+      }
+
+      if (modal.type === "deleteAllData") {
+        return (
+          <ConfirmModal
+            poop
+            title="Delete all app data?"
+            text="This will permanently delete all records and tags. This action cannot be undone."
+            confirm="Delete"
+            onCancel={() => setModal(null)}
+            onConfirm={() => {
+              setTags([]);
+              setRecords([]);
+              setModal(null);
+            }}
+          />
+        );
+      }
+
+      return null;
+    }
+
+    function FilterModal({ tags, filters, setFilters, close }) {
+      const [local, setLocal] = useState(filters);
+
+      function toggleTag(id) {
+        setLocal(prev => ({
+          ...prev,
+          tagIds: prev.tagIds.includes(id)
+            ? prev.tagIds.filter(x => x !== id)
+            : [...prev.tagIds, id]
+        }));
+      }
+
+      return (
+        <div className="modal-backdrop">
+          <div className="modal">
+            <h2>Filters</h2>
+
+            <div className="field">
+              <label>From</label>
+              <input type="datetime-local" value={local.from} onChange={e => setLocal({ ...local, from: e.target.value })} />
+            </div>
+
+            <div className="field">
+              <label>To</label>
+              <input type="datetime-local" value={local.to} onChange={e => setLocal({ ...local, to: e.target.value })} />
+            </div>
+
+            <Toggle label="Urination" icon="💧" value={local.urination} onClick={() => setLocal({ ...local, urination: !local.urination })} />
+            <Toggle label="Defecation" icon="💩" value={local.defecation} onClick={() => setLocal({ ...local, defecation: !local.defecation })} />
+
+            <div className="section-title">Tags</div>
+            {tags.map(tag => (
+              <div className="card row space" key={tag.id} onClick={() => toggleTag(tag.id)}>
+                <div className="row">
+                  <div className="tag-dot" style={{ background: tag.colorHex || "#FFE8A3" }}></div>
+                  <strong>{tag.name}</strong>
+                </div>
+                <div>{local.tagIds.includes(tag.id) ? "✓" : ""}</div>
+              </div>
+            ))}
+
+            <div className="modal-actions">
+              <button className="btn outline" onClick={() => setLocal({ urination: true, defecation: true, tagIds: [], from: "", to: "" })}>Clear</button>
+              <button className="btn" onClick={() => { setFilters(local); close(); }}>Apply</button>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    function EditTagModal({ tag, tagType, tags, setTags, setModal }) {
+      const [name, setName] = useState(tag?.name || "");
+      const [colorHex, setColorHex] = useState(normalizeHex(tag?.colorHex || randomHexColor()));
+
+      function updateColor(value) {
+        setColorHex(normalizeHex(value));
+      }
+
+      function save() {
+        const normalized = normalizeTag(name);
+        if (!normalized) return alert("Tag name is required.");
+
+        const duplicate = tags.some(t => t.id !== tag?.id && normalizeTag(t.name) === normalized && t.type === (tag?.type || tagType));
+        if (duplicate) return alert("Tag already exists.");
+
+        if (tag) {
+          setTags(tags.map(t => t.id === tag.id ? { ...t, name: name.trim(), colorHex: normalizeHex(colorHex) } : t));
+        } else {
+          setTags([...tags, { id: uid(), name: name.trim(), colorHex: normalizeHex(colorHex), type: tagType }]);
+        }
+
+        setModal(null);
+      }
+
+      return (
+        <div className="modal-backdrop">
+          <div className="modal center">
+            <h2>{tag ? "Edit Tag" : "New Tag"}</h2>
+
+            <div className="field">
+              <label>Name</label>
+              <input value={name} onChange={e => setName(e.target.value)} />
+            </div>
+
+            <div className="field">
+              <label>Color</label>
+              <input
+                className="native-color-picker"
+                type="color"
+                value={normalizeHex(colorHex)}
+                onChange={e => updateColor(e.target.value)}
+              />
+            </div>
+
+            <div className="field">
+              <label>Hexadecimal color</label>
+              <div className="color-picker-row">
+                <div className="color-preview" style={{ background: normalizeHex(colorHex) }}></div>
+                <input value={colorHex} onChange={e => setColorHex(e.target.value)} onBlur={e => updateColor(e.target.value)} />
+              </div>
+            </div>
+
+            <div className="modal-actions">
+              <button className="btn outline" onClick={() => setModal(null)}>Cancel</button>
+              <button className="btn" onClick={save}>Save</button>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    function ConfirmModal({ title, text, confirm, onCancel, onConfirm, poop }) {
+      return (
+        <div className="modal-backdrop">
+          <div className="modal center">
+            {poop && <div className="poop">💩💕</div>}
+            <h2>{title}</h2>
+            <p className="muted" style={{ textAlign: "center" }}>{text}</p>
+
+            <div className="modal-actions">
+              <button className="btn outline" onClick={onCancel}>Cancel</button>
+              <button className="btn danger" onClick={onConfirm}>{confirm}</button>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+  </script>
+</body>
+</html>
