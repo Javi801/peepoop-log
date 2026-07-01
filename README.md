@@ -69,9 +69,9 @@ Users can:
 * Assign colors to tags.
 * Use multiple tags per urination or defecation detail.
 
-Tags are global and reused across records.
+Each tag belongs to one event type (urination or defecation) and is reused across records of that type.
 
-Duplicate tags are not allowed. Tag uniqueness is based on normalized names using:
+Duplicate tags are not allowed within the same event type. Tag uniqueness is based on the event type plus the normalized name using:
 
 ```text
 lower(trim(name))
