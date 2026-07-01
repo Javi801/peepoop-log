@@ -1,0 +1,159 @@
+import 'dart:math';
+
+import 'package:drift/drift.dart' hide isNull, isNotNull;
+import 'package:drift/native.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:peepoop_log/data/db/app_database.dart';
+import 'package:peepoop_log/data/models/event_type.dart';
+import 'package:peepoop_log/data/models/record_models.dart';
+import 'package:peepoop_log/data/models/tag_models.dart';
+import 'package:peepoop_log/data/repositories/record_repository.dart';
+import 'package:peepoop_log/data/repositories/tag_repository.dart';
+
+void main() {
+  late AppDatabase db;
+  late TagRepository repository;
+
+  setUp(() {
+    driftRuntimeOptions.dontWarnAboutMultipleDatabases = true;
+    db = AppDatabase(NativeDatabase.memory());
+    repository = TagRepository(db, random: Random(1));
+  });
+
+  tearDown(() => db.close());
+
+  group('normalizeHexColor', () {
+    test('normalizes casing and missing #', () {
+      expect(TagRepository.normalizeHexColor('a1b2c3'), '#A1B2C3');
+      expect(TagRepository.normalizeHexColor(' #ffe8a3 '), '#FFE8A3');
+    });
+
+    test('rejects invalid values', () {
+      expect(() => TagRepository.normalizeHexColor('red'), throwsArgumentError);
+      expect(() => TagRepository.normalizeHexColor('#FFF'), throwsArgumentError);
+    });
+  });
+
+  group('ensureTag', () {
+    test('creates a new tag with a palette color and normalized name',
+        () async {
+      final tag = await repository.ensureTag(' Light Yellow ', EventType.urination);
+
+      expect(tag.name, 'Light Yellow');
+      expect(tag.normalizedName, 'light yellow');
+      expect(tag.type, EventType.urination);
+      expect(TagRepository.defaultPalette, contains(tag.colorHex));
+    });
+
+    test('reuses an existing tag ignoring case and whitespace', () async {
+      final original = await repository.ensureTag('pain', EventType.urination);
+      final reused = await repository.ensureTag('  PAIN ', EventType.urination);
+
+      expect(reused.id, original.id);
+      expect(await db.select(db.tags).get(), hasLength(1));
+    });
+
+    test('creates independent tags per event type', () async {
+      final pee = await repository.ensureTag('pain', EventType.urination);
+      final poop = await repository.ensureTag('pain', EventType.defecation);
+
+      expect(pee.id, isNot(poop.id));
+    });
+
+    test('rejects empty names', () async {
+      await expectLater(
+          repository.ensureTag('  ', EventType.urination), throwsArgumentError);
+    });
+  });
+
+  group('createTag', () {
+    test('throws DuplicateTagException on same normalized name and type',
+        () async {
+      await repository.createTag(name: 'pain', type: EventType.urination);
+      await expectLater(
+        repository.createTag(name: ' Pain ', type: EventType.urination),
+        throwsA(isA<DuplicateTagException>()),
+      );
+    });
+
+    test('stores a normalized explicit color', () async {
+      final tag = await repository.createTag(
+        name: 'yellow',
+        type: EventType.urination,
+        colorHex: 'ffe8a3',
+      );
+      expect(tag.colorHex, '#FFE8A3');
+    });
+  });
+
+  group('updateTag', () {
+    test('renames and updates the normalized name', () async {
+      final tag = await repository.createTag(name: 'pain', type: EventType.urination);
+      final renamed = await repository.updateTag(id: tag.id, name: ' Strong Pain ');
+
+      expect(renamed.name, 'Strong Pain');
+      expect(renamed.normalizedName, 'strong pain');
+    });
+
+    test('rejects renaming into an existing tag of the same type', () async {
+      await repository.createTag(name: 'pain', type: EventType.urination);
+      final other = await repository.createTag(name: 'urgent', type: EventType.urination);
+
+      await expectLater(
+        repository.updateTag(id: other.id, name: 'PAIN'),
+        throwsA(isA<DuplicateTagException>()),
+      );
+    });
+
+    test('allows re-saving the same tag with its own name', () async {
+      final tag = await repository.createTag(name: 'pain', type: EventType.urination);
+      final updated = await repository.updateTag(id: tag.id, name: 'Pain', colorHex: '#CFEEFF');
+
+      expect(updated.id, tag.id);
+      expect(updated.name, 'Pain');
+      expect(updated.colorHex, '#CFEEFF');
+    });
+  });
+
+  group('watchTagsWithUsage', () {
+    test('orders by usage count and includes unused tags', () async {
+      final records = RecordRepository(db);
+      final pain = await repository.ensureTag('pain', EventType.urination);
+      final urgent = await repository.ensureTag('urgent', EventType.urination);
+      await repository.ensureTag('unused', EventType.urination);
+      await repository.ensureTag('poop tag', EventType.defecation);
+
+      for (var i = 0; i < 2; i++) {
+        await records.createRecord(RecordDraft(
+          occurredAt: DateTime.utc(2026, 6, 19 + i),
+          hasUrination: true,
+          urinationTagIds: [pain.id, if (i == 0) urgent.id],
+        ));
+      }
+
+      final usage = await repository.watchTagsWithUsage(EventType.urination).first;
+
+      expect(usage.map((u) => u.tag.name).toList(), ['pain', 'urgent', 'unused']);
+      expect(usage.map((u) => u.usageCount).toList(), [2, 1, 0]);
+    });
+  });
+
+  group('deleteTags', () {
+    test('removes associations but keeps records', () async {
+      final records = RecordRepository(db);
+      final pain = await repository.ensureTag('pain', EventType.urination);
+      final recordId = await records.createRecord(RecordDraft(
+        occurredAt: DateTime.utc(2026, 6, 19),
+        hasUrination: true,
+        urinationTagIds: [pain.id],
+      ));
+
+      await repository.deleteTags([pain.id]);
+
+      final record = await records.getRecord(recordId);
+      expect(record, isNotNull);
+      expect(record!.urinationTags, isEmpty);
+      expect(await db.select(db.tags).get(), isEmpty);
+    });
+  });
+}
