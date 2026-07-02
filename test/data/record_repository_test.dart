@@ -26,15 +26,17 @@ void main() {
       final yellow = await tags.ensureTag('yellow', EventType.urination);
       final smell = await tags.ensureTag('smell', EventType.defecation);
 
-      final id = await repository.createRecord(RecordDraft(
-        occurredAt: DateTime.utc(2026, 6, 19, 8, 30),
-        hasUrination: true,
-        hasDefecation: true,
-        urinationDescription: 'pee note',
-        defecationDescription: 'poop note',
-        urinationTagIds: [yellow.id],
-        defecationTagIds: [smell.id],
-      ));
+      final id = await repository.createRecord(
+        RecordDraft(
+          occurredAt: DateTime.utc(2026, 6, 19, 8, 30),
+          hasUrination: true,
+          hasDefecation: true,
+          urinationDescription: 'pee note',
+          defecationDescription: 'poop note',
+          urinationTagIds: [yellow.id],
+          defecationTagIds: [smell.id],
+        ),
+      );
 
       final saved = await repository.getRecord(id);
       expect(saved, isNotNull);
@@ -47,11 +49,13 @@ void main() {
     });
 
     test('normalizes blank descriptions to null', () async {
-      final id = await repository.createRecord(RecordDraft(
-        occurredAt: DateTime.utc(2026, 6, 19),
-        hasUrination: true,
-        urinationDescription: '   ',
-      ));
+      final id = await repository.createRecord(
+        RecordDraft(
+          occurredAt: DateTime.utc(2026, 6, 19),
+          hasUrination: true,
+          urinationDescription: '   ',
+        ),
+      );
 
       final saved = await repository.getRecord(id);
       expect(saved!.record.urinationDescription, isNull);
@@ -60,7 +64,8 @@ void main() {
     test('rejects a record with no event type', () async {
       await expectLater(
         repository.createRecord(
-            RecordDraft(occurredAt: DateTime.utc(2026, 6, 19))),
+          RecordDraft(occurredAt: DateTime.utc(2026, 6, 19)),
+        ),
         throwsArgumentError,
       );
     });
@@ -68,11 +73,13 @@ void main() {
     test('rejects details for an unselected event type', () async {
       final smell = await tags.ensureTag('smell', EventType.defecation);
       await expectLater(
-        repository.createRecord(RecordDraft(
-          occurredAt: DateTime.utc(2026, 6, 19),
-          hasUrination: true,
-          defecationTagIds: [smell.id],
-        )),
+        repository.createRecord(
+          RecordDraft(
+            occurredAt: DateTime.utc(2026, 6, 19),
+            hasUrination: true,
+            defecationTagIds: [smell.id],
+          ),
+        ),
         throwsArgumentError,
       );
     });
@@ -80,22 +87,26 @@ void main() {
     test('rejects tags whose type does not match the detail', () async {
       final smell = await tags.ensureTag('smell', EventType.defecation);
       await expectLater(
-        repository.createRecord(RecordDraft(
-          occurredAt: DateTime.utc(2026, 6, 19),
-          hasUrination: true,
-          urinationTagIds: [smell.id],
-        )),
+        repository.createRecord(
+          RecordDraft(
+            occurredAt: DateTime.utc(2026, 6, 19),
+            hasUrination: true,
+            urinationTagIds: [smell.id],
+          ),
+        ),
         throwsArgumentError,
       );
     });
 
     test('rejects unknown tag ids', () async {
       await expectLater(
-        repository.createRecord(RecordDraft(
-          occurredAt: DateTime.utc(2026, 6, 19),
-          hasUrination: true,
-          urinationTagIds: [123],
-        )),
+        repository.createRecord(
+          RecordDraft(
+            occurredAt: DateTime.utc(2026, 6, 19),
+            hasUrination: true,
+            urinationTagIds: [123],
+          ),
+        ),
         throwsArgumentError,
       );
     });
@@ -105,12 +116,14 @@ void main() {
     test('replaces fields and tag associations', () async {
       final yellow = await tags.ensureTag('yellow', EventType.urination);
       final urgent = await tags.ensureTag('urgent', EventType.urination);
-      final id = await repository.createRecord(RecordDraft(
-        occurredAt: DateTime.utc(2026, 6, 19, 8, 30),
-        hasUrination: true,
-        urinationDescription: 'before',
-        urinationTagIds: [yellow.id],
-      ));
+      final id = await repository.createRecord(
+        RecordDraft(
+          occurredAt: DateTime.utc(2026, 6, 19, 8, 30),
+          hasUrination: true,
+          urinationDescription: 'before',
+          urinationTagIds: [yellow.id],
+        ),
+      );
 
       await repository.updateRecord(
         id,
@@ -130,20 +143,19 @@ void main() {
 
     test('clears details when an event type is deselected', () async {
       final yellow = await tags.ensureTag('yellow', EventType.urination);
-      final id = await repository.createRecord(RecordDraft(
-        occurredAt: DateTime.utc(2026, 6, 19),
-        hasUrination: true,
-        hasDefecation: true,
-        urinationDescription: 'pee note',
-        urinationTagIds: [yellow.id],
-      ));
+      final id = await repository.createRecord(
+        RecordDraft(
+          occurredAt: DateTime.utc(2026, 6, 19),
+          hasUrination: true,
+          hasDefecation: true,
+          urinationDescription: 'pee note',
+          urinationTagIds: [yellow.id],
+        ),
+      );
 
       await repository.updateRecord(
         id,
-        RecordDraft(
-          occurredAt: DateTime.utc(2026, 6, 19),
-          hasDefecation: true,
-        ),
+        RecordDraft(occurredAt: DateTime.utc(2026, 6, 19), hasDefecation: true),
       );
 
       final saved = await repository.getRecord(id);
@@ -156,7 +168,10 @@ void main() {
       await expectLater(
         repository.updateRecord(
           999,
-          RecordDraft(occurredAt: DateTime.utc(2026, 6, 19), hasUrination: true),
+          RecordDraft(
+            occurredAt: DateTime.utc(2026, 6, 19),
+            hasUrination: true,
+          ),
         ),
         throwsStateError,
       );
@@ -174,21 +189,27 @@ void main() {
       yellow = await tags.ensureTag('yellow', EventType.urination);
       smell = await tags.ensureTag('smell', EventType.defecation);
 
-      peeOnly = await repository.createRecord(RecordDraft(
-        occurredAt: DateTime.utc(2026, 6, 19, 8, 0),
-        hasUrination: true,
-        urinationTagIds: [yellow.id],
-      ));
-      poopOnly = await repository.createRecord(RecordDraft(
-        occurredAt: DateTime.utc(2026, 6, 20, 12, 0),
-        hasDefecation: true,
-        defecationTagIds: [smell.id],
-      ));
-      mixed = await repository.createRecord(RecordDraft(
-        occurredAt: DateTime.utc(2026, 6, 21, 18, 0),
-        hasUrination: true,
-        hasDefecation: true,
-      ));
+      peeOnly = await repository.createRecord(
+        RecordDraft(
+          occurredAt: DateTime.utc(2026, 6, 19, 8, 0),
+          hasUrination: true,
+          urinationTagIds: [yellow.id],
+        ),
+      );
+      poopOnly = await repository.createRecord(
+        RecordDraft(
+          occurredAt: DateTime.utc(2026, 6, 20, 12, 0),
+          hasDefecation: true,
+          defecationTagIds: [smell.id],
+        ),
+      );
+      mixed = await repository.createRecord(
+        RecordDraft(
+          occurredAt: DateTime.utc(2026, 6, 21, 18, 0),
+          hasUrination: true,
+          hasDefecation: true,
+        ),
+      );
     });
 
     Future<List<int>> idsFor(RecordFilter filter) async {
@@ -201,40 +222,42 @@ void main() {
     });
 
     test('hides records containing a disabled event type', () async {
-      expect(
-        await idsFor(const RecordFilter(includeDefecation: false)),
-        [peeOnly],
-      );
-      expect(
-        await idsFor(const RecordFilter(includeUrination: false)),
-        [poopOnly],
-      );
+      expect(await idsFor(const RecordFilter(includeDefecation: false)), [
+        peeOnly,
+      ]);
+      expect(await idsFor(const RecordFilter(includeUrination: false)), [
+        poopOnly,
+      ]);
     });
 
     test('filters by date range inclusively', () async {
       expect(
-        await idsFor(RecordFilter(
-          from: DateTime.utc(2026, 6, 20),
-          to: DateTime.utc(2026, 6, 20, 23, 59),
-        )),
+        await idsFor(
+          RecordFilter(
+            from: DateTime.utc(2026, 6, 20),
+            to: DateTime.utc(2026, 6, 20, 23, 59),
+          ),
+        ),
         [poopOnly],
       );
     });
 
     test('matches records having any of the selected tags', () async {
-      expect(
-        await idsFor(RecordFilter(tagIds: [yellow.id, smell.id])),
-        [poopOnly, peeOnly],
-      );
+      expect(await idsFor(RecordFilter(tagIds: [yellow.id, smell.id])), [
+        poopOnly,
+        peeOnly,
+      ]);
     });
 
     test('combines filters', () async {
       expect(
-        await idsFor(RecordFilter(
-          includeDefecation: false,
-          from: DateTime.utc(2026, 6, 19),
-          tagIds: [yellow.id],
-        )),
+        await idsFor(
+          RecordFilter(
+            includeDefecation: false,
+            from: DateTime.utc(2026, 6, 19),
+            tagIds: [yellow.id],
+          ),
+        ),
         [peeOnly],
       );
     });
@@ -247,10 +270,12 @@ void main() {
 
   group('deletes', () {
     test('deletes selected records and all records', () async {
-      final a = await repository.createRecord(RecordDraft(
-          occurredAt: DateTime.utc(2026, 6, 19), hasUrination: true));
-      final b = await repository.createRecord(RecordDraft(
-          occurredAt: DateTime.utc(2026, 6, 20), hasUrination: true));
+      final a = await repository.createRecord(
+        RecordDraft(occurredAt: DateTime.utc(2026, 6, 19), hasUrination: true),
+      );
+      final b = await repository.createRecord(
+        RecordDraft(occurredAt: DateTime.utc(2026, 6, 20), hasUrination: true),
+      );
 
       await repository.deleteRecord(a);
       expect((await repository.getRecords()).map((r) => r.record.id), [b]);
@@ -261,11 +286,13 @@ void main() {
 
     test('deleteAllData clears records and tags', () async {
       final yellow = await tags.ensureTag('yellow', EventType.urination);
-      await repository.createRecord(RecordDraft(
-        occurredAt: DateTime.utc(2026, 6, 19),
-        hasUrination: true,
-        urinationTagIds: [yellow.id],
-      ));
+      await repository.createRecord(
+        RecordDraft(
+          occurredAt: DateTime.utc(2026, 6, 19),
+          hasUrination: true,
+          urinationTagIds: [yellow.id],
+        ),
+      );
 
       await repository.deleteAllData();
 

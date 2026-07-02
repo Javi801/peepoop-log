@@ -20,7 +20,9 @@ void main() {
     String? urinationDescription,
     String? defecationDescription,
   }) async {
-    final row = await db.into(db.records).insertReturning(
+    final row = await db
+        .into(db.records)
+        .insertReturning(
           RecordsCompanion.insert(
             occurredAt: DateTime.utc(2026, 6, 19, 8, 30),
             hasUrination: Value(urination),
@@ -33,12 +35,16 @@ void main() {
   }
 
   Future<int> insertTag(String name, EventType type) async {
-    final row = await db.into(db.tags).insertReturning(TagsCompanion.insert(
-          name: name,
-          normalizedName: name.trim().toLowerCase(),
-          type: type,
-          colorHex: '#FFE8A3',
-        ));
+    final row = await db
+        .into(db.tags)
+        .insertReturning(
+          TagsCompanion.insert(
+            name: name,
+            normalizedName: name.trim().toLowerCase(),
+            type: type,
+            colorHex: '#FFE8A3',
+          ),
+        );
     return row.id;
   }
 
@@ -105,11 +111,15 @@ void main() {
     test('rejects a duplicated record/tag association', () async {
       final recordId = await insertRecord();
       final tagId = await insertTag('urgent', EventType.urination);
-      await db.into(db.recordTags).insert(
-          RecordTagsCompanion.insert(recordId: recordId, tagId: tagId));
+      await db
+          .into(db.recordTags)
+          .insert(RecordTagsCompanion.insert(recordId: recordId, tagId: tagId));
       await expectLater(
-        db.into(db.recordTags).insert(
-            RecordTagsCompanion.insert(recordId: recordId, tagId: tagId)),
+        db
+            .into(db.recordTags)
+            .insert(
+              RecordTagsCompanion.insert(recordId: recordId, tagId: tagId),
+            ),
         throwsA(isA<SqliteException>()),
       );
     });
@@ -126,8 +136,9 @@ void main() {
     test('deleting a record cascades to its associations', () async {
       final recordId = await insertRecord();
       final tagId = await insertTag('urgent', EventType.urination);
-      await db.into(db.recordTags).insert(
-          RecordTagsCompanion.insert(recordId: recordId, tagId: tagId));
+      await db
+          .into(db.recordTags)
+          .insert(RecordTagsCompanion.insert(recordId: recordId, tagId: tagId));
 
       await (db.delete(db.records)..where((r) => r.id.equals(recordId))).go();
 
@@ -138,8 +149,9 @@ void main() {
     test('deleting a tag cascades to associations but keeps records', () async {
       final recordId = await insertRecord();
       final tagId = await insertTag('urgent', EventType.urination);
-      await db.into(db.recordTags).insert(
-          RecordTagsCompanion.insert(recordId: recordId, tagId: tagId));
+      await db
+          .into(db.recordTags)
+          .insert(RecordTagsCompanion.insert(recordId: recordId, tagId: tagId));
 
       await (db.delete(db.tags)..where((t) => t.id.equals(tagId))).go();
 
