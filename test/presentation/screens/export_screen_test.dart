@@ -26,13 +26,13 @@ void main() {
   tearDown(() => db.close());
 
   Widget app({required Future<void> Function(String) shareCsv}) => AppScope(
-        recordRepository: records,
-        tagRepository: tags,
-        child: MaterialApp(
-          theme: AppTheme.light(),
-          home: ExportScreen(shareCsv: shareCsv),
-        ),
-      );
+    recordRepository: records,
+    tagRepository: tags,
+    child: MaterialApp(
+      theme: AppTheme.light(),
+      home: ExportScreen(shareCsv: shareCsv),
+    ),
+  );
 
   testWidgets('shares the CSV built from all records', (tester) async {
     final urgent = await tags.createTag(
@@ -40,13 +40,15 @@ void main() {
       type: EventType.urination,
       colorHex: '#FFD3D3',
     );
-    await records.createRecord(RecordDraft(
-      occurredAt: DateTime(2026, 6, 22, 8, 30),
-      hasUrination: true,
-      hasDefecation: true,
-      urinationDescription: 'Slight urgency.',
-      urinationTagIds: [urgent.id],
-    ));
+    await records.createRecord(
+      RecordDraft(
+        occurredAt: DateTime(2026, 6, 22, 8, 30),
+        hasUrination: true,
+        hasDefecation: true,
+        urinationDescription: 'Slight urgency.',
+        urinationTagIds: [urgent.id],
+      ),
+    );
 
     String? shared;
     await tester.pumpWidget(app(shareCsv: (csv) async => shared = csv));

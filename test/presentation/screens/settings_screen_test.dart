@@ -26,13 +26,10 @@ void main() {
   tearDown(() => db.close());
 
   Widget app() => AppScope(
-        recordRepository: records,
-        tagRepository: tags,
-        child: MaterialApp(
-          theme: AppTheme.light(),
-          home: const SettingsScreen(),
-        ),
-      );
+    recordRepository: records,
+    tagRepository: tags,
+    child: MaterialApp(theme: AppTheme.light(), home: const SettingsScreen()),
+  );
 
   testWidgets('shows the privacy and about cards', (tester) async {
     await tester.pumpWidget(app());
@@ -42,18 +39,21 @@ void main() {
     expect(find.textContaining('Version 0.1.0'), findsOneWidget);
   });
 
-  testWidgets('delete all app data wipes records and tags after confirmation',
-      (tester) async {
+  testWidgets('delete all app data wipes records and tags after confirmation', (
+    tester,
+  ) async {
     final tag = await tags.createTag(
       name: 'urgent',
       type: EventType.urination,
       colorHex: '#FFD3D3',
     );
-    await records.createRecord(RecordDraft(
-      occurredAt: DateTime(2026, 6, 22, 8, 30),
-      hasUrination: true,
-      urinationTagIds: [tag.id],
-    ));
+    await records.createRecord(
+      RecordDraft(
+        occurredAt: DateTime(2026, 6, 22, 8, 30),
+        hasUrination: true,
+        urinationTagIds: [tag.id],
+      ),
+    );
 
     await tester.pumpWidget(app());
 
@@ -68,10 +68,7 @@ void main() {
 
     expect(find.text('All app data deleted'), findsOneWidget);
     expect(await records.getRecords(), isEmpty);
-    expect(
-      await tags.watchTagsByType(EventType.urination).first,
-      isEmpty,
-    );
+    expect(await tags.watchTagsByType(EventType.urination).first, isEmpty);
 
     // Let the snackbar expire so no timers are pending at teardown.
     await tester.pump(const Duration(seconds: 5));
@@ -79,10 +76,9 @@ void main() {
   });
 
   testWidgets('cancelling the confirmation keeps the data', (tester) async {
-    await records.createRecord(RecordDraft(
-      occurredAt: DateTime(2026, 6, 22, 8, 30),
-      hasUrination: true,
-    ));
+    await records.createRecord(
+      RecordDraft(occurredAt: DateTime(2026, 6, 22, 8, 30), hasUrination: true),
+    );
 
     await tester.pumpWidget(app());
 

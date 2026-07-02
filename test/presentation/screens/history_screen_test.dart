@@ -31,29 +31,31 @@ void main() {
       type: EventType.urination,
       colorHex: '#FFD3D3',
     );
-    await records.createRecord(RecordDraft(
-      occurredAt: DateTime(2026, 6, 22, 8, 30),
-      hasUrination: true,
-      urinationDescription: 'Slight urgency.',
-      urinationTagIds: [urgent.id],
-    ));
-    await records.createRecord(RecordDraft(
-      occurredAt: DateTime(2026, 6, 21, 22, 10),
-      hasDefecation: true,
-    ));
+    await records.createRecord(
+      RecordDraft(
+        occurredAt: DateTime(2026, 6, 22, 8, 30),
+        hasUrination: true,
+        urinationDescription: 'Slight urgency.',
+        urinationTagIds: [urgent.id],
+      ),
+    );
+    await records.createRecord(
+      RecordDraft(
+        occurredAt: DateTime(2026, 6, 21, 22, 10),
+        hasDefecation: true,
+      ),
+    );
   }
 
   Widget app() => AppScope(
-        recordRepository: records,
-        tagRepository: tags,
-        child: MaterialApp(
-          theme: AppTheme.light(),
-          home: const HistoryScreen(),
-        ),
-      );
+    recordRepository: records,
+    tagRepository: tags,
+    child: MaterialApp(theme: AppTheme.light(), home: const HistoryScreen()),
+  );
 
-  testWidgets('shows records with time, type, tags and description',
-      (tester) async {
+  testWidgets('shows records with time, type, tags and description', (
+    tester,
+  ) async {
     await seed();
     await tester.pumpWidget(app());
     await tester.pump();

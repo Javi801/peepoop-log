@@ -25,54 +25,53 @@ void main() {
   tearDown(() => db.close());
 
   Widget app() => AppScope(
-        recordRepository: records,
-        tagRepository: tags,
-        child: MaterialApp(
-          theme: AppTheme.light(),
-          home: const AddRecordScreen(),
+    recordRepository: records,
+    tagRepository: tags,
+    child: MaterialApp(theme: AppTheme.light(), home: const AddRecordScreen()),
+  );
+
+  testWidgets(
+    'saves a urination record with description and tag, then resets',
+    (tester) async {
+      await tester.pumpWidget(app());
+
+      await tester.enterText(find.byType(TextField).first, 'No discomfort.');
+      await tester.enterText(
+        find.descendant(
+          of: find.byType(TagInputField),
+          matching: find.byType(TextField),
         ),
+        'light yellow',
       );
+      await tester.tap(find.byTooltip('Add tag'));
+      await tester.pump();
 
-  testWidgets('saves a urination record with description and tag, then resets',
-      (tester) async {
-    await tester.pumpWidget(app());
+      expect(find.byType(TagChip), findsOneWidget);
 
-    await tester.enterText(find.byType(TextField).first, 'No discomfort.');
-    await tester.enterText(
-      find.descendant(
-        of: find.byType(TagInputField),
-        matching: find.byType(TextField),
-      ),
-      'light yellow',
-    );
-    await tester.tap(find.byTooltip('Add tag'));
-    await tester.pump();
+      await tester.ensureVisible(find.text('Save Record'));
+      await tester.tap(find.text('Save Record'));
+      await tester.pumpAndSettle();
 
-    expect(find.byType(TagChip), findsOneWidget);
+      expect(find.text('Record saved'), findsOneWidget);
 
-    await tester.ensureVisible(find.text('Save Record'));
-    await tester.tap(find.text('Save Record'));
-    await tester.pumpAndSettle();
+      final saved = await records.getRecords();
+      expect(saved, hasLength(1));
+      expect(saved.single.record.hasUrination, isTrue);
+      expect(saved.single.record.hasDefecation, isFalse);
+      expect(saved.single.record.urinationDescription, 'No discomfort.');
+      expect(saved.single.urinationTags.map((t) => t.name), ['light yellow']);
 
-    expect(find.text('Record saved'), findsOneWidget);
+      expect(
+        tester.widget<TextField>(find.byType(TextField).first).controller!.text,
+        isEmpty,
+      );
+      expect(find.byType(TagChip), findsNothing);
 
-    final saved = await records.getRecords();
-    expect(saved, hasLength(1));
-    expect(saved.single.record.hasUrination, isTrue);
-    expect(saved.single.record.hasDefecation, isFalse);
-    expect(saved.single.record.urinationDescription, 'No discomfort.');
-    expect(saved.single.urinationTags.map((t) => t.name), ['light yellow']);
-
-    expect(
-      tester.widget<TextField>(find.byType(TextField).first).controller!.text,
-      isEmpty,
-    );
-    expect(find.byType(TagChip), findsNothing);
-
-    // Let the snackbar expire so no timers are pending at teardown.
-    await tester.pump(const Duration(seconds: 5));
-    await tester.pumpAndSettle();
-  });
+      // Let the snackbar expire so no timers are pending at teardown.
+      await tester.pump(const Duration(seconds: 5));
+      await tester.pumpAndSettle();
+    },
+  );
 
   testWidgets('defecation section appears when toggled', (tester) async {
     await tester.pumpWidget(app());

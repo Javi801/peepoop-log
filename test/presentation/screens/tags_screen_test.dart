@@ -42,25 +42,29 @@ void main() {
       type: EventType.defecation,
       colorHex: '#D9F2C7',
     );
-    await records.createRecord(RecordDraft(
-      occurredAt: DateTime(2026, 6, 22, 8, 30),
-      hasUrination: true,
-      urinationTagIds: [urgent.id],
-    ));
+    await records.createRecord(
+      RecordDraft(
+        occurredAt: DateTime(2026, 6, 22, 8, 30),
+        hasUrination: true,
+        urinationTagIds: [urgent.id],
+      ),
+    );
   }
 
   Widget app() => AppScope(
-        recordRepository: records,
-        tagRepository: tags,
-        child: MaterialApp(theme: AppTheme.light(), home: const TagsScreen()),
-      );
+    recordRepository: records,
+    tagRepository: tags,
+    child: MaterialApp(theme: AppTheme.light(), home: const TagsScreen()),
+  );
 
   Finder dialogField(int index) => find
-      .descendant(of: find.byType(EditTagDialog), matching: find.byType(TextField))
+      .descendant(
+        of: find.byType(EditTagDialog),
+        matching: find.byType(TextField),
+      )
       .at(index);
 
-  testWidgets('lists tags of the active tab with usage counts',
-      (tester) async {
+  testWidgets('lists tags of the active tab with usage counts', (tester) async {
     await seed();
     await tester.pumpWidget(app());
     await tester.pump();
@@ -78,8 +82,9 @@ void main() {
     expect(find.text('urgent'), findsNothing);
   });
 
-  testWidgets('creates a tag for the active tab from the editor',
-      (tester) async {
+  testWidgets('creates a tag for the active tab from the editor', (
+    tester,
+  ) async {
     await seed();
     await tester.pumpWidget(app());
     await tester.pump();
@@ -130,8 +135,9 @@ void main() {
     expect(find.text('urgent'), findsNothing);
   });
 
-  testWidgets('delete mode removes the selected tags after confirmation',
-      (tester) async {
+  testWidgets('delete mode removes the selected tags after confirmation', (
+    tester,
+  ) async {
     await seed();
     await tester.pumpWidget(app());
     await tester.pump();

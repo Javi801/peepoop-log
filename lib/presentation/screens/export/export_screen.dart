@@ -36,10 +36,12 @@ class _ExportScreenState extends State<ExportScreen> {
   }
 
   Future<void> _shareViaSystemSheet(String csv) async {
-    await SharePlus.instance.share(ShareParams(
-      files: [XFile.fromData(utf8.encode(csv), mimeType: 'text/csv')],
-      fileNameOverrides: [CsvExporter.fileName],
-    ));
+    await SharePlus.instance.share(
+      ShareParams(
+        files: [XFile.fromData(utf8.encode(csv), mimeType: 'text/csv')],
+        fileNameOverrides: [CsvExporter.fileName],
+      ),
+    );
   }
 
   @override

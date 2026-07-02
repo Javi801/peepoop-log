@@ -5,12 +5,12 @@ import 'package:peepoop_log/data/models/event_type.dart';
 import 'package:peepoop_log/data/models/record_models.dart';
 
 Tag tag(int id, String name, {EventType type = EventType.urination}) => Tag(
-      id: id,
-      name: name,
-      normalizedName: name.toLowerCase(),
-      type: type,
-      colorHex: '#FFE8A3',
-    );
+  id: id,
+  name: name,
+  normalizedName: name.toLowerCase(),
+  type: type,
+  colorHex: '#FFE8A3',
+);
 
 RecordRow record({
   required DateTime occurredAt,
@@ -18,15 +18,14 @@ RecordRow record({
   bool defecation = false,
   String? urinationDescription,
   String? defecationDescription,
-}) =>
-    RecordRow(
-      id: 1,
-      occurredAt: occurredAt,
-      hasUrination: urination,
-      hasDefecation: defecation,
-      urinationDescription: urinationDescription,
-      defecationDescription: defecationDescription,
-    );
+}) => RecordRow(
+  id: 1,
+  occurredAt: occurredAt,
+  hasUrination: urination,
+  hasDefecation: defecation,
+  urinationDescription: urinationDescription,
+  defecationDescription: defecationDescription,
+);
 
 void main() {
   const exporter = CsvExporter();
