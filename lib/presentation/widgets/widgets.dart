@@ -10,5 +10,6 @@ export 'empty_state.dart';
 export 'labeled_field.dart';
 export 'section_title.dart';
 export 'tag_chips.dart';
+export 'tag_dot.dart';
 export 'tag_input_field.dart';
 export 'toggle_card.dart';
