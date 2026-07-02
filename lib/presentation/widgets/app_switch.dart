@@ -10,8 +10,7 @@ class AppSwitch extends StatelessWidget {
   final bool value;
   final ValueChanged<bool>? onChanged;
 
-  static const _knobPadding =
-      (AppSizes.switchHeight - AppSizes.switchKnob) / 2;
+  static const _knobPadding = (AppSizes.switchHeight - AppSizes.switchKnob) / 2;
 
   @override
   Widget build(BuildContext context) {

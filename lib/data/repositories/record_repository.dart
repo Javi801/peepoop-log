@@ -13,16 +13,21 @@ class RecordRepository {
     return _db.transaction(() async {
       _validateShape(draft);
       await _validateTagTypes(draft);
-      final record =
-          await _db.into(_db.records).insertReturning(RecordsCompanion.insert(
-                occurredAt: draft.occurredAt,
-                hasUrination: Value(draft.hasUrination),
-                hasDefecation: Value(draft.hasDefecation),
-                urinationDescription:
-                    Value(_cleanDescription(draft.urinationDescription)),
-                defecationDescription:
-                    Value(_cleanDescription(draft.defecationDescription)),
-              ));
+      final record = await _db
+          .into(_db.records)
+          .insertReturning(
+            RecordsCompanion.insert(
+              occurredAt: draft.occurredAt,
+              hasUrination: Value(draft.hasUrination),
+              hasDefecation: Value(draft.hasDefecation),
+              urinationDescription: Value(
+                _cleanDescription(draft.urinationDescription),
+              ),
+              defecationDescription: Value(
+                _cleanDescription(draft.defecationDescription),
+              ),
+            ),
+          );
       await _insertAssociations(record.id, draft);
       return record.id;
     });
@@ -34,21 +39,25 @@ class RecordRepository {
       _validateShape(draft);
       await _validateTagTypes(draft);
       final updated =
-          await (_db.update(_db.records)..where((r) => r.id.equals(id)))
-              .write(RecordsCompanion(
-        occurredAt: Value(draft.occurredAt),
-        hasUrination: Value(draft.hasUrination),
-        hasDefecation: Value(draft.hasDefecation),
-        urinationDescription:
-            Value(_cleanDescription(draft.urinationDescription)),
-        defecationDescription:
-            Value(_cleanDescription(draft.defecationDescription)),
-      ));
+          await (_db.update(_db.records)..where((r) => r.id.equals(id))).write(
+            RecordsCompanion(
+              occurredAt: Value(draft.occurredAt),
+              hasUrination: Value(draft.hasUrination),
+              hasDefecation: Value(draft.hasDefecation),
+              urinationDescription: Value(
+                _cleanDescription(draft.urinationDescription),
+              ),
+              defecationDescription: Value(
+                _cleanDescription(draft.defecationDescription),
+              ),
+            ),
+          );
       if (updated == 0) {
         throw StateError('record $id does not exist');
       }
-      await (_db.delete(_db.recordTags)..where((rt) => rt.recordId.equals(id)))
-          .go();
+      await (_db.delete(
+        _db.recordTags,
+      )..where((rt) => rt.recordId.equals(id))).go();
       await _insertAssociations(id, draft);
     });
   }
@@ -71,13 +80,15 @@ class RecordRepository {
     });
   }
 
-  Stream<List<RecordWithTags>> watchRecords(
-      {RecordFilter filter = const RecordFilter()}) {
+  Stream<List<RecordWithTags>> watchRecords({
+    RecordFilter filter = const RecordFilter(),
+  }) {
     return _buildQuery(filter).watch().map(_groupRows);
   }
 
-  Future<List<RecordWithTags>> getRecords(
-      {RecordFilter filter = const RecordFilter()}) async {
+  Future<List<RecordWithTags>> getRecords({
+    RecordFilter filter = const RecordFilter(),
+  }) async {
     return _groupRows(await _buildQuery(filter).get());
   }
 
@@ -89,7 +100,8 @@ class RecordRepository {
   }
 
   JoinedSelectStatement<HasResultSet, dynamic> _buildQuery(
-      RecordFilter filter) {
+    RecordFilter filter,
+  ) {
     final query = _db.select(_db.records).join([
       leftOuterJoin(
         _db.recordTags,
@@ -113,8 +125,10 @@ class RecordRepository {
     if (filter.tagIds.isNotEmpty) {
       final matching = _db.selectOnly(_db.recordTags)
         ..addColumns([_db.recordTags.recordId])
-        ..where(_db.recordTags.tagId.isIn(filter.tagIds) &
-            _db.recordTags.recordId.equalsExp(_db.records.id));
+        ..where(
+          _db.recordTags.tagId.isIn(filter.tagIds) &
+              _db.recordTags.recordId.equalsExp(_db.records.id),
+        );
       query.where(existsQuery(matching));
     }
 
@@ -142,8 +156,9 @@ class RecordRepository {
       }
       final tag = row.readTableOrNull(_db.tags);
       if (tag != null) {
-        final target =
-            tag.type == EventType.urination ? urinationTags : defecationTags;
+        final target = tag.type == EventType.urination
+            ? urinationTags
+            : defecationTags;
         target[record.id]!.add(tag);
       }
     }
@@ -160,7 +175,9 @@ class RecordRepository {
 
   void _validateShape(RecordDraft draft) {
     if (!draft.hasUrination && !draft.hasDefecation) {
-      throw ArgumentError('a record must include urination, defecation, or both');
+      throw ArgumentError(
+        'a record must include urination, defecation, or both',
+      );
     }
     if (!draft.hasUrination &&
         (_cleanDescription(draft.urinationDescription) != null ||
@@ -182,15 +199,17 @@ class RecordRepository {
   Future<void> _checkTagsMatchType(List<int> ids, EventType expected) async {
     if (ids.isEmpty) return;
     final unique = ids.toSet().toList();
-    final tags =
-        await (_db.select(_db.tags)..where((t) => t.id.isIn(unique))).get();
+    final tags = await (_db.select(
+      _db.tags,
+    )..where((t) => t.id.isIn(unique))).get();
     if (tags.length != unique.length) {
       throw ArgumentError('unknown tag id among $unique');
     }
     final mismatched = tags.where((t) => t.type != expected).toList();
     if (mismatched.isNotEmpty) {
       throw ArgumentError(
-          'tags [${mismatched.map((t) => t.name).join(', ')}] are not ${expected.name} tags');
+        'tags [${mismatched.map((t) => t.name).join(', ')}] are not ${expected.name} tags',
+      );
     }
   }
 

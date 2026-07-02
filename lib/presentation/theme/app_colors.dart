@@ -131,8 +131,14 @@ class AppColors extends ThemeExtension<AppColors> {
   final Color tagPink;
 
   /// Pool used when auto-assigning a color to a newly created tag.
-  List<Color> get tagPalette =>
-      [tagYellow, tagBlue, tagGreen, tagRed, tagPurple, tagPink];
+  List<Color> get tagPalette => [
+    tagYellow,
+    tagBlue,
+    tagGreen,
+    tagRed,
+    tagPurple,
+    tagPink,
+  ];
 
   /// Fallback when a tag has no valid color stored.
   Color get tagFallback => tagYellow;
@@ -295,8 +301,11 @@ class AppColors extends ThemeExtension<AppColors> {
       hazePink: Color.lerp(hazePink, other.hazePink, t)!,
       backdropTop: Color.lerp(backdropTop, other.backdropTop, t)!,
       backdropBottom: Color.lerp(backdropBottom, other.backdropBottom, t)!,
-      splashBackdropBottom:
-          Color.lerp(splashBackdropBottom, other.splashBackdropBottom, t)!,
+      splashBackdropBottom: Color.lerp(
+        splashBackdropBottom,
+        other.splashBackdropBottom,
+        t,
+      )!,
       decorHearts: Color.lerp(decorHearts, other.decorHearts, t)!,
       shadowCard: Color.lerp(shadowCard, other.shadowCard, t)!,
       shadowButton: Color.lerp(shadowButton, other.shadowButton, t)!,

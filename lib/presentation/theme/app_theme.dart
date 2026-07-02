@@ -45,7 +45,10 @@ abstract final class AppTheme {
       colorScheme: colorScheme,
       scaffoldBackgroundColor: colors.background,
       textTheme: textTheme,
-      extensions: [colors, AppDecorations(colors: colors)],
+      extensions: [
+        colors,
+        AppDecorations(colors: colors),
+      ],
       appBarTheme: AppBarThemeData(
         // Solid fallback; the full fade is AppDecorations.topBar.
         backgroundColor: colors.hazeLilac,
@@ -165,7 +168,9 @@ abstract final class AppTheme {
         backgroundColor: colors.surface,
         modalBarrierColor: colors.scrim,
         shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(top: Radius.circular(AppRadii.modal)),
+          borderRadius: BorderRadius.vertical(
+            top: Radius.circular(AppRadii.modal),
+          ),
         ),
       ),
       dividerTheme: DividerThemeData(color: colors.border, thickness: 1),

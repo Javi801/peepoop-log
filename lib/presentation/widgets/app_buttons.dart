@@ -45,8 +45,9 @@ class PrimaryButton extends StatelessWidget {
               widthFactor: 1,
               heightFactor: 1,
               child: DefaultTextStyle.merge(
-                style:
-                    AppTypography.buttonLabel.copyWith(color: colors.onPrimary),
+                style: AppTypography.buttonLabel.copyWith(
+                  color: colors.onPrimary,
+                ),
                 child: child,
               ),
             ),
@@ -90,11 +91,7 @@ class SecondaryButton extends StatelessWidget {
 
 /// Soft red pill button for destructive actions.
 class DangerButton extends StatelessWidget {
-  const DangerButton({
-    super.key,
-    required this.onPressed,
-    required this.child,
-  });
+  const DangerButton({super.key, required this.onPressed, required this.child});
 
   final VoidCallback? onPressed;
   final Widget child;

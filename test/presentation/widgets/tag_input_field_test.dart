@@ -7,22 +7,20 @@ void main() {
   late List<String> submitted;
 
   Widget field() => MaterialApp(
-        theme: AppTheme.light(),
-        home: Scaffold(
-          body: TagInputField(
-            label: 'Urination tags',
-            onSubmitted: submitted.add,
-          ),
-        ),
-      );
+    theme: AppTheme.light(),
+    home: Scaffold(
+      body: TagInputField(label: 'Urination tags', onSubmitted: submitted.add),
+    ),
+  );
 
   String fieldText(WidgetTester tester) =>
       tester.widget<TextField>(find.byType(TextField)).controller!.text;
 
   setUp(() => submitted = []);
 
-  testWidgets('keyboard action submits the trimmed name and clears the field',
-      (tester) async {
+  testWidgets('keyboard action submits the trimmed name and clears the field', (
+    tester,
+  ) async {
     await tester.pumpWidget(field());
 
     await tester.enterText(find.byType(TextField), '  light yellow ');

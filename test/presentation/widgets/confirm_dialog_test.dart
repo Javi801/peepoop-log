@@ -9,24 +9,28 @@ void main() {
     void Function(bool) onResult, {
     String? emoji,
   }) {
-    return tester.pumpWidget(MaterialApp(
-      theme: AppTheme.light(),
-      home: Scaffold(
-        body: Builder(
-          builder: (context) => TextButton(
-            onPressed: () async {
-              onResult(await showConfirmDialog(
-                context,
-                title: 'Delete all app data?',
-                message: 'This action cannot be undone.',
-                emoji: emoji,
-              ));
-            },
-            child: const Text('open'),
+    return tester.pumpWidget(
+      MaterialApp(
+        theme: AppTheme.light(),
+        home: Scaffold(
+          body: Builder(
+            builder: (context) => TextButton(
+              onPressed: () async {
+                onResult(
+                  await showConfirmDialog(
+                    context,
+                    title: 'Delete all app data?',
+                    message: 'This action cannot be undone.',
+                    emoji: emoji,
+                  ),
+                );
+              },
+              child: const Text('open'),
+            ),
           ),
         ),
       ),
-    ));
+    );
   }
 
   testWidgets('confirming resolves to true', (tester) async {

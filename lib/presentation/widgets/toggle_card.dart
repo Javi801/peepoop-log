@@ -63,8 +63,9 @@ class ToggleCard extends StatelessWidget {
                 Expanded(
                   child: Text(
                     label,
-                    style: AppTypography.body
-                        .copyWith(fontWeight: AppTypography.bold),
+                    style: AppTypography.body.copyWith(
+                      fontWeight: AppTypography.bold,
+                    ),
                   ),
                 ),
                 AppSwitch(value: value, onChanged: onChanged),

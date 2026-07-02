@@ -28,12 +28,16 @@ class TagRepository {
     final match = RegExp(r'^#?([0-9a-fA-F]{6})$').firstMatch(value.trim());
     if (match == null) {
       throw ArgumentError.value(
-          value, 'colorHex', 'must be a 6-digit hex color like #A1B2C3');
+        value,
+        'colorHex',
+        'must be a 6-digit hex color like #A1B2C3',
+      );
     }
     return '#${match[1]!.toUpperCase()}';
   }
 
-  String randomColor() => defaultPalette[_random.nextInt(defaultPalette.length)];
+  String randomColor() =>
+      defaultPalette[_random.nextInt(defaultPalette.length)];
 
   Stream<List<Tag>> watchTagsByType(EventType type) {
     final query = _db.select(_db.tags)
@@ -46,28 +50,31 @@ class TagRepository {
   /// usage descending. Backs the tag filter and the management screen.
   Stream<List<TagWithUsage>> watchTagsWithUsage(EventType type) {
     final usageCount = _db.recordTags.tagId.count();
-    final query = _db.select(_db.tags).join([
-      leftOuterJoin(
-        _db.recordTags,
-        _db.recordTags.tagId.equalsExp(_db.tags.id),
-        useColumns: false,
-      ),
-    ])
-      ..where(_db.tags.type.equalsValue(type))
-      ..addColumns([usageCount])
-      ..groupBy([_db.tags.id])
-      ..orderBy([
-        OrderingTerm.desc(usageCount),
-        OrderingTerm.asc(_db.tags.normalizedName),
-      ]);
-
-    return query.watch().map((rows) => [
-          for (final row in rows)
-            TagWithUsage(
-              tag: row.readTable(_db.tags),
-              usageCount: row.read(usageCount) ?? 0,
+    final query =
+        _db.select(_db.tags).join([
+            leftOuterJoin(
+              _db.recordTags,
+              _db.recordTags.tagId.equalsExp(_db.tags.id),
+              useColumns: false,
             ),
-        ]);
+          ])
+          ..where(_db.tags.type.equalsValue(type))
+          ..addColumns([usageCount])
+          ..groupBy([_db.tags.id])
+          ..orderBy([
+            OrderingTerm.desc(usageCount),
+            OrderingTerm.asc(_db.tags.normalizedName),
+          ]);
+
+    return query.watch().map(
+      (rows) => [
+        for (final row in rows)
+          TagWithUsage(
+            tag: row.readTable(_db.tags),
+            usageCount: row.read(usageCount) ?? 0,
+          ),
+      ],
+    );
   }
 
   /// Reuses the existing tag matching the normalized name and [type], or
@@ -88,16 +95,22 @@ class TagRepository {
     if (await _findByNormalizedName(normalizeName(trimmed), type) != null) {
       throw DuplicateTagException(trimmed, type);
     }
-    final color =
-        colorHex == null ? randomColor() : normalizeHexColor(colorHex);
+    final color = colorHex == null
+        ? randomColor()
+        : normalizeHexColor(colorHex);
     return _insert(trimmed, type, color);
   }
 
   /// Updates name and/or color. Changes propagate to every record using the
   /// tag because records only reference the tag id.
-  Future<Tag> updateTag({required int id, String? name, String? colorHex}) async {
-    final tag =
-        await (_db.select(_db.tags)..where((t) => t.id.equals(id))).getSingle();
+  Future<Tag> updateTag({
+    required int id,
+    String? name,
+    String? colorHex,
+  }) async {
+    final tag = await (_db.select(
+      _db.tags,
+    )..where((t) => t.id.equals(id))).getSingle();
 
     var changes = const TagsCompanion();
     if (name != null) {
@@ -137,16 +150,22 @@ class TagRepository {
   Future<Tag?> _findByNormalizedName(String normalizedName, EventType type) {
     final query = _db.select(_db.tags)
       ..where(
-          (t) => t.normalizedName.equals(normalizedName) & t.type.equalsValue(type));
+        (t) =>
+            t.normalizedName.equals(normalizedName) & t.type.equalsValue(type),
+      );
     return query.getSingleOrNull();
   }
 
   Future<Tag> _insert(String name, EventType type, String colorHex) {
-    return _db.into(_db.tags).insertReturning(TagsCompanion.insert(
-          name: name,
-          normalizedName: normalizeName(name),
-          type: type,
-          colorHex: colorHex,
-        ));
+    return _db
+        .into(_db.tags)
+        .insertReturning(
+          TagsCompanion.insert(
+            name: name,
+            normalizedName: normalizeName(name),
+            type: type,
+            colorHex: colorHex,
+          ),
+        );
   }
 }

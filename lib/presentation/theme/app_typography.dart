@@ -28,7 +28,10 @@ abstract final class AppTypography {
   /// Secondary/muted paragraph text.
   static const TextStyle secondary = TextStyle(fontSize: 13, height: 1.4);
 
-  static const TextStyle buttonLabel = TextStyle(fontSize: 16, fontWeight: bold);
+  static const TextStyle buttonLabel = TextStyle(
+    fontSize: 16,
+    fontWeight: bold,
+  );
 
   static const TextStyle chipLabel = TextStyle(fontSize: 12, fontWeight: bold);
 
@@ -38,8 +41,10 @@ abstract final class AppTypography {
   static const TextStyle timeLabel = TextStyle(fontSize: 13, fontWeight: heavy);
 
   /// Section headers between groups of cards; rendered in `primaryDark`.
-  static const TextStyle sectionTitle =
-      TextStyle(fontSize: 16, fontWeight: heavy);
+  static const TextStyle sectionTitle = TextStyle(
+    fontSize: 16,
+    fontWeight: heavy,
+  );
 
   /// Builds the Material [TextTheme] for the given palette.
   static TextTheme textTheme(AppColors colors) {

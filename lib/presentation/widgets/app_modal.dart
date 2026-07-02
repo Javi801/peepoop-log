@@ -19,8 +19,9 @@ Future<T?> showAppModalSheet<T>({
       final decorations = Theme.of(context).extension<AppDecorations>()!;
 
       return Padding(
-        padding:
-            EdgeInsets.only(bottom: MediaQuery.viewInsetsOf(context).bottom),
+        padding: EdgeInsets.only(
+          bottom: MediaQuery.viewInsetsOf(context).bottom,
+        ),
         child: SafeArea(
           child: Padding(
             padding: const EdgeInsets.all(14),

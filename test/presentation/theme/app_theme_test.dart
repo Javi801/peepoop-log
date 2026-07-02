@@ -22,10 +22,10 @@ void main() {
       final theme = AppTheme.fromColors(custom);
 
       expect(theme.colorScheme.primary, const Color(0xFF008080));
-      expect(
-        theme.extension<AppDecorations>()!.primaryAction.colors,
-        [const Color(0xFFFF0000), const Color(0xFF008080)],
-      );
+      expect(theme.extension<AppDecorations>()!.primaryAction.colors, [
+        const Color(0xFFFF0000),
+        const Color(0xFF008080),
+      ]);
     });
   });
 

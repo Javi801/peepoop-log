@@ -22,8 +22,10 @@ void main() {
   test('colorFromHex falls back on invalid input', () {
     const fallback = Color(0xFF123456);
 
-    expect(colorFromHex('#D9F2C7', fallback: fallback),
-        const Color(0xFFD9F2C7));
+    expect(
+      colorFromHex('#D9F2C7', fallback: fallback),
+      const Color(0xFFD9F2C7),
+    );
     expect(colorFromHex('not-a-color', fallback: fallback), fallback);
   });
 }
