@@ -10,6 +10,8 @@ import 'package:peepoop_log/presentation/screens/add_record/add_record_screen.da
 import 'package:peepoop_log/presentation/theme/theme.dart';
 import 'package:peepoop_log/presentation/widgets/widgets.dart';
 
+import '../../support/widget_cleanup.dart';
+
 void main() {
   late AppDatabase db;
   late RecordRepository records;
@@ -33,6 +35,7 @@ void main() {
   testWidgets(
     'saves a urination record with description and tag, then resets',
     (tester) async {
+      unmountWidgetTreeAfterTest(tester);
       await tester.pumpWidget(app());
 
       await tester.enterText(find.byType(TextField).first, 'No discomfort.');
@@ -74,6 +77,7 @@ void main() {
   );
 
   testWidgets('defecation section appears when toggled', (tester) async {
+    unmountWidgetTreeAfterTest(tester);
     await tester.pumpWidget(app());
 
     expect(find.text('Defecation description'), findsNothing);
@@ -85,6 +89,7 @@ void main() {
   });
 
   testWidgets('save is disabled with both event types off', (tester) async {
+    unmountWidgetTreeAfterTest(tester);
     await tester.pumpWidget(app());
 
     await tester.tap(find.text('Urination'));

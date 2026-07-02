@@ -11,6 +11,8 @@ import 'package:peepoop_log/presentation/scope/app_scope.dart';
 import 'package:peepoop_log/presentation/screens/export/export_screen.dart';
 import 'package:peepoop_log/presentation/theme/theme.dart';
 
+import '../../support/widget_cleanup.dart';
+
 void main() {
   late AppDatabase db;
   late RecordRepository records;
@@ -35,6 +37,7 @@ void main() {
   );
 
   testWidgets('shares the CSV built from all records', (tester) async {
+    unmountWidgetTreeAfterTest(tester);
     final urgent = await tags.createTag(
       name: 'urgent',
       type: EventType.urination,
@@ -63,6 +66,7 @@ occurred_at,type,description,tags
   });
 
   testWidgets('shares only the header when there is no data', (tester) async {
+    unmountWidgetTreeAfterTest(tester);
     String? shared;
     await tester.pumpWidget(app(shareCsv: (csv) async => shared = csv));
 

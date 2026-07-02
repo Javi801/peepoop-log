@@ -11,6 +11,8 @@ import 'package:peepoop_log/presentation/scope/app_scope.dart';
 import 'package:peepoop_log/presentation/screens/settings/settings_screen.dart';
 import 'package:peepoop_log/presentation/theme/theme.dart';
 
+import '../../support/widget_cleanup.dart';
+
 void main() {
   late AppDatabase db;
   late RecordRepository records;
@@ -32,6 +34,7 @@ void main() {
   );
 
   testWidgets('shows the privacy and about cards', (tester) async {
+    unmountWidgetTreeAfterTest(tester);
     await tester.pumpWidget(app());
 
     expect(find.text('Privacy'), findsOneWidget);
@@ -42,6 +45,7 @@ void main() {
   testWidgets('delete all app data wipes records and tags after confirmation', (
     tester,
   ) async {
+    unmountWidgetTreeAfterTest(tester);
     final tag = await tags.createTag(
       name: 'urgent',
       type: EventType.urination,
@@ -76,6 +80,7 @@ void main() {
   });
 
   testWidgets('cancelling the confirmation keeps the data', (tester) async {
+    unmountWidgetTreeAfterTest(tester);
     await records.createRecord(
       RecordDraft(occurredAt: DateTime(2026, 6, 22, 8, 30), hasUrination: true),
     );

@@ -9,6 +9,8 @@ import 'package:peepoop_log/presentation/navigation/home_shell.dart';
 import 'package:peepoop_log/presentation/scope/app_scope.dart';
 import 'package:peepoop_log/presentation/theme/theme.dart';
 
+import '../../support/widget_cleanup.dart';
+
 void main() {
   late AppDatabase db;
 
@@ -34,12 +36,14 @@ void main() {
       find.descendant(of: find.byType(AppBar), matching: find.text(title));
 
   testWidgets('starts on the Add Record screen', (tester) async {
+    unmountWidgetTreeAfterTest(tester);
     await pumpShell(tester);
 
     expect(appBarTitle('Add Record'), findsOneWidget);
   });
 
   testWidgets('bottom nav switches between the root screens', (tester) async {
+    unmountWidgetTreeAfterTest(tester);
     await pumpShell(tester);
 
     final destinations = [
@@ -58,6 +62,7 @@ void main() {
   });
 
   testWidgets('central plus button returns to Add Record', (tester) async {
+    unmountWidgetTreeAfterTest(tester);
     await pumpShell(tester);
 
     await tester.tap(find.text(HomeDestination.history.title));

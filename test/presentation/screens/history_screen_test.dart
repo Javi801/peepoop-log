@@ -11,6 +11,8 @@ import 'package:peepoop_log/presentation/scope/app_scope.dart';
 import 'package:peepoop_log/presentation/screens/history/history_screen.dart';
 import 'package:peepoop_log/presentation/theme/theme.dart';
 
+import '../../support/widget_cleanup.dart';
+
 void main() {
   late AppDatabase db;
   late RecordRepository records;
@@ -53,6 +55,11 @@ void main() {
     child: MaterialApp(theme: AppTheme.light(), home: const HistoryScreen()),
   );
 
+  Future<void> pumpModal(WidgetTester tester) async {
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 300));
+  }
+
   testWidgets('shows records with time, type, tags and description', (
     tester,
   ) async {
@@ -66,6 +73,8 @@ void main() {
     expect(find.text('Slight urgency.'), findsOneWidget);
     expect(find.text('22:10'), findsOneWidget);
     expect(find.text('Defecation'), findsOneWidget);
+
+    await unmountWidgetTree(tester);
   });
 
   testWidgets('shows the empty state without records', (tester) async {
@@ -73,6 +82,8 @@ void main() {
     await tester.pump();
 
     expect(find.text('No records found.'), findsOneWidget);
+
+    await unmountWidgetTree(tester);
   });
 
   testWidgets('event type filters hide matching records', (tester) async {
@@ -81,25 +92,27 @@ void main() {
     await tester.pump();
 
     await tester.tap(find.text('Filters'));
-    await tester.pumpAndSettle();
+    await pumpModal(tester);
 
     // The sheet overlays the list, so its toggles are the last matches.
     await tester.tap(find.text('Urination').last);
     await tester.pump();
     await tester.tap(find.text('Apply'));
-    await tester.pumpAndSettle();
+    await pumpModal(tester);
 
     expect(find.text('urgent'), findsNothing);
     expect(find.text('Defecation'), findsOneWidget);
 
     await tester.tap(find.text('Filters'));
-    await tester.pumpAndSettle();
+    await pumpModal(tester);
     await tester.tap(find.text('Defecation').last);
     await tester.pump();
     await tester.tap(find.text('Apply'));
-    await tester.pumpAndSettle();
+    await pumpModal(tester);
 
     expect(find.text('No records found.'), findsOneWidget);
+
+    await unmountWidgetTree(tester);
   });
 
   testWidgets('clear resets the filters in the sheet', (tester) async {
@@ -108,15 +121,17 @@ void main() {
     await tester.pump();
 
     await tester.tap(find.text('Filters'));
-    await tester.pumpAndSettle();
+    await pumpModal(tester);
     await tester.tap(find.text('Urination').last);
     await tester.pump();
     await tester.tap(find.text('Clear'));
     await tester.pump();
     await tester.tap(find.text('Apply'));
-    await tester.pumpAndSettle();
+    await pumpModal(tester);
 
     expect(find.text('Urination'), findsOneWidget);
     expect(find.text('Defecation'), findsOneWidget);
+
+    await unmountWidgetTree(tester);
   });
 }

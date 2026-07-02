@@ -4,8 +4,11 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:peepoop_log/data/db/app_database.dart';
 import 'package:peepoop_log/presentation/app.dart';
 
+import 'support/widget_cleanup.dart';
+
 void main() {
   testWidgets('boots from the splash into the home shell', (tester) async {
+    unmountWidgetTreeAfterTest(tester);
     driftRuntimeOptions.dontWarnAboutMultipleDatabases = true;
     final db = AppDatabase(NativeDatabase.memory());
     addTearDown(db.close);

@@ -12,6 +12,8 @@ import 'package:peepoop_log/presentation/screens/tags/edit_tag_dialog.dart';
 import 'package:peepoop_log/presentation/screens/tags/tags_screen.dart';
 import 'package:peepoop_log/presentation/theme/theme.dart';
 
+import '../../support/widget_cleanup.dart';
+
 void main() {
   late AppDatabase db;
   late RecordRepository records;
@@ -65,6 +67,7 @@ void main() {
       .at(index);
 
   testWidgets('lists tags of the active tab with usage counts', (tester) async {
+    unmountWidgetTreeAfterTest(tester);
     await seed();
     await tester.pumpWidget(app());
     await tester.pump();
@@ -85,6 +88,7 @@ void main() {
   testWidgets('creates a tag for the active tab from the editor', (
     tester,
   ) async {
+    unmountWidgetTreeAfterTest(tester);
     await seed();
     await tester.pumpWidget(app());
     await tester.pump();
@@ -103,6 +107,7 @@ void main() {
   });
 
   testWidgets('rejects duplicate names within the same type', (tester) async {
+    unmountWidgetTreeAfterTest(tester);
     await seed();
     await tester.pumpWidget(app());
     await tester.pump();
@@ -118,6 +123,7 @@ void main() {
   });
 
   testWidgets('edits a tag from its row', (tester) async {
+    unmountWidgetTreeAfterTest(tester);
     await seed();
     await tester.pumpWidget(app());
     await tester.pump();
@@ -138,6 +144,7 @@ void main() {
   testWidgets('delete mode removes the selected tags after confirmation', (
     tester,
   ) async {
+    unmountWidgetTreeAfterTest(tester);
     await seed();
     await tester.pumpWidget(app());
     await tester.pump();
