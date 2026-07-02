@@ -6,13 +6,6 @@ import '../../theme/theme.dart';
 class SplashScreen extends StatelessWidget {
   const SplashScreen({super.key});
 
-  static const _titleStyle = TextStyle(
-    fontSize: 32,
-    fontWeight: AppTypography.bold,
-    letterSpacing: -0.64,
-    height: 1.15,
-  );
-
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
@@ -25,20 +18,22 @@ class SplashScreen extends StatelessWidget {
             const Text(
               'PeePoop\nLog',
               textAlign: TextAlign.center,
-              style: _titleStyle,
+              style: AppTypography.splashTitle,
             ),
             const SizedBox(height: AppSpacing.sm),
             Text('Your health, your log 💜', style: textTheme.bodySmall),
-            const SizedBox(height: 42),
-            const Text('🐼🚽', style: TextStyle(fontSize: 94)),
-            const SizedBox(height: 26),
+            const SizedBox(height: AppSpacing.splashEmojiGap),
+            const Text('🐼🚽', style: AppTypography.splashEmoji),
+            const SizedBox(height: AppSpacing.splashLoaderGap),
             SizedBox(
               width: AppSizes.loaderWidth,
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(AppRadii.pill),
                 // Static fill like the design reference; drift reports no
                 // real progress while opening the file.
-                child: const LinearProgressIndicator(value: 0.68),
+                child: const LinearProgressIndicator(
+                  value: AppEffects.splashLoaderValue,
+                ),
               ),
             ),
             const SizedBox(height: AppSpacing.md),

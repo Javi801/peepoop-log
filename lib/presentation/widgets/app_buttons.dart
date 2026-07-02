@@ -57,7 +57,7 @@ class PrimaryButton extends StatelessWidget {
     );
 
     return Opacity(
-      opacity: enabled ? 1 : 0.55,
+      opacity: enabled ? 1 : AppEffects.disabledOpacity,
       child: expand ? SizedBox(width: double.infinity, child: button) : button,
     );
   }

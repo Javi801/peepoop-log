@@ -17,7 +17,7 @@ class LabeledField extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(label, style: Theme.of(context).textTheme.labelMedium),
-          const SizedBox(height: 7),
+          const SizedBox(height: AppSpacing.labelGap),
           child,
         ],
       ),

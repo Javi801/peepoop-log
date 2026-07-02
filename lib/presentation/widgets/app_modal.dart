@@ -24,10 +24,12 @@ Future<T?> showAppModalSheet<T>({
         ),
         child: SafeArea(
           child: Padding(
-            padding: const EdgeInsets.all(14),
+            padding: AppInsets.modalMargin,
             child: ConstrainedBox(
               constraints: BoxConstraints(
-                maxHeight: MediaQuery.sizeOf(context).height * 0.84,
+                maxHeight:
+                    MediaQuery.sizeOf(context).height *
+                    AppEffects.modalMaxHeightFraction,
               ),
               child: Container(
                 decoration: BoxDecoration(
@@ -55,7 +57,7 @@ class ModalTitle extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
+      padding: AppInsets.modalTitle,
       child: SizedBox(
         width: double.infinity,
         child: Text(
@@ -77,7 +79,7 @@ class ModalActions extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(top: 18),
+      padding: AppInsets.modalActions,
       child: Row(
         children: [
           for (final (index, child) in children.indexed) ...[

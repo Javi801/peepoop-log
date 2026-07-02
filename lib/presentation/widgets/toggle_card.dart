@@ -56,7 +56,7 @@ class ToggleCard extends StatelessWidget {
                     borderRadius: BorderRadius.circular(AppRadii.cuteIcon),
                   ),
                   child: Center(
-                    child: Text(icon, style: const TextStyle(fontSize: 18)),
+                    child: Text(icon, style: AppTypography.emojiIcon),
                   ),
                 ),
                 const SizedBox(width: AppSpacing.sm),

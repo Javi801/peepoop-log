@@ -89,7 +89,7 @@ class _RecordCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           SizedBox(
-            width: 58,
+            width: AppSizes.historyTimeColumn,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -97,17 +97,17 @@ class _RecordCard extends StatelessWidget {
                   formatHourMinute(record.occurredAt),
                   style: AppTypography.timeLabel,
                 ),
-                const SizedBox(height: 2),
+                const SizedBox(height: AppSpacing.xxs),
                 Text(
                   MaterialLocalizations.of(
                     context,
                   ).formatShortMonthDay(record.occurredAt),
-                  style: textTheme.bodySmall!.copyWith(fontSize: 11),
+                  style: textTheme.bodySmall!.merge(AppTypography.dateLabel),
                 ),
               ],
             ),
           ),
-          const SizedBox(width: 12),
+          const SizedBox(width: AppSpacing.rowGap),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,

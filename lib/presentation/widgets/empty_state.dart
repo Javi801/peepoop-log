@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../theme/theme.dart';
+
 /// Centered muted message for empty lists.
 class EmptyState extends StatelessWidget {
   const EmptyState(this.message, {super.key});
@@ -9,7 +11,7 @@ class EmptyState extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 16),
+      padding: AppInsets.emptyState,
       child: Center(
         child: Text(
           message,

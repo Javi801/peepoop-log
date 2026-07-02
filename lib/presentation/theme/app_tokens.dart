@@ -24,11 +24,24 @@ abstract final class AppRadii {
 
 /// Gaps and paddings.
 abstract final class AppSpacing {
+  /// Tightest gap between stacked lines (nav icon→label, time→date).
+  static const double xxs = 2;
+
   /// Gap between chips.
   static const double xs = 6;
 
+  /// Gap between a field label and its control.
+  static const double labelGap = 7;
+
+  /// Gap between segmented tab buttons.
+  static const double tabGap = 8;
+
   /// Gap between elements in a row.
   static const double sm = 10;
+
+  /// Gap between a fixed leading element (time column, color swatch) and
+  /// the flexible content next to it.
+  static const double rowGap = 12;
 
   /// Vertical gap between stacked cards.
   static const double md = 13;
@@ -41,6 +54,12 @@ abstract final class AppSpacing {
 
   /// Modal inner padding.
   static const double xl = 20;
+
+  /// Splash: gap between the subtitle and the hero emoji.
+  static const double splashEmojiGap = 42;
+
+  /// Splash: gap between the hero emoji and the loading bar.
+  static const double splashLoaderGap = 26;
 
   /// Extra bottom padding on scrollable screens so content clears the
   /// bottom navigation bar and the overhanging central button.
@@ -60,6 +79,30 @@ abstract final class AppInsets {
     AppSpacing.lg,
     AppSpacing.screenBottom,
   );
+
+  /// Segmented tab button (Pee/Poop).
+  static const tab = EdgeInsets.symmetric(vertical: 10);
+
+  /// Section heading between groups of cards.
+  static const sectionTitle = EdgeInsets.only(top: 18, bottom: 10);
+
+  /// Centered empty-list message.
+  static const emptyState = EdgeInsets.symmetric(vertical: 40, horizontal: 16);
+
+  /// Hero card on the export screen.
+  static const exportHero = EdgeInsets.symmetric(vertical: 30, horizontal: 12);
+
+  /// Outer margin detaching floating modals from the screen edges.
+  static const modalMargin = EdgeInsets.all(14);
+
+  /// Space under a modal title.
+  static const modalTitle = EdgeInsets.only(bottom: 8);
+
+  /// Space above the modal action button row.
+  static const modalActions = EdgeInsets.only(top: 18);
+
+  /// Space under the hero emoji in confirmation dialogs.
+  static const dialogEmoji = EdgeInsets.only(bottom: 8);
 }
 
 /// Fixed component dimensions.
@@ -74,6 +117,15 @@ abstract final class AppSizes {
 
   /// How far the central "+" button overhangs above the nav bar.
   static const double fabOverhang = 28;
+
+  /// Center slot in the nav bar reserved for the overhanging "+" button.
+  static const double navPlusSlot = 76;
+
+  /// Width of the time column in history cards.
+  static const double historyTimeColumn = 58;
+
+  /// Tappable palette swatch in the tag color picker.
+  static const double paletteSwatch = 36;
 
   static const double switchWidth = 48;
   static const double switchHeight = 28;
@@ -94,6 +146,15 @@ abstract final class AppEffects {
 
   /// Opacity of the decorative background layer (bamboo, hearts).
   static const double bgDecorOpacity = 0.36;
+
+  /// Opacity of disabled primary buttons.
+  static const double disabledOpacity = 0.55;
+
+  /// Static fill fraction of the splash loading bar.
+  static const double splashLoaderValue = 0.68;
+
+  /// Maximum modal height as a fraction of the screen height.
+  static const double modalMaxHeightFraction = 0.84;
 
   static const Duration switchAnimation = Duration(milliseconds: 200);
 }

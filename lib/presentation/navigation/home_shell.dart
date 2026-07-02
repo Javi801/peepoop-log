@@ -94,7 +94,7 @@ class _BottomNavBar extends StatelessWidget {
                     selected: current == HomeDestination.tags,
                     onSelect: onSelect,
                   ),
-                  const SizedBox(width: 76),
+                  const SizedBox(width: AppSizes.navPlusSlot),
                   _NavItem(
                     destination: HomeDestination.export,
                     icon: '📤',
@@ -146,8 +146,8 @@ class _NavItem extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text(icon, style: const TextStyle(fontSize: 18)),
-            const SizedBox(height: 2),
+            Text(icon, style: AppTypography.emojiIcon),
+            const SizedBox(height: AppSpacing.xxs),
             Text(
               destination.title,
               style: AppTypography.navLabel.copyWith(
@@ -192,12 +192,7 @@ class _PlusButton extends StatelessWidget {
             child: Center(
               child: Text(
                 '+',
-                style: TextStyle(
-                  color: colors.onPrimary,
-                  fontSize: 34,
-                  fontWeight: AppTypography.heavy,
-                  height: 1,
-                ),
+                style: AppTypography.navPlus.copyWith(color: colors.onPrimary),
               ),
             ),
           ),

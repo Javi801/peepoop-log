@@ -51,10 +51,10 @@ class _ExportScreenState extends State<ExportScreen> {
         padding: AppInsets.screen,
         children: [
           AppCard(
-            padding: const EdgeInsets.symmetric(vertical: 30, horizontal: 12),
+            padding: AppInsets.exportHero,
             child: Column(
               children: [
-                const Text('🐼📄', style: TextStyle(fontSize: 90)),
+                const Text('🐼📄', style: AppTypography.exportEmoji),
                 Text('Export your data', style: textTheme.headlineSmall),
                 const SizedBox(height: AppSpacing.xs),
                 Text(

@@ -20,6 +20,14 @@ abstract final class AppTypography {
   /// Modal / dialog title.
   static const TextStyle modalTitle = TextStyle(fontSize: 20, fontWeight: bold);
 
+  /// Splash screen brand title.
+  static const TextStyle splashTitle = TextStyle(
+    fontSize: 32,
+    fontWeight: bold,
+    letterSpacing: -0.64,
+    height: 1.15,
+  );
+
   /// Small uppercase-feeling label above form fields.
   static const TextStyle fieldLabel = TextStyle(fontSize: 12, fontWeight: bold);
 
@@ -37,8 +45,26 @@ abstract final class AppTypography {
 
   static const TextStyle navLabel = TextStyle(fontSize: 11);
 
+  /// Emoji glyphs in nav items and the cute icon squares.
+  static const TextStyle emojiIcon = TextStyle(fontSize: 18);
+
+  /// "+" glyph on the central navigation button.
+  static const TextStyle navPlus = TextStyle(
+    fontSize: 34,
+    fontWeight: heavy,
+    height: 1,
+  );
+
   /// Time column in history cards.
   static const TextStyle timeLabel = TextStyle(fontSize: 13, fontWeight: heavy);
+
+  /// Short date under the time in history cards; merged over `bodySmall`.
+  static const TextStyle dateLabel = TextStyle(fontSize: 11);
+
+  /// Hero emoji illustrations, sized per screen like the design reference.
+  static const TextStyle splashEmoji = TextStyle(fontSize: 94);
+  static const TextStyle exportEmoji = TextStyle(fontSize: 90);
+  static const TextStyle dialogEmoji = TextStyle(fontSize: 84);
 
   /// Section headers between groups of cards; rendered in `primaryDark`.
   static const TextStyle sectionTitle = TextStyle(

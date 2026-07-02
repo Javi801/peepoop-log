@@ -123,7 +123,7 @@ class _EditTagDialogState extends State<EditTagDialog> {
                         border: Border.all(color: colors.swatchBorder),
                       ),
                     ),
-                    const SizedBox(width: 12),
+                    const SizedBox(width: AppSpacing.rowGap),
                     Expanded(
                       child: TextField(
                         controller: _hex,
@@ -176,8 +176,8 @@ class _PaletteSwatch extends StatelessWidget {
       borderRadius: BorderRadius.circular(AppRadii.tagDot),
       onTap: onTap,
       child: Container(
-        width: 36,
-        height: 36,
+        width: AppSizes.paletteSwatch,
+        height: AppSizes.paletteSwatch,
         decoration: BoxDecoration(
           color: colorFromHex(hex, fallback: colors.tagFallback),
           borderRadius: BorderRadius.circular(AppRadii.tagDot),

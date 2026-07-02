@@ -148,7 +148,7 @@ class _TypeTabs extends StatelessWidget {
               onTap: () => onSelect(EventType.urination),
             ),
           ),
-          const SizedBox(width: 8),
+          const SizedBox(width: AppSpacing.tabGap),
           Expanded(
             child: _TabButton(
               label: 'Poop',
@@ -186,7 +186,7 @@ class _TabButton extends StatelessWidget {
         customBorder: const StadiumBorder(),
         onTap: onTap,
         child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 10),
+          padding: AppInsets.tab,
           child: Center(
             child: Text(
               label,

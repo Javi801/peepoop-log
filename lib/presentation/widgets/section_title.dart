@@ -13,7 +13,7 @@ class SectionTitle extends StatelessWidget {
     final colors = Theme.of(context).extension<AppColors>()!;
 
     return Padding(
-      padding: const EdgeInsets.only(top: 18, bottom: 10),
+      padding: AppInsets.sectionTitle,
       child: Text(
         text,
         style: AppTypography.sectionTitle.copyWith(color: colors.primaryDark),

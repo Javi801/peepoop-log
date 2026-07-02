@@ -25,8 +25,8 @@ Future<bool> showConfirmDialog(
           children: [
             if (emoji != null)
               Padding(
-                padding: const EdgeInsets.only(bottom: 8),
-                child: Text(emoji, style: const TextStyle(fontSize: 84)),
+                padding: AppInsets.dialogEmoji,
+                child: Text(emoji, style: AppTypography.dialogEmoji),
               ),
             ModalTitle(title),
             Text(
