@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../data/models/record_models.dart';
+import '../../localization/app_strings.dart';
 import '../../scope/app_scope.dart';
 import '../../theme/theme.dart';
 import '../../util/date_time_format.dart';
@@ -41,12 +42,12 @@ class _HistoryScreenState extends State<HistoryScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('History'),
+        title: const Text(AppStrings.historyTitle),
         actions: [
           Center(
             child: SecondaryButton(
               onPressed: _openFilters,
-              child: const Text('Filters'),
+              child: const Text(AppStrings.historyFilters),
             ),
           ),
           const SizedBox(width: AppSpacing.lg),
@@ -57,7 +58,9 @@ class _HistoryScreenState extends State<HistoryScreen> {
         builder: (context, snapshot) {
           final records = snapshot.data;
           if (records == null) return const SizedBox.shrink();
-          if (records.isEmpty) return const EmptyState('No records found.');
+          if (records.isEmpty) {
+            return const EmptyState(AppStrings.historyEmpty);
+          }
           return ListView.builder(
             padding: AppInsets.screen,
             itemCount: records.length,
@@ -78,11 +81,10 @@ class _RecordCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final record = entry.record;
     final textTheme = Theme.of(context).textTheme;
-    final title = record.hasUrination && record.hasDefecation
-        ? 'Urination + Defecation'
-        : record.hasUrination
-        ? 'Urination'
-        : 'Defecation';
+    final title = AppStrings.recordTypeLabel(
+      hasUrination: record.hasUrination,
+      hasDefecation: record.hasDefecation,
+    );
 
     return AppCard(
       child: Row(

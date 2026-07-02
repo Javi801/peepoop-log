@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../localization/app_strings.dart';
 import '../../theme/theme.dart';
 
 /// Shown while the database opens.
@@ -16,12 +17,12 @@ class SplashScreen extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             const Text(
-              'PeePoop\nLog',
+              AppStrings.splashTitle,
               textAlign: TextAlign.center,
               style: AppTypography.splashTitle,
             ),
             const SizedBox(height: AppSpacing.sm),
-            Text('Your health, your log 💜', style: textTheme.bodySmall),
+            Text(AppStrings.splashSubtitle, style: textTheme.bodySmall),
             const SizedBox(height: AppSpacing.splashEmojiGap),
             const Text('🐼🚽', style: AppTypography.splashEmoji),
             const SizedBox(height: AppSpacing.splashLoaderGap),
@@ -37,7 +38,7 @@ class SplashScreen extends StatelessWidget {
               ),
             ),
             const SizedBox(height: AppSpacing.md),
-            Text('Loading your data...', style: textTheme.bodySmall),
+            Text(AppStrings.splashLoading, style: textTheme.bodySmall),
           ],
         ),
       ),

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:share_plus/share_plus.dart';
 
 import '../../../application/csv_exporter.dart';
+import '../../localization/app_strings.dart';
 import '../../scope/app_scope.dart';
 import '../../theme/theme.dart';
 import '../../widgets/widgets.dart';
@@ -46,7 +47,7 @@ class _ExportScreenState extends State<ExportScreen> {
     final textTheme = Theme.of(context).textTheme;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Export')),
+      appBar: AppBar(title: const Text(AppStrings.exportTitle)),
       body: ListView(
         padding: AppInsets.screen,
         children: [
@@ -55,10 +56,13 @@ class _ExportScreenState extends State<ExportScreen> {
             child: Column(
               children: [
                 const Text('🐼📄', style: AppTypography.exportEmoji),
-                Text('Export your data', style: textTheme.headlineSmall),
+                Text(
+                  AppStrings.exportHeroTitle,
+                  style: textTheme.headlineSmall,
+                ),
                 const SizedBox(height: AppSpacing.xs),
                 Text(
-                  'Export one row per urination or defecation event.',
+                  AppStrings.exportHeroBody,
                   textAlign: TextAlign.center,
                   style: textTheme.bodySmall,
                 ),
@@ -66,7 +70,7 @@ class _ExportScreenState extends State<ExportScreen> {
                 PrimaryButton(
                   expand: true,
                   onPressed: _exporting ? null : _export,
-                  child: const Text('Export CSV'),
+                  child: const Text(AppStrings.exportCsv),
                 ),
               ],
             ),

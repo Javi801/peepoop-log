@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../localization/app_strings.dart';
 import '../screens/add_record/add_record_screen.dart';
 import '../screens/export/export_screen.dart';
 import '../screens/history/history_screen.dart';
@@ -9,11 +10,11 @@ import '../theme/theme.dart';
 
 /// Root destinations reachable from the bottom navigation bar.
 enum HomeDestination {
-  addRecord('Add Record'),
-  history('History'),
-  tags('Tags'),
-  export('Export'),
-  settings('Settings');
+  addRecord(AppStrings.navAddRecord),
+  history(AppStrings.navHistory),
+  tags(AppStrings.navTags),
+  export(AppStrings.navExport),
+  settings(AppStrings.navSettings);
 
   const HomeDestination(this.title);
 

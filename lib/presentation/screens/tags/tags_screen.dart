@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../data/db/app_database.dart';
 import '../../../data/models/event_type.dart';
 import '../../../data/models/tag_models.dart';
+import '../../localization/app_strings.dart';
 import '../../scope/app_scope.dart';
 import '../../theme/theme.dart';
 import '../../widgets/widgets.dart';
@@ -48,10 +49,8 @@ class _TagsScreenState extends State<TagsScreen> {
     final repository = AppScope.of(context).tagRepository;
     final confirmed = await showConfirmDialog(
       context,
-      title: 'Delete selected tags?',
-      message:
-          'Selected tags will be removed from all records that use '
-          'them. Records and descriptions will remain.',
+      title: AppStrings.tagsDeleteSelectedDialogTitle,
+      message: AppStrings.tagsDeleteSelectedDialogMessage,
     );
     if (!confirmed || !mounted) return;
     await repository.deleteTags(_selected.toList());
@@ -68,7 +67,7 @@ class _TagsScreenState extends State<TagsScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Tags'),
+        title: const Text(AppStrings.tagsTitle),
         actions: [
           Center(
             child: SecondaryButton(
@@ -76,14 +75,16 @@ class _TagsScreenState extends State<TagsScreen> {
                 _deleteMode = !_deleteMode;
                 _selected.clear();
               }),
-              child: Text(_deleteMode ? 'Cancel' : 'Delete'),
+              child: Text(
+                _deleteMode ? AppStrings.cancel : AppStrings.tagsDelete,
+              ),
             ),
           ),
           const SizedBox(width: AppSpacing.sm),
           Center(
             child: SecondaryButton(
               onPressed: () => _openEditor(null),
-              child: const Text('+ New Tag'),
+              child: const Text(AppStrings.tagsNew),
             ),
           ),
           const SizedBox(width: AppSpacing.lg),
@@ -98,7 +99,7 @@ class _TagsScreenState extends State<TagsScreen> {
             children: [
               _TypeTabs(current: _type, onSelect: _setType),
               if (tags != null && tags.isEmpty)
-                const EmptyState('No tags yet.'),
+                const EmptyState(AppStrings.tagsEmpty),
               for (final entry in tags ?? const <TagWithUsage>[])
                 _TagRow(
                   entry: entry,
@@ -119,7 +120,7 @@ class _TagsScreenState extends State<TagsScreen> {
               if (_deleteMode)
                 DangerButton(
                   onPressed: _selected.isEmpty ? null : _deleteSelected,
-                  child: const Text('Delete selected tags'),
+                  child: const Text(AppStrings.tagsDeleteSelected),
                 ),
             ],
           );
@@ -143,7 +144,7 @@ class _TypeTabs extends StatelessWidget {
         children: [
           Expanded(
             child: _TabButton(
-              label: 'Pee',
+              label: AppStrings.tagsPee,
               selected: current == EventType.urination,
               onTap: () => onSelect(EventType.urination),
             ),
@@ -151,7 +152,7 @@ class _TypeTabs extends StatelessWidget {
           const SizedBox(width: AppSpacing.tabGap),
           Expanded(
             child: _TabButton(
-              label: 'Poop',
+              label: AppStrings.tagsPoop,
               selected: current == EventType.defecation,
               onTap: () => onSelect(EventType.defecation),
             ),
@@ -234,7 +235,10 @@ class _TagRow extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(entry.tag.name, style: strong),
-                Text('${entry.usageCount} uses', style: textTheme.bodySmall),
+                Text(
+                  AppStrings.tagUsageCount(entry.usageCount),
+                  style: textTheme.bodySmall,
+                ),
               ],
             ),
           ),

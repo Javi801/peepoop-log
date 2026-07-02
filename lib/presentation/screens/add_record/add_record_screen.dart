@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../data/db/app_database.dart';
 import '../../../data/models/event_type.dart';
 import '../../../data/models/record_models.dart';
+import '../../localization/app_strings.dart';
 import '../../scope/app_scope.dart';
 import '../../theme/theme.dart';
 import '../../util/date_time_format.dart';
@@ -101,7 +102,7 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
     setState(_reset);
     ScaffoldMessenger.of(
       context,
-    ).showSnackBar(const SnackBar(content: Text('Record saved')));
+    ).showSnackBar(const SnackBar(content: Text(AppStrings.recordSaved)));
   }
 
   void _reset() {
@@ -121,12 +122,12 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Add Record'),
+        title: const Text(AppStrings.addRecordTitle),
         actions: [
           Center(
             child: SecondaryButton(
               onPressed: () => setState(() => _occurredAt = DateTime.now()),
-              child: const Text('Now'),
+              child: const Text(AppStrings.addRecordNow),
             ),
           ),
           const SizedBox(width: AppSpacing.lg),
@@ -137,7 +138,7 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
         children: [
           AppCard(
             child: LabeledField(
-              label: 'Date and time',
+              label: AppStrings.addRecordDateTime,
               child: InkWell(
                 borderRadius: BorderRadius.circular(AppRadii.input),
                 onTap: _pickDateTime,
@@ -145,40 +146,41 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
                   decoration: const InputDecoration(),
                   child: Text(
                     '${localizations.formatShortDate(_occurredAt)}'
-                    ' · ${formatHourMinute(_occurredAt)}',
+                    '${AppStrings.addRecordDateTimeSeparator}'
+                    '${formatHourMinute(_occurredAt)}',
                   ),
                 ),
               ),
             ),
           ),
           ToggleCard(
-            label: 'Urination',
+            label: AppStrings.urination,
             icon: '💧',
             value: _hasUrination,
             onChanged: (value) => setState(() => _hasUrination = value),
           ),
           if (_hasUrination)
             _DetailCard(
-              descriptionLabel: 'Urination description',
-              descriptionHint: 'No discomfort.',
+              descriptionLabel: AppStrings.urinationDescription,
+              descriptionHint: AppStrings.urinationDescriptionHint,
               description: _urinationDescription,
-              tagLabel: 'Urination tags',
+              tagLabel: AppStrings.urinationTags,
               tags: _urinationTags,
               onAddTag: (name) => _addTag(name, EventType.urination),
               onRemoveTag: (tag) => setState(() => _urinationTags.remove(tag)),
             ),
           ToggleCard(
-            label: 'Defecation',
+            label: AppStrings.defecation,
             icon: '💩',
             value: _hasDefecation,
             onChanged: (value) => setState(() => _hasDefecation = value),
           ),
           if (_hasDefecation)
             _DetailCard(
-              descriptionLabel: 'Defecation description',
-              descriptionHint: 'Write something...',
+              descriptionLabel: AppStrings.defecationDescription,
+              descriptionHint: AppStrings.defecationDescriptionHint,
               description: _defecationDescription,
-              tagLabel: 'Defecation tags',
+              tagLabel: AppStrings.defecationTags,
               tags: _defecationTags,
               onAddTag: (name) => _addTag(name, EventType.defecation),
               onRemoveTag: (tag) => setState(() => _defecationTags.remove(tag)),
@@ -186,7 +188,7 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
           PrimaryButton(
             expand: true,
             onPressed: canSave ? _save : null,
-            child: const Text('Save Record'),
+            child: const Text(AppStrings.addRecordSave),
           ),
         ],
       ),

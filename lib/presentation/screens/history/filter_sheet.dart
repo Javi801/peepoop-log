@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../data/db/app_database.dart';
 import '../../../data/models/event_type.dart';
 import '../../../data/models/record_models.dart';
+import '../../localization/app_strings.dart';
 import '../../scope/app_scope.dart';
 import '../../theme/theme.dart';
 import '../../widgets/widgets.dart';
@@ -83,30 +84,30 @@ class _FilterSheetState extends State<FilterSheet> {
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const ModalTitle('Filters'),
+        const ModalTitle(AppStrings.filtersTitle),
         _DateField(
-          label: 'From',
+          label: AppStrings.filtersFrom,
           value: _from,
           onTap: () => _pickDate(isFrom: true),
         ),
         _DateField(
-          label: 'To',
+          label: AppStrings.filtersTo,
           value: _to,
           onTap: () => _pickDate(isFrom: false),
         ),
         ToggleCard(
-          label: 'Urination',
+          label: AppStrings.urination,
           icon: '💧',
           value: _urination,
           onChanged: (value) => setState(() => _urination = value),
         ),
         ToggleCard(
-          label: 'Defecation',
+          label: AppStrings.defecation,
           icon: '💩',
           value: _defecation,
           onChanged: (value) => setState(() => _defecation = value),
         ),
-        const SectionTitle('Tags'),
+        const SectionTitle(AppStrings.filtersTags),
         FutureBuilder<List<Tag>>(
           future: _tags,
           builder: (context, snapshot) {
@@ -142,8 +143,14 @@ class _FilterSheetState extends State<FilterSheet> {
         ),
         ModalActions(
           children: [
-            OutlinedButton(onPressed: _clear, child: const Text('Clear')),
-            PrimaryButton(onPressed: _apply, child: const Text('Apply')),
+            OutlinedButton(
+              onPressed: _clear,
+              child: const Text(AppStrings.filtersClear),
+            ),
+            PrimaryButton(
+              onPressed: _apply,
+              child: const Text(AppStrings.filtersApply),
+            ),
           ],
         ),
       ],
@@ -173,7 +180,7 @@ class _DateField extends StatelessWidget {
           decoration: const InputDecoration(),
           child: Text(
             value == null
-                ? 'Any'
+                ? AppStrings.filtersAny
                 : MaterialLocalizations.of(context).formatShortDate(value!),
           ),
         ),

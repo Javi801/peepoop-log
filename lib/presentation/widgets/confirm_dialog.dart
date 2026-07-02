@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../localization/app_strings.dart';
 import '../theme/theme.dart';
 import 'app_buttons.dart';
 import 'app_modal.dart';
@@ -12,7 +13,7 @@ Future<bool> showConfirmDialog(
   BuildContext context, {
   required String title,
   required String message,
-  String confirmLabel = 'Delete',
+  String confirmLabel = AppStrings.confirmDelete,
   String? emoji,
 }) async {
   final confirmed = await showDialog<bool>(
@@ -38,7 +39,7 @@ Future<bool> showConfirmDialog(
               children: [
                 OutlinedButton(
                   onPressed: () => Navigator.pop(context, false),
-                  child: const Text('Cancel'),
+                  child: const Text(AppStrings.cancel),
                 ),
                 DangerButton(
                   onPressed: () => Navigator.pop(context, true),

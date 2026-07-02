@@ -4,6 +4,7 @@ import '../../../data/db/app_database.dart';
 import '../../../data/models/event_type.dart';
 import '../../../data/models/tag_models.dart';
 import '../../../data/repositories/tag_repository.dart';
+import '../../localization/app_strings.dart';
 import '../../scope/app_scope.dart';
 import '../../theme/theme.dart';
 import '../../util/color_hex.dart';
@@ -47,11 +48,11 @@ class _EditTagDialogState extends State<EditTagDialog> {
     final repository = AppScope.of(context).tagRepository;
     final name = _name.text.trim();
     if (name.isEmpty) {
-      setState(() => _error = 'Tag name is required.');
+      setState(() => _error = AppStrings.editTagNameRequired);
       return;
     }
     if (tryColorFromHex(_hex.text) == null) {
-      setState(() => _error = 'Color must be a 6-digit hex value.');
+      setState(() => _error = AppStrings.editTagColorInvalid);
       return;
     }
     try {
@@ -69,7 +70,7 @@ class _EditTagDialogState extends State<EditTagDialog> {
         );
       }
     } on DuplicateTagException {
-      setState(() => _error = 'Tag already exists.');
+      setState(() => _error = AppStrings.editTagDuplicate);
       return;
     }
     if (mounted) Navigator.pop(context);
@@ -87,13 +88,17 @@ class _EditTagDialogState extends State<EditTagDialog> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              ModalTitle(widget.tag == null ? 'New Tag' : 'Edit Tag'),
+              ModalTitle(
+                widget.tag == null
+                    ? AppStrings.editTagNewTitle
+                    : AppStrings.editTagEditTitle,
+              ),
               LabeledField(
-                label: 'Name',
+                label: AppStrings.editTagName,
                 child: TextField(controller: _name),
               ),
               LabeledField(
-                label: 'Color',
+                label: AppStrings.editTagColor,
                 child: Wrap(
                   spacing: AppSpacing.xs,
                   runSpacing: AppSpacing.xs,
@@ -108,7 +113,7 @@ class _EditTagDialogState extends State<EditTagDialog> {
                 ),
               ),
               LabeledField(
-                label: 'Hexadecimal color',
+                label: AppStrings.editTagHexColor,
                 child: Row(
                   children: [
                     Container(
@@ -144,9 +149,12 @@ class _EditTagDialogState extends State<EditTagDialog> {
                 children: [
                   OutlinedButton(
                     onPressed: () => Navigator.pop(context),
-                    child: const Text('Cancel'),
+                    child: const Text(AppStrings.cancel),
                   ),
-                  PrimaryButton(onPressed: _save, child: const Text('Save')),
+                  PrimaryButton(
+                    onPressed: _save,
+                    child: const Text(AppStrings.editTagSave),
+                  ),
                 ],
               ),
             ],

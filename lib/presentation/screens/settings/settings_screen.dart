@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../localization/app_strings.dart';
 import '../../scope/app_scope.dart';
 import '../../theme/theme.dart';
 import '../../widgets/widgets.dart';
@@ -14,42 +15,35 @@ class SettingsScreen extends StatelessWidget {
     final confirmed = await showConfirmDialog(
       context,
       emoji: '💩💕',
-      title: 'Delete all app data?',
-      message:
-          'This will permanently delete all records and tags. '
-          'This action cannot be undone.',
+      title: AppStrings.settingsDeleteAllDialogTitle,
+      message: AppStrings.settingsDeleteAllDialogMessage,
     );
     if (!confirmed) return;
     await repository.deleteAllData();
     messenger.showSnackBar(
-      const SnackBar(content: Text('All app data deleted')),
+      const SnackBar(content: Text(AppStrings.settingsDeleted)),
     );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Settings')),
+      appBar: AppBar(title: const Text(AppStrings.settingsTitle)),
       body: ListView(
         padding: AppInsets.screen,
         children: [
           _SettingsCard(
-            title: 'Delete all app data',
-            body: 'Deletes all records and tags after confirmation.',
+            title: AppStrings.settingsDeleteAllTitle,
+            body: AppStrings.settingsDeleteAllBody,
             onTap: () => _deleteAllData(context),
           ),
           const _SettingsCard(
-            title: 'Privacy',
-            body:
-                'All data is stored only on this device. No login, cloud, '
-                'analytics, Firebase, Google services, Meta services, or '
-                'tracking.',
+            title: AppStrings.settingsPrivacyTitle,
+            body: AppStrings.settingsPrivacyBody,
           ),
           const _SettingsCard(
-            title: 'About',
-            body:
-                'PeePoop Log\nVersion 0.1.0\n'
-                'Developer contact: your.email@example.com',
+            title: AppStrings.settingsAboutTitle,
+            body: AppStrings.settingsAboutBody,
           ),
         ],
       ),

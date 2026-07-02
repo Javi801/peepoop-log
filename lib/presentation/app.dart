@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../data/db/app_database.dart';
 import '../data/repositories/record_repository.dart';
 import '../data/repositories/tag_repository.dart';
+import 'localization/app_strings.dart';
 import 'navigation/home_shell.dart';
 import 'scope/app_scope.dart';
 import 'screens/splash/splash_screen.dart';
@@ -42,7 +43,7 @@ class _PeepoopLogAppState extends State<PeepoopLogApp> {
       recordRepository: _recordRepository,
       tagRepository: _tagRepository,
       child: MaterialApp(
-        title: 'PeePoop Log',
+        title: AppStrings.appName,
         theme: AppTheme.light(),
         home: FutureBuilder<void>(
           future: _databaseReady,
@@ -77,7 +78,10 @@ class _StartupErrorScreen extends StatelessWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text('Could not open your data', style: textTheme.headlineSmall),
+              Text(
+                AppStrings.startupErrorTitle,
+                style: textTheme.headlineSmall,
+              ),
               const SizedBox(height: AppSpacing.sm),
               Text(
                 '$error',

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../localization/app_strings.dart';
 import 'labeled_field.dart';
 
 /// Text field that submits tag names via the keyboard action or the "+"
@@ -47,10 +48,10 @@ class _TagInputFieldState extends State<TagInputField> {
         textInputAction: TextInputAction.done,
         onSubmitted: (_) => _submit(),
         decoration: InputDecoration(
-          hintText: 'Type a tag and press Enter',
+          hintText: AppStrings.tagInputHint,
           suffixIcon: IconButton(
             onPressed: _submit,
-            tooltip: 'Add tag',
+            tooltip: AppStrings.tagInputAddTooltip,
             icon: Icon(Icons.add, color: colorScheme.onPrimaryContainer),
           ),
         ),
