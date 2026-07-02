@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 /// Semantic color palette for one visual theme.
 ///
-/// The values of [pastel] mirror the design reference in `base-app.html`,
+/// The values of [pastel] mirror the design reference in `docs/base-app.html`,
 /// which remains the source of truth while the UI is ported to Flutter.
 ///
 /// Registered as a [ThemeExtension] so widgets can read it with
