@@ -155,7 +155,7 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
           ),
           ToggleCard(
             label: AppStrings.urination,
-            icon: '💧',
+            icon: AppSymbols.urination,
             value: _hasUrination,
             onChanged: (value) => setState(() => _hasUrination = value),
           ),
@@ -171,7 +171,7 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
             ),
           ToggleCard(
             label: AppStrings.defecation,
-            icon: '💩',
+            icon: AppSymbols.defecation,
             value: _hasDefecation,
             onChanged: (value) => setState(() => _hasDefecation = value),
           ),

@@ -85,26 +85,26 @@ class _BottomNavBar extends StatelessWidget {
                 children: [
                   _NavItem(
                     destination: HomeDestination.history,
-                    icon: '📖',
+                    icon: AppSymbols.navHistory,
                     selected: current == HomeDestination.history,
                     onSelect: onSelect,
                   ),
                   _NavItem(
                     destination: HomeDestination.tags,
-                    icon: '🏷️',
+                    icon: AppSymbols.navTags,
                     selected: current == HomeDestination.tags,
                     onSelect: onSelect,
                   ),
                   const SizedBox(width: AppSizes.navPlusSlot),
                   _NavItem(
                     destination: HomeDestination.export,
-                    icon: '📤',
+                    icon: AppSymbols.navExport,
                     selected: current == HomeDestination.export,
                     onSelect: onSelect,
                   ),
                   _NavItem(
                     destination: HomeDestination.settings,
-                    icon: '⚙️',
+                    icon: AppSymbols.navSettings,
                     selected: current == HomeDestination.settings,
                     onSelect: onSelect,
                   ),
@@ -192,7 +192,7 @@ class _PlusButton extends StatelessWidget {
             onTap: onTap,
             child: Center(
               child: Text(
-                '+',
+                AppSymbols.navAdd,
                 style: AppTypography.navPlus.copyWith(color: colors.onPrimary),
               ),
             ),

@@ -14,7 +14,7 @@ class SettingsScreen extends StatelessWidget {
     final messenger = ScaffoldMessenger.of(context);
     final confirmed = await showConfirmDialog(
       context,
-      emoji: '💩💕',
+      emoji: AppSymbols.deleteAllData,
       title: AppStrings.settingsDeleteAllDialogTitle,
       message: AppStrings.settingsDeleteAllDialogMessage,
     );

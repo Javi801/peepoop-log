@@ -225,7 +225,10 @@ class _TagRow extends StatelessWidget {
       child: Row(
         children: [
           if (deleteMode) ...[
-            Text(selected ? '✓' : '○', style: strong),
+            Text(
+              selected ? AppSymbols.selected : AppSymbols.unselected,
+              style: strong,
+            ),
             const SizedBox(width: AppSpacing.sm),
           ],
           TagDot(colorHex: entry.tag.colorHex),
@@ -242,7 +245,7 @@ class _TagRow extends StatelessWidget {
               ],
             ),
           ),
-          if (!deleteMode) Text('›', style: strong),
+          if (!deleteMode) Text(AppSymbols.disclosure, style: strong),
         ],
       ),
     );

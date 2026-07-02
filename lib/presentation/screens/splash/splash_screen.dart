@@ -24,7 +24,7 @@ class SplashScreen extends StatelessWidget {
             const SizedBox(height: AppSpacing.sm),
             Text(AppStrings.splashSubtitle, style: textTheme.bodySmall),
             const SizedBox(height: AppSpacing.splashEmojiGap),
-            const Text('🐼🚽', style: AppTypography.splashEmoji),
+            const Text(AppSymbols.splashHero, style: AppTypography.splashEmoji),
             const SizedBox(height: AppSpacing.splashLoaderGap),
             SizedBox(
               width: AppSizes.loaderWidth,

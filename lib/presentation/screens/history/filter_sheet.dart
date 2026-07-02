@@ -97,13 +97,13 @@ class _FilterSheetState extends State<FilterSheet> {
         ),
         ToggleCard(
           label: AppStrings.urination,
-          icon: '💧',
+          icon: AppSymbols.urination,
           value: _urination,
           onChanged: (value) => setState(() => _urination = value),
         ),
         ToggleCard(
           label: AppStrings.defecation,
-          icon: '💩',
+          icon: AppSymbols.defecation,
           value: _defecation,
           onChanged: (value) => setState(() => _defecation = value),
         ),
@@ -133,7 +133,8 @@ class _FilterSheetState extends State<FilterSheet> {
                             ),
                           ),
                         ),
-                        if (_tagIds.contains(tag.id)) const Text('✓'),
+                        if (_tagIds.contains(tag.id))
+                          const Text(AppSymbols.selected),
                       ],
                     ),
                   ),

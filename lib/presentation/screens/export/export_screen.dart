@@ -55,7 +55,10 @@ class _ExportScreenState extends State<ExportScreen> {
             padding: AppInsets.exportHero,
             child: Column(
               children: [
-                const Text('🐼📄', style: AppTypography.exportEmoji),
+                const Text(
+                  AppSymbols.exportHero,
+                  style: AppTypography.exportEmoji,
+                ),
                 Text(
                   AppStrings.exportHeroTitle,
                   style: textTheme.headlineSmall,
