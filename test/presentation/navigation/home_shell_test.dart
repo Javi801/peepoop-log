@@ -1,13 +1,33 @@
+import 'package:drift/drift.dart';
+import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:peepoop_log/data/db/app_database.dart';
+import 'package:peepoop_log/data/repositories/record_repository.dart';
+import 'package:peepoop_log/data/repositories/tag_repository.dart';
 import 'package:peepoop_log/presentation/navigation/home_shell.dart';
+import 'package:peepoop_log/presentation/scope/app_scope.dart';
 import 'package:peepoop_log/presentation/theme/theme.dart';
 
 void main() {
-  Future<void> pumpShell(WidgetTester tester) {
-    return tester.pumpWidget(
-      MaterialApp(theme: AppTheme.light(), home: const HomeShell()),
+  late AppDatabase db;
+
+  setUp(() {
+    driftRuntimeOptions.dontWarnAboutMultipleDatabases = true;
+    db = AppDatabase(NativeDatabase.memory());
+  });
+
+  tearDown(() => db.close());
+
+  Future<void> pumpShell(WidgetTester tester) async {
+    await tester.pumpWidget(
+      AppScope(
+        recordRepository: RecordRepository(db),
+        tagRepository: TagRepository(db),
+        child: MaterialApp(theme: AppTheme.light(), home: const HomeShell()),
+      ),
     );
+    await tester.pump();
   }
 
   Finder appBarTitle(String title) =>
@@ -30,7 +50,7 @@ void main() {
     ];
 
     for (final destination in destinations) {
-      await tester.tap(find.text(destination.title));
+      await tester.tap(find.text(destination.title).last);
       await tester.pump();
 
       expect(appBarTitle(destination.title), findsOneWidget);
