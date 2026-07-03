@@ -120,57 +120,39 @@ class RecordRepository {
   List<RecordWithTags> _groupRows(List<TypedResult> rows) {
     final order = <int>[];
     final records = <int, RecordRow>{};
-    final urinationTags = <int, List<Tag>>{};
-    final defecationTags = <int, List<Tag>>{};
+    final tagsByType = <int, Map<EventType, List<Tag>>>{};
 
     for (final row in rows) {
       final record = row.readTable(_db.records);
       if (!records.containsKey(record.id)) {
         records[record.id] = record;
         order.add(record.id);
-        urinationTags[record.id] = [];
-        defecationTags[record.id] = [];
+        tagsByType[record.id] = {for (final type in EventType.values) type: []};
       }
       final tag = row.readTableOrNull(_db.tags);
       if (tag != null) {
-        final target = tag.type == EventType.urination
-            ? urinationTags
-            : defecationTags;
-        target[record.id]!.add(tag);
+        tagsByType[record.id]![tag.type]!.add(tag);
       }
     }
 
     return [
       for (final id in order)
-        RecordWithTags(
-          record: records[id]!,
-          urinationTags: urinationTags[id]!,
-          defecationTags: defecationTags[id]!,
-        ),
+        RecordWithTags(record: records[id]!, tagsByType: tagsByType[id]!),
     ];
   }
 
   void _validateShape(RecordDraft draft) {
-    if (!draft.hasUrination && !draft.hasDefecation) {
+    if (draft.details.isEmpty) {
       throw ArgumentError(
         'a record must include urination, defecation, or both',
       );
     }
-    if (!draft.hasUrination &&
-        (_cleanDescription(draft.urinationDescription) != null ||
-            draft.urinationTagIds.isNotEmpty)) {
-      throw ArgumentError('urination details require hasUrination');
-    }
-    if (!draft.hasDefecation &&
-        (_cleanDescription(draft.defecationDescription) != null ||
-            draft.defecationTagIds.isNotEmpty)) {
-      throw ArgumentError('defecation details require hasDefecation');
-    }
   }
 
   Future<void> _validateTagTypes(RecordDraft draft) async {
-    await _checkTagsMatchType(draft.urinationTagIds, EventType.urination);
-    await _checkTagsMatchType(draft.defecationTagIds, EventType.defecation);
+    for (final entry in draft.details.entries) {
+      await _checkTagsMatchType(entry.value.tagIds, entry.key);
+    }
   }
 
   Future<void> _checkTagsMatchType(List<int> ids, EventType expected) async {
@@ -190,18 +172,20 @@ class RecordRepository {
     }
   }
 
-  RecordsCompanion _draftCompanion(RecordDraft draft) => RecordsCompanion(
-    occurredAt: Value(draft.occurredAt),
-    hasUrination: Value(draft.hasUrination),
-    hasDefecation: Value(draft.hasDefecation),
-    urinationDescription: Value(_cleanDescription(draft.urinationDescription)),
-    defecationDescription: Value(
-      _cleanDescription(draft.defecationDescription),
-    ),
-  );
+  RecordsCompanion _draftCompanion(RecordDraft draft) {
+    final urination = draft.details[EventType.urination];
+    final defecation = draft.details[EventType.defecation];
+    return RecordsCompanion(
+      occurredAt: Value(draft.occurredAt),
+      hasUrination: Value(urination != null),
+      hasDefecation: Value(defecation != null),
+      urinationDescription: Value(_cleanDescription(urination?.description)),
+      defecationDescription: Value(_cleanDescription(defecation?.description)),
+    );
+  }
 
   Future<void> _insertAssociations(int recordId, RecordDraft draft) async {
-    final tagIds = {...draft.urinationTagIds, ...draft.defecationTagIds};
+    final tagIds = {for (final detail in draft.details.values) ...detail.tagIds};
     if (tagIds.isEmpty) return;
     await _db.batch((batch) {
       batch.insertAll(_db.recordTags, [

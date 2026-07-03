@@ -46,10 +46,13 @@ void main() {
     await records.createRecord(
       RecordDraft(
         occurredAt: DateTime(2026, 6, 22, 8, 30),
-        hasUrination: true,
-        hasDefecation: true,
-        urinationDescription: 'Slight urgency.',
-        urinationTagIds: [urgent.id],
+        details: {
+          EventType.urination: EventDetail(
+            description: 'Slight urgency.',
+            tagIds: [urgent.id],
+          ),
+          EventType.defecation: const EventDetail(),
+        },
       ),
     );
 

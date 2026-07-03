@@ -156,8 +156,11 @@ void main() {
         await records.createRecord(
           RecordDraft(
             occurredAt: DateTime.utc(2026, 6, 19 + i),
-            hasUrination: true,
-            urinationTagIds: [pain.id, if (i == 0) urgent.id],
+            details: {
+              EventType.urination: EventDetail(
+                tagIds: [pain.id, if (i == 0) urgent.id],
+              ),
+            },
           ),
         );
       }
@@ -182,8 +185,9 @@ void main() {
       final recordId = await records.createRecord(
         RecordDraft(
           occurredAt: DateTime.utc(2026, 6, 19),
-          hasUrination: true,
-          urinationTagIds: [pain.id],
+          details: {
+            EventType.urination: EventDetail(tagIds: [pain.id]),
+          },
         ),
       );
 
@@ -191,7 +195,7 @@ void main() {
 
       final record = await records.getRecord(recordId);
       expect(record, isNotNull);
-      expect(record!.urinationTags, isEmpty);
+      expect(record!.tagsFor(EventType.urination), isEmpty);
       expect(await db.select(db.tags).get(), isEmpty);
     });
   });

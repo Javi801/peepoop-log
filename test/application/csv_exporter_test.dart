@@ -44,8 +44,10 @@ void main() {
           urinationDescription: 'Light description',
           defecationDescription: 'Another description',
         ),
-        urinationTags: [tag(1, 'tag1'), tag(2, 'tag2')],
-        defecationTags: [tag(3, 'tag3', type: EventType.defecation)],
+        tagsByType: {
+          EventType.urination: [tag(1, 'tag1'), tag(2, 'tag2')],
+          EventType.defecation: [tag(3, 'tag3', type: EventType.defecation)],
+        },
       ),
     ]);
 
@@ -62,8 +64,7 @@ occurred_at,type,description,tags
           occurredAt: DateTime(2026, 6, 21, 22, 10),
           urination: true,
         ),
-        urinationTags: const [],
-        defecationTags: const [],
+        tagsByType: const {},
       ),
     ]);
 
@@ -80,8 +81,9 @@ occurred_at,type,description,tags
           urination: true,
           urinationDescription: 'He said "ouch", twice',
         ),
-        urinationTags: [tag(1, 'a,b')],
-        defecationTags: const [],
+        tagsByType: {
+          EventType.urination: [tag(1, 'a,b')],
+        },
       ),
     ]);
 

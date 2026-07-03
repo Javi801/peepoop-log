@@ -4,6 +4,7 @@ import '../../../data/db/app_database.dart';
 import '../../../data/models/event_type.dart';
 import '../../../data/models/record_models.dart';
 import '../../localization/app_strings.dart';
+import '../../localization/event_type_strings.dart';
 import '../../scope/app_scope.dart';
 import '../../theme/theme.dart';
 import '../../util/date_time_format.dart';
@@ -17,20 +18,31 @@ class AddRecordScreen extends StatefulWidget {
   State<AddRecordScreen> createState() => _AddRecordScreenState();
 }
 
+/// Editable form state for one event type. Kept even while the type is
+/// disabled so re-enabling restores what the user typed.
+class _EventForm {
+  _EventForm({this.enabled = false});
+
+  final TextEditingController description = TextEditingController();
+  final List<Tag> tags = [];
+  bool enabled;
+
+  void dispose() => description.dispose();
+}
+
 class _AddRecordScreenState extends State<AddRecordScreen> {
   DateTime _occurredAt = DateTime.now();
-  bool _hasUrination = true;
-  bool _hasDefecation = false;
-  final _urinationDescription = TextEditingController();
-  final _defecationDescription = TextEditingController();
-  final List<Tag> _urinationTags = [];
-  final List<Tag> _defecationTags = [];
+  final Map<EventType, _EventForm> _forms = {
+    EventType.urination: _EventForm(enabled: true),
+    EventType.defecation: _EventForm(enabled: false),
+  };
   bool _saving = false;
 
   @override
   void dispose() {
-    _urinationDescription.dispose();
-    _defecationDescription.dispose();
+    for (final form in _forms.values) {
+      form.dispose();
+    }
     super.dispose();
   }
 
@@ -57,10 +69,8 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
     final tag = await AppScope.of(context).tagRepository.ensureTag(name, type);
     if (!mounted) return;
     setState(() {
-      final target = type == EventType.urination
-          ? _urinationTags
-          : _defecationTags;
-      if (!target.any((t) => t.id == tag.id)) target.add(tag);
+      final tags = _forms[type]!.tags;
+      if (!tags.any((t) => t.id == tag.id)) tags.add(tag);
     });
   }
 
@@ -68,26 +78,19 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
     final repository = AppScope.of(context).recordRepository;
     setState(() => _saving = true);
     try {
+      // Disabled sections keep their form state so re-enabling restores it,
+      // but only enabled types contribute a detail to the draft.
       await repository.createRecord(
         RecordDraft(
           occurredAt: _occurredAt,
-          hasUrination: _hasUrination,
-          hasDefecation: _hasDefecation,
-          // Disabled sections keep their form state so re-enabling restores
-          // it, but their details must not reach the repository, which
-          // rejects details without their event type.
-          urinationDescription: _hasUrination
-              ? _urinationDescription.text
-              : null,
-          defecationDescription: _hasDefecation
-              ? _defecationDescription.text
-              : null,
-          urinationTagIds: _hasUrination
-              ? [for (final t in _urinationTags) t.id]
-              : const [],
-          defecationTagIds: _hasDefecation
-              ? [for (final t in _defecationTags) t.id]
-              : const [],
+          details: {
+            for (final entry in _forms.entries)
+              if (entry.value.enabled)
+                entry.key: EventDetail(
+                  description: entry.value.description.text,
+                  tagIds: [for (final t in entry.value.tags) t.id],
+                ),
+          },
         ),
       );
     } finally {
@@ -102,18 +105,17 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
 
   void _reset() {
     _occurredAt = DateTime.now();
-    _hasUrination = true;
-    _hasDefecation = false;
-    _urinationDescription.clear();
-    _defecationDescription.clear();
-    _urinationTags.clear();
-    _defecationTags.clear();
+    _forms.forEach((type, form) {
+      form.enabled = type == EventType.urination;
+      form.description.clear();
+      form.tags.clear();
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     final localizations = MaterialLocalizations.of(context);
-    final canSave = (_hasUrination || _hasDefecation) && !_saving;
+    final canSave = _forms.values.any((f) => f.enabled) && !_saving;
 
     return Scaffold(
       appBar: AppBar(
@@ -138,38 +140,26 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
               onTap: _pickDateTime,
             ),
           ),
-          ToggleCard(
-            label: AppStrings.urination,
-            icon: AppSymbols.urination,
-            value: _hasUrination,
-            onChanged: (value) => setState(() => _hasUrination = value),
-          ),
-          if (_hasUrination)
-            _DetailCard(
-              descriptionLabel: AppStrings.urinationDescription,
-              descriptionHint: AppStrings.urinationDescriptionHint,
-              description: _urinationDescription,
-              tagLabel: AppStrings.urinationTags,
-              tags: _urinationTags,
-              onAddTag: (name) => _addTag(name, EventType.urination),
-              onRemoveTag: (tag) => setState(() => _urinationTags.remove(tag)),
+          for (final type in EventType.values) ...[
+            ToggleCard(
+              label: type.label,
+              icon: type.icon,
+              value: _forms[type]!.enabled,
+              onChanged: (value) =>
+                  setState(() => _forms[type]!.enabled = value),
             ),
-          ToggleCard(
-            label: AppStrings.defecation,
-            icon: AppSymbols.defecation,
-            value: _hasDefecation,
-            onChanged: (value) => setState(() => _hasDefecation = value),
-          ),
-          if (_hasDefecation)
-            _DetailCard(
-              descriptionLabel: AppStrings.defecationDescription,
-              descriptionHint: AppStrings.defecationDescriptionHint,
-              description: _defecationDescription,
-              tagLabel: AppStrings.defecationTags,
-              tags: _defecationTags,
-              onAddTag: (name) => _addTag(name, EventType.defecation),
-              onRemoveTag: (tag) => setState(() => _defecationTags.remove(tag)),
-            ),
+            if (_forms[type]!.enabled)
+              _DetailCard(
+                descriptionLabel: type.descriptionLabel,
+                descriptionHint: type.descriptionHint,
+                description: _forms[type]!.description,
+                tagLabel: type.tagsLabel,
+                tags: _forms[type]!.tags,
+                onAddTag: (name) => _addTag(name, type),
+                onRemoveTag: (tag) =>
+                    setState(() => _forms[type]!.tags.remove(tag)),
+              ),
+          ],
           PrimaryButton(
             expand: true,
             onPressed: canSave ? _save : null,

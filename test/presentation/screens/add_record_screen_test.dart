@@ -3,6 +3,7 @@ import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:peepoop_log/data/db/app_database.dart';
+import 'package:peepoop_log/data/models/event_type.dart';
 import 'package:peepoop_log/data/repositories/record_repository.dart';
 import 'package:peepoop_log/data/repositories/tag_repository.dart';
 import 'package:peepoop_log/presentation/scope/app_scope.dart';
@@ -62,7 +63,9 @@ void main() {
       expect(saved.single.record.hasUrination, isTrue);
       expect(saved.single.record.hasDefecation, isFalse);
       expect(saved.single.record.urinationDescription, 'No discomfort.');
-      expect(saved.single.urinationTags.map((t) => t.name), ['light yellow']);
+      expect(saved.single.tagsFor(EventType.urination).map((t) => t.name), [
+        'light yellow',
+      ]);
 
       expect(
         tester.widget<TextField>(find.byType(TextField).first).controller!.text,

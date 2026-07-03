@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../data/models/event_type.dart';
 import '../../../data/models/record_models.dart';
 import '../../localization/app_strings.dart';
 import '../../scope/app_scope.dart';
@@ -112,28 +113,16 @@ class _RecordCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(title, style: AppTypography.bodyBold),
-                if (entry.urinationTags.isNotEmpty) ...[
-                  const SizedBox(height: AppSpacing.xs),
-                  TagChips(tags: entry.urinationTags),
-                ],
-                if (entry.defecationTags.isNotEmpty) ...[
-                  const SizedBox(height: AppSpacing.xs),
-                  TagChips(tags: entry.defecationTags),
-                ],
-                if (record.urinationDescription != null) ...[
-                  const SizedBox(height: AppSpacing.xs),
-                  Text(
-                    record.urinationDescription!,
-                    style: textTheme.bodySmall,
-                  ),
-                ],
-                if (record.defecationDescription != null) ...[
-                  const SizedBox(height: AppSpacing.xs),
-                  Text(
-                    record.defecationDescription!,
-                    style: textTheme.bodySmall,
-                  ),
-                ],
+                for (final type in EventType.values)
+                  if (entry.tagsFor(type).isNotEmpty) ...[
+                    const SizedBox(height: AppSpacing.xs),
+                    TagChips(tags: entry.tagsFor(type)),
+                  ],
+                for (final type in EventType.values)
+                  if (record.descriptionFor(type) != null) ...[
+                    const SizedBox(height: AppSpacing.xs),
+                    Text(record.descriptionFor(type)!, style: textTheme.bodySmall),
+                  ],
               ],
             ),
           ),

@@ -47,8 +47,9 @@ void main() {
     await records.createRecord(
       RecordDraft(
         occurredAt: DateTime(2026, 6, 22, 8, 30),
-        hasUrination: true,
-        urinationTagIds: [urgent.id],
+        details: {
+          EventType.urination: EventDetail(tagIds: [urgent.id]),
+        },
       ),
     );
   }

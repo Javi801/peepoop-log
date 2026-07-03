@@ -1,4 +1,5 @@
 import '../data/db/app_database.dart';
+import '../data/models/event_type.dart';
 import '../data/models/record_models.dart';
 
 /// Builds the CSV export: one row per physiological event, so a record
@@ -12,23 +13,14 @@ class CsvExporter {
     final lines = ['occurred_at,type,description,tags'];
     for (final entry in records) {
       final record = entry.record;
-      if (record.hasUrination) {
+      for (final type in EventType.values) {
+        if (!record.has(type)) continue;
         lines.add(
           _row(
             record.occurredAt,
-            'urination',
-            record.urinationDescription,
-            entry.urinationTags,
-          ),
-        );
-      }
-      if (record.hasDefecation) {
-        lines.add(
-          _row(
-            record.occurredAt,
-            'defecation',
-            record.defecationDescription,
-            entry.defecationTags,
+            type.name,
+            record.descriptionFor(type),
+            entry.tagsFor(type),
           ),
         );
       }

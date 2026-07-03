@@ -54,8 +54,9 @@ void main() {
     await records.createRecord(
       RecordDraft(
         occurredAt: DateTime(2026, 6, 22, 8, 30),
-        hasUrination: true,
-        urinationTagIds: [tag.id],
+        details: {
+          EventType.urination: EventDetail(tagIds: [tag.id]),
+        },
       ),
     );
 
@@ -82,7 +83,10 @@ void main() {
   testWidgets('cancelling the confirmation keeps the data', (tester) async {
     unmountWidgetTreeAfterTest(tester);
     await records.createRecord(
-      RecordDraft(occurredAt: DateTime(2026, 6, 22, 8, 30), hasUrination: true),
+      RecordDraft(
+        occurredAt: DateTime(2026, 6, 22, 8, 30),
+        details: {EventType.urination: const EventDetail()},
+      ),
     );
 
     await tester.pumpWidget(app());
