@@ -1,0 +1,23 @@
+import 'package:flutter/material.dart';
+
+import '../theme/theme.dart';
+
+/// Purple heading between groups of cards.
+class SectionTitle extends StatelessWidget {
+  const SectionTitle(this.text, {super.key});
+
+  final String text;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.appColors;
+
+    return Padding(
+      padding: AppInsets.sectionTitle,
+      child: Text(
+        text,
+        style: AppTypography.sectionTitle.copyWith(color: colors.primaryDark),
+      ),
+    );
+  }
+}

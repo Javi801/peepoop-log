@@ -18,10 +18,10 @@ class Records extends Table {
 
   @override
   List<String> get customConstraints => [
-        'CHECK (has_urination = 1 OR has_defecation = 1)',
-        'CHECK (has_urination = 1 OR urination_description IS NULL)',
-        'CHECK (has_defecation = 1 OR defecation_description IS NULL)',
-      ];
+    'CHECK (has_urination = 1 OR has_defecation = 1)',
+    'CHECK (has_urination = 1 OR urination_description IS NULL)',
+    'CHECK (has_defecation = 1 OR defecation_description IS NULL)',
+  ];
 }
 
 class Tags extends Table {
@@ -33,14 +33,14 @@ class Tags extends Table {
 
   @override
   List<Set<Column>> get uniqueKeys => [
-        {normalizedName, type},
-      ];
+    {normalizedName, type},
+  ];
 
   @override
   List<String> get customConstraints => [
-        'CHECK (length(trim(name)) > 0)',
-        "CHECK (type IN ('urination', 'defecation'))",
-      ];
+    'CHECK (length(trim(name)) > 0)',
+    "CHECK (type IN ('urination', 'defecation'))",
+  ];
 }
 
 @TableIndex(name: 'idx_record_tags_tag', columns: {#tagId})
@@ -65,11 +65,11 @@ class AppDatabase extends _$AppDatabase {
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
-        onCreate: (m) => m.createAll(),
-        beforeOpen: (details) async {
-          // SQLite ships with foreign keys disabled; without this the ON
-          // DELETE CASCADE clauses are ignored.
-          await customStatement('PRAGMA foreign_keys = ON');
-        },
-      );
+    onCreate: (m) => m.createAll(),
+    beforeOpen: (details) async {
+      // SQLite ships with foreign keys disabled; without this the ON
+      // DELETE CASCADE clauses are ignored.
+      await customStatement('PRAGMA foreign_keys = ON');
+    },
+  );
 }

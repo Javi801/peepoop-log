@@ -1,37 +1,46 @@
 import '../db/app_database.dart';
+import 'event_type.dart';
 
-/// Input for creating or fully updating a record. Descriptions and tag ids
-/// are only allowed for event types that are selected.
+/// Description and tag ids for a single event type within a record.
+class EventDetail {
+  const EventDetail({this.description, this.tagIds = const []});
+
+  final String? description;
+  final List<int> tagIds;
+}
+
+/// Input for creating or fully updating a record. A record contains an event
+/// type if and only if [details] has an entry for it; that entry carries the
+/// type's description and tag ids, so details for an unselected type are
+/// unrepresentable.
 class RecordDraft {
-  const RecordDraft({
-    required this.occurredAt,
-    this.hasUrination = false,
-    this.hasDefecation = false,
-    this.urinationDescription,
-    this.defecationDescription,
-    this.urinationTagIds = const [],
-    this.defecationTagIds = const [],
-  });
+  const RecordDraft({required this.occurredAt, this.details = const {}});
 
   final DateTime occurredAt;
-  final bool hasUrination;
-  final bool hasDefecation;
-  final String? urinationDescription;
-  final String? defecationDescription;
-  final List<int> urinationTagIds;
-  final List<int> defecationTagIds;
+  final Map<EventType, EventDetail> details;
 }
 
 class RecordWithTags {
-  const RecordWithTags({
-    required this.record,
-    required this.urinationTags,
-    required this.defecationTags,
-  });
+  const RecordWithTags({required this.record, required this.tagsByType});
 
   final RecordRow record;
-  final List<Tag> urinationTags;
-  final List<Tag> defecationTags;
+  final Map<EventType, List<Tag>> tagsByType;
+
+  List<Tag> tagsFor(EventType type) => tagsByType[type] ?? const [];
+}
+
+/// Per-event-type access to the columnar record row, so callers can iterate
+/// [EventType.values] instead of branching on each generated column.
+extension RecordRowEvents on RecordRow {
+  bool has(EventType type) => switch (type) {
+    EventType.urination => hasUrination,
+    EventType.defecation => hasDefecation,
+  };
+
+  String? descriptionFor(EventType type) => switch (type) {
+    EventType.urination => urinationDescription,
+    EventType.defecation => defecationDescription,
+  };
 }
 
 /// Combinable history filters.
