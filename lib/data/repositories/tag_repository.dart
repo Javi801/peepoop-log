@@ -14,15 +14,6 @@ class TagRepository {
   final AppDatabase _db;
   final Random _random;
 
-  static const defaultPalette = [
-    '#FFE8A3',
-    '#CFEEFF',
-    '#D9F2C7',
-    '#FFD3D3',
-    '#EADBFF',
-    '#FFE4EC',
-  ];
-
   static String normalizeName(String name) => name.trim().toLowerCase();
 
   /// Accepts `A1B2C3` or `#A1B2C3` in any casing and returns `#A1B2C3`.
