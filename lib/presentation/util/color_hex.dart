@@ -1,14 +1,16 @@
 import 'dart:ui';
 
+import '../../data/models/hex_color.dart';
+
 /// Parses `A1B2C3` or `#A1B2C3` in any casing into an opaque [Color].
 ///
-/// Returns null when the value is not a 6-digit hex color, mirroring the
-/// leniency of `TagRepository.normalizeHexColor` without throwing: stored
-/// tag colors may predate validation.
+/// Shares the canonical parser with `TagRepository.normalizeHexColor` but
+/// returns null instead of throwing: stored tag colors may predate
+/// validation.
 Color? tryColorFromHex(String value) {
-  final match = RegExp(r'^#?([0-9a-fA-F]{6})$').firstMatch(value.trim());
-  if (match == null) return null;
-  return Color(0xFF000000 | int.parse(match[1]!, radix: 16));
+  final normalized = tryNormalizeHexColor(value);
+  if (normalized == null) return null;
+  return Color(0xFF000000 | int.parse(normalized.substring(1), radix: 16));
 }
 
 Color colorFromHex(String value, {required Color fallback}) =>

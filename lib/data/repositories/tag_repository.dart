@@ -4,6 +4,7 @@ import 'package:drift/drift.dart';
 
 import '../db/app_database.dart';
 import '../models/event_type.dart';
+import '../models/hex_color.dart';
 import '../models/tag_models.dart';
 
 class TagRepository {
@@ -25,15 +26,15 @@ class TagRepository {
 
   /// Accepts `A1B2C3` or `#A1B2C3` in any casing and returns `#A1B2C3`.
   static String normalizeHexColor(String value) {
-    final match = RegExp(r'^#?([0-9a-fA-F]{6})$').firstMatch(value.trim());
-    if (match == null) {
+    final normalized = tryNormalizeHexColor(value);
+    if (normalized == null) {
       throw ArgumentError.value(
         value,
         'colorHex',
         'must be a 6-digit hex color like #A1B2C3',
       );
     }
-    return '#${match[1]!.toUpperCase()}';
+    return normalized;
   }
 
   String randomColor() =>
