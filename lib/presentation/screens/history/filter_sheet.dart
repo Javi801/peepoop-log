@@ -123,12 +123,7 @@ class _FilterSheetState extends State<FilterSheet> {
                         TagDot(colorHex: tag.colorHex),
                         const SizedBox(width: AppSpacing.sm),
                         Expanded(
-                          child: Text(
-                            tag.name,
-                            style: AppTypography.body.copyWith(
-                              fontWeight: AppTypography.bold,
-                            ),
-                          ),
+                          child: Text(tag.name, style: AppTypography.bodyBold),
                         ),
                         if (_tagIds.contains(tag.id))
                           const Text(AppSymbols.selected),

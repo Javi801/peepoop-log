@@ -33,6 +33,9 @@ abstract final class AppTypography {
 
   static const TextStyle body = TextStyle(fontSize: 16);
 
+  /// Emphasized [body] variant for card titles and row labels.
+  static const TextStyle bodyBold = TextStyle(fontSize: 16, fontWeight: bold);
+
   /// Secondary/muted paragraph text.
   static const TextStyle secondary = TextStyle(fontSize: 13, height: 1.4);
 

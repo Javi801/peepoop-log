@@ -114,12 +114,7 @@ class _RecordCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  title,
-                  style: AppTypography.body.copyWith(
-                    fontWeight: AppTypography.bold,
-                  ),
-                ),
+                Text(title, style: AppTypography.bodyBold),
                 if (entry.urinationTags.isNotEmpty) ...[
                   const SizedBox(height: AppSpacing.xs),
                   TagChips(tags: entry.urinationTags),

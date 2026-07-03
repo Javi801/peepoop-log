@@ -65,10 +65,7 @@ class _SettingsCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            title,
-            style: AppTypography.body.copyWith(fontWeight: AppTypography.bold),
-          ),
+          Text(title, style: AppTypography.bodyBold),
           const SizedBox(height: AppSpacing.xs),
           Text(body, style: Theme.of(context).textTheme.bodySmall),
         ],

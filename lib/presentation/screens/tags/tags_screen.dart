@@ -215,7 +215,7 @@ class _TagRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
-    final strong = AppTypography.body.copyWith(fontWeight: AppTypography.bold);
+    const strong = AppTypography.bodyBold;
 
     return AppCard(
       onTap: onTap,
