@@ -118,15 +118,12 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text(AppStrings.addRecordTitle),
-        actions: [
-          Center(
-            child: SecondaryButton(
-              onPressed: () => setState(() => _occurredAt = DateTime.now()),
-              child: const Text(AppStrings.addRecordNow),
-            ),
+        actions: appBarActions([
+          SecondaryButton(
+            onPressed: () => setState(() => _occurredAt = DateTime.now()),
+            child: const Text(AppStrings.addRecordNow),
           ),
-          const SizedBox(width: AppSpacing.lg),
-        ],
+        ]),
       ),
       body: ListView(
         padding: AppInsets.screen,

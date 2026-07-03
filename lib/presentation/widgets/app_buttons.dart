@@ -89,6 +89,18 @@ class SecondaryButton extends StatelessWidget {
   }
 }
 
+/// AppBar `actions` with the shared layout: buttons centered vertically,
+/// [AppSpacing.sm] between them and [AppSpacing.lg] before the screen edge.
+List<Widget> appBarActions(List<Widget> buttons) {
+  return [
+    for (final (index, button) in buttons.indexed) ...[
+      if (index > 0) const SizedBox(width: AppSpacing.sm),
+      Center(child: button),
+    ],
+    const SizedBox(width: AppSpacing.lg),
+  ];
+}
+
 /// Soft red pill button for destructive actions.
 class DangerButton extends StatelessWidget {
   const DangerButton({super.key, required this.onPressed, required this.child});

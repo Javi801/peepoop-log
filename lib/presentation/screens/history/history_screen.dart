@@ -43,15 +43,12 @@ class _HistoryScreenState extends State<HistoryScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text(AppStrings.historyTitle),
-        actions: [
-          Center(
-            child: SecondaryButton(
-              onPressed: _openFilters,
-              child: const Text(AppStrings.historyFilters),
-            ),
+        actions: appBarActions([
+          SecondaryButton(
+            onPressed: _openFilters,
+            child: const Text(AppStrings.historyFilters),
           ),
-          const SizedBox(width: AppSpacing.lg),
-        ],
+        ]),
       ),
       body: StreamBuilder<List<RecordWithTags>>(
         stream: _records,

@@ -69,27 +69,21 @@ class _TagsScreenState extends State<TagsScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text(AppStrings.tagsTitle),
-        actions: [
-          Center(
-            child: SecondaryButton(
-              onPressed: () => setState(() {
-                _deleteMode = !_deleteMode;
-                _selected.clear();
-              }),
-              child: Text(
-                _deleteMode ? AppStrings.cancel : AppStrings.tagsDelete,
-              ),
+        actions: appBarActions([
+          SecondaryButton(
+            onPressed: () => setState(() {
+              _deleteMode = !_deleteMode;
+              _selected.clear();
+            }),
+            child: Text(
+              _deleteMode ? AppStrings.cancel : AppStrings.tagsDelete,
             ),
           ),
-          const SizedBox(width: AppSpacing.sm),
-          Center(
-            child: SecondaryButton(
-              onPressed: () => _openEditor(null),
-              child: const Text(AppStrings.tagsNew),
-            ),
+          SecondaryButton(
+            onPressed: () => _openEditor(null),
+            child: const Text(AppStrings.tagsNew),
           ),
-          const SizedBox(width: AppSpacing.lg),
-        ],
+        ]),
       ),
       body: StreamBuilder<List<TagWithUsage>>(
         stream: _tags,
