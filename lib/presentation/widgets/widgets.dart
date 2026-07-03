@@ -8,6 +8,7 @@ export 'app_switch.dart';
 export 'confirm_dialog.dart';
 export 'empty_state.dart';
 export 'labeled_field.dart';
+export 'picker_field.dart';
 export 'section_title.dart';
 export 'tag_chips.dart';
 export 'tag_dot.dart';

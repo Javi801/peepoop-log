@@ -35,12 +35,7 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
   }
 
   Future<void> _pickDateTime() async {
-    final date = await showDatePicker(
-      context: context,
-      initialDate: _occurredAt,
-      firstDate: DateTime(2000),
-      lastDate: DateTime(2100),
-    );
+    final date = await showAppDatePicker(context, initialDate: _occurredAt);
     if (date == null || !mounted) return;
     final time = await showTimePicker(
       context: context,
@@ -139,18 +134,11 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
           AppCard(
             child: LabeledField(
               label: AppStrings.addRecordDateTime,
-              child: InkWell(
-                borderRadius: BorderRadius.circular(AppRadii.input),
-                onTap: _pickDateTime,
-                child: InputDecorator(
-                  decoration: const InputDecoration(),
-                  child: Text(
-                    '${localizations.formatShortDate(_occurredAt)}'
-                    '${AppStrings.addRecordDateTimeSeparator}'
-                    '${formatHourMinute(_occurredAt)}',
-                  ),
-                ),
-              ),
+              text:
+                  '${localizations.formatShortDate(_occurredAt)}'
+                  '${AppStrings.addRecordDateTimeSeparator}'
+                  '${formatHourMinute(_occurredAt)}',
+              onTap: _pickDateTime,
             ),
           ),
           ToggleCard(

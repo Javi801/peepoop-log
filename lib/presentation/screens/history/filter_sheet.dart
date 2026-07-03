@@ -39,11 +39,9 @@ class _FilterSheetState extends State<FilterSheet> {
   }
 
   Future<void> _pickDate({required bool isFrom}) async {
-    final date = await showDatePicker(
-      context: context,
+    final date = await showAppDatePicker(
+      context,
       initialDate: (isFrom ? _from : _to) ?? DateTime.now(),
-      firstDate: DateTime(2000),
-      lastDate: DateTime(2100),
     );
     if (date == null || !mounted) return;
     setState(() {
@@ -79,6 +77,10 @@ class _FilterSheetState extends State<FilterSheet> {
     );
   }
 
+  String _dateLabel(BuildContext context, DateTime? value) => value == null
+      ? AppStrings.filtersAny
+      : MaterialLocalizations.of(context).formatShortDate(value);
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -86,14 +88,14 @@ class _FilterSheetState extends State<FilterSheet> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const ModalTitle(AppStrings.filtersTitle),
-        _DateField(
+        PickerField(
           label: AppStrings.filtersFrom,
-          value: _from,
+          text: _dateLabel(context, _from),
           onTap: () => _pickDate(isFrom: true),
         ),
-        _DateField(
+        PickerField(
           label: AppStrings.filtersTo,
-          value: _to,
+          text: _dateLabel(context, _to),
           onTap: () => _pickDate(isFrom: false),
         ),
         ToggleCard(
