@@ -10,15 +10,27 @@ import '../theme/theme.dart';
 
 /// Root destinations reachable from the bottom navigation bar.
 enum HomeDestination {
-  addRecord(AppStrings.navAddRecord),
-  history(AppStrings.navHistory),
-  tags(AppStrings.navTags),
-  export(AppStrings.navExport),
-  settings(AppStrings.navSettings);
+  addRecord(AppStrings.navAddRecord, AppSymbols.navAdd),
+  history(AppStrings.navHistory, AppSymbols.navHistory),
+  tags(AppStrings.navTags, AppSymbols.navTags),
+  export(AppStrings.navExport, AppSymbols.navExport),
+  settings(AppStrings.navSettings, AppSymbols.navSettings);
 
-  const HomeDestination(this.title);
+  const HomeDestination(this.title, this.icon);
 
   final String title;
+
+  /// Glyph shown in the bottom bar: an emoji, or "+" for [addRecord].
+  final String icon;
+
+  /// Root screen hosted in the shell for this destination.
+  Widget get screen => switch (this) {
+    HomeDestination.addRecord => const AddRecordScreen(),
+    HomeDestination.history => const HistoryScreen(),
+    HomeDestination.tags => const TagsScreen(),
+    HomeDestination.export => const ExportScreen(),
+    HomeDestination.settings => const SettingsScreen(),
+  };
 }
 
 /// Hosts the five root screens behind a shared bottom navigation bar.
@@ -37,13 +49,8 @@ class _HomeShellState extends State<HomeShell> {
     return Scaffold(
       body: IndexedStack(
         index: _destination.index,
-        // Must follow the HomeDestination declaration order.
-        children: const [
-          AddRecordScreen(),
-          HistoryScreen(),
-          TagsScreen(),
-          ExportScreen(),
-          SettingsScreen(),
+        children: [
+          for (final destination in HomeDestination.values) destination.screen,
         ],
       ),
       bottomNavigationBar: _BottomNavBar(
@@ -83,31 +90,25 @@ class _BottomNavBar extends StatelessWidget {
               padding: EdgeInsets.only(bottom: bottomInset),
               child: Row(
                 children: [
-                  _NavItem(
-                    destination: HomeDestination.history,
-                    icon: AppSymbols.navHistory,
-                    selected: current == HomeDestination.history,
-                    onSelect: onSelect,
-                  ),
-                  _NavItem(
-                    destination: HomeDestination.tags,
-                    icon: AppSymbols.navTags,
-                    selected: current == HomeDestination.tags,
-                    onSelect: onSelect,
-                  ),
+                  for (final destination in const [
+                    HomeDestination.history,
+                    HomeDestination.tags,
+                  ])
+                    _NavItem(
+                      destination: destination,
+                      selected: current == destination,
+                      onSelect: onSelect,
+                    ),
                   const SizedBox(width: AppSizes.navPlusSlot),
-                  _NavItem(
-                    destination: HomeDestination.export,
-                    icon: AppSymbols.navExport,
-                    selected: current == HomeDestination.export,
-                    onSelect: onSelect,
-                  ),
-                  _NavItem(
-                    destination: HomeDestination.settings,
-                    icon: AppSymbols.navSettings,
-                    selected: current == HomeDestination.settings,
-                    onSelect: onSelect,
-                  ),
+                  for (final destination in const [
+                    HomeDestination.export,
+                    HomeDestination.settings,
+                  ])
+                    _NavItem(
+                      destination: destination,
+                      selected: current == destination,
+                      onSelect: onSelect,
+                    ),
                 ],
               ),
             ),
@@ -127,13 +128,11 @@ class _BottomNavBar extends StatelessWidget {
 class _NavItem extends StatelessWidget {
   const _NavItem({
     required this.destination,
-    required this.icon,
     required this.selected,
     required this.onSelect,
   });
 
   final HomeDestination destination;
-  final String icon;
   final bool selected;
   final ValueChanged<HomeDestination> onSelect;
 
@@ -147,7 +146,7 @@ class _NavItem extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text(icon, style: AppTypography.emojiIcon),
+            Text(destination.icon, style: AppTypography.emojiIcon),
             const SizedBox(height: AppSpacing.xxs),
             Text(
               destination.title,
@@ -192,7 +191,7 @@ class _PlusButton extends StatelessWidget {
             onTap: onTap,
             child: Center(
               child: Text(
-                AppSymbols.navAdd,
+                HomeDestination.addRecord.icon,
                 style: AppTypography.navPlus.copyWith(color: colors.onPrimary),
               ),
             ),
