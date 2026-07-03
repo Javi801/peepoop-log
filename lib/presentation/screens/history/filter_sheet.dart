@@ -152,34 +152,3 @@ class _FilterSheetState extends State<FilterSheet> {
     );
   }
 }
-
-class _DateField extends StatelessWidget {
-  const _DateField({
-    required this.label,
-    required this.value,
-    required this.onTap,
-  });
-
-  final String label;
-  final DateTime? value;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return LabeledField(
-      label: label,
-      child: InkWell(
-        borderRadius: BorderRadius.circular(AppRadii.input),
-        onTap: onTap,
-        child: InputDecorator(
-          decoration: const InputDecoration(),
-          child: Text(
-            value == null
-                ? AppStrings.filtersAny
-                : MaterialLocalizations.of(context).formatShortDate(value!),
-          ),
-        ),
-      ),
-    );
-  }
-}

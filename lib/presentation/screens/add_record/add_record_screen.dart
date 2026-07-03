@@ -129,7 +129,7 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
         padding: AppInsets.screen,
         children: [
           AppCard(
-            child: LabeledField(
+            child: PickerField(
               label: AppStrings.addRecordDateTime,
               text:
                   '${localizations.formatShortDate(_occurredAt)}'
