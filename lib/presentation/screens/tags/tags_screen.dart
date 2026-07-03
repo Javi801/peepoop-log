@@ -6,6 +6,7 @@ import '../../../data/models/tag_models.dart';
 import '../../localization/app_strings.dart';
 import '../../scope/app_scope.dart';
 import '../../theme/theme.dart';
+import '../../util/set_toggle.dart';
 import '../../widgets/widgets.dart';
 import 'edit_tag_dialog.dart';
 
@@ -107,11 +108,7 @@ class _TagsScreenState extends State<TagsScreen> {
                   selected: _selected.contains(entry.tag.id),
                   onTap: () {
                     if (_deleteMode) {
-                      setState(() {
-                        _selected.contains(entry.tag.id)
-                            ? _selected.remove(entry.tag.id)
-                            : _selected.add(entry.tag.id);
-                      });
+                      setState(() => _selected.toggle(entry.tag.id));
                     } else {
                       _openEditor(entry.tag);
                     }

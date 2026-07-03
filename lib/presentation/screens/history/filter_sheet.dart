@@ -6,6 +6,7 @@ import '../../../data/models/record_models.dart';
 import '../../localization/app_strings.dart';
 import '../../scope/app_scope.dart';
 import '../../theme/theme.dart';
+import '../../util/set_toggle.dart';
 import '../../widgets/widgets.dart';
 
 /// Filter editor shown in a modal sheet; pops with the new [RecordFilter]
@@ -116,11 +117,7 @@ class _FilterSheetState extends State<FilterSheet> {
               children: [
                 for (final tag in tags)
                   AppCard(
-                    onTap: () => setState(() {
-                      _tagIds.contains(tag.id)
-                          ? _tagIds.remove(tag.id)
-                          : _tagIds.add(tag.id);
-                    }),
+                    onTap: () => setState(() => _tagIds.toggle(tag.id)),
                     child: Row(
                       children: [
                         TagDot(colorHex: tag.colorHex),
