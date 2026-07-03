@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../theme/theme.dart';
+import 'app_card.dart';
 import 'app_switch.dart';
 
 /// Card with an emoji icon, a label and a switch, used to enable the
@@ -27,52 +28,28 @@ class ToggleCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = Theme.of(context).extension<AppColors>()!;
-    final decorations = Theme.of(context).extension<AppDecorations>()!;
-    final radius = BorderRadius.circular(AppRadii.toggleCard);
+    final colors = context.appColors;
 
-    return Container(
-      margin: const EdgeInsets.only(bottom: AppSpacing.md),
-      decoration: BoxDecoration(
-        color: colors.surface,
-        border: Border.all(color: colors.border),
-        borderRadius: radius,
-        boxShadow: decorations.cardShadow,
-      ),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          borderRadius: radius,
-          onTap: () => onChanged(!value),
-          child: Padding(
-            padding: const EdgeInsets.all(AppSpacing.md),
-            child: Row(
-              children: [
-                Container(
-                  width: AppSizes.cuteIcon,
-                  height: AppSizes.cuteIcon,
-                  decoration: BoxDecoration(
-                    color: colors.cuteIconBackground,
-                    borderRadius: BorderRadius.circular(AppRadii.cuteIcon),
-                  ),
-                  child: Center(
-                    child: Text(icon, style: AppTypography.emojiIcon),
-                  ),
-                ),
-                const SizedBox(width: AppSpacing.sm),
-                Expanded(
-                  child: Text(
-                    label,
-                    style: AppTypography.body.copyWith(
-                      fontWeight: AppTypography.bold,
-                    ),
-                  ),
-                ),
-                AppSwitch(value: value, onChanged: onChanged),
-              ],
+    return AppCard(
+      color: colors.surface,
+      radius: AppRadii.toggleCard,
+      padding: const EdgeInsets.all(AppSpacing.md),
+      onTap: () => onChanged(!value),
+      child: Row(
+        children: [
+          Container(
+            width: AppSizes.cuteIcon,
+            height: AppSizes.cuteIcon,
+            decoration: BoxDecoration(
+              color: colors.cuteIconBackground,
+              borderRadius: BorderRadius.circular(AppRadii.cuteIcon),
             ),
+            child: Center(child: Text(icon, style: AppTypography.emojiIcon)),
           ),
-        ),
+          const SizedBox(width: AppSpacing.sm),
+          Expanded(child: Text(label, style: AppTypography.bodyBold)),
+          AppSwitch(value: value, onChanged: onChanged),
+        ],
       ),
     );
   }
