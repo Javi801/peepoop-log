@@ -15,8 +15,8 @@ Future<T?> showAppModalSheet<T>({
     // Transparent so the floating card below provides the visible shape.
     backgroundColor: Colors.transparent,
     builder: (context) {
-      final colors = Theme.of(context).extension<AppColors>()!;
-      final decorations = Theme.of(context).extension<AppDecorations>()!;
+      final colors = context.appColors;
+      final decorations = context.appDecorations;
 
       return Padding(
         padding: EdgeInsets.only(

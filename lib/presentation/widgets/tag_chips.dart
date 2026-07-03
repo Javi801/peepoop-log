@@ -14,7 +14,7 @@ class TagChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = Theme.of(context).extension<AppColors>()!;
+    final colors = context.appColors;
     final labelStyle = AppTypography.chipLabel.copyWith(
       color: colors.textPrimary,
     );

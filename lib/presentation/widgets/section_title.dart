@@ -10,7 +10,7 @@ class SectionTitle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = Theme.of(context).extension<AppColors>()!;
+    final colors = context.appColors;
 
     return Padding(
       padding: AppInsets.sectionTitle,

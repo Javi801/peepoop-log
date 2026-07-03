@@ -64,7 +64,7 @@ class _BottomNavBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = Theme.of(context).extension<AppColors>()!;
+    final colors = context.appColors;
     final bottomInset = MediaQuery.paddingOf(context).bottom;
 
     return SizedBox(
@@ -139,7 +139,7 @@ class _NavItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = Theme.of(context).extension<AppColors>()!;
+    final colors = context.appColors;
 
     return Expanded(
       child: InkWell(
@@ -170,8 +170,8 @@ class _PlusButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = Theme.of(context).extension<AppColors>()!;
-    final decorations = Theme.of(context).extension<AppDecorations>()!;
+    final colors = context.appColors;
+    final decorations = context.appDecorations;
     final radius = BorderRadius.circular(AppRadii.fab);
 
     return Semantics(

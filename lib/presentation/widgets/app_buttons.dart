@@ -23,8 +23,8 @@ class PrimaryButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = Theme.of(context).extension<AppColors>()!;
-    final decorations = Theme.of(context).extension<AppDecorations>()!;
+    final colors = context.appColors;
+    final decorations = context.appDecorations;
     final radius = BorderRadius.circular(AppRadii.pill);
     final enabled = onPressed != null;
 
@@ -98,7 +98,7 @@ class DangerButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = Theme.of(context).extension<AppColors>()!;
+    final colors = context.appColors;
 
     return FilledButton(
       style: FilledButton.styleFrom(
