@@ -15,19 +15,7 @@ class RecordRepository {
       await _validateTagTypes(draft);
       final record = await _db
           .into(_db.records)
-          .insertReturning(
-            RecordsCompanion.insert(
-              occurredAt: draft.occurredAt,
-              hasUrination: Value(draft.hasUrination),
-              hasDefecation: Value(draft.hasDefecation),
-              urinationDescription: Value(
-                _cleanDescription(draft.urinationDescription),
-              ),
-              defecationDescription: Value(
-                _cleanDescription(draft.defecationDescription),
-              ),
-            ),
-          );
+          .insertReturning(_draftCompanion(draft));
       await _insertAssociations(record.id, draft);
       return record.id;
     });
@@ -38,20 +26,9 @@ class RecordRepository {
     return _db.transaction(() async {
       _validateShape(draft);
       await _validateTagTypes(draft);
-      final updated =
-          await (_db.update(_db.records)..where((r) => r.id.equals(id))).write(
-            RecordsCompanion(
-              occurredAt: Value(draft.occurredAt),
-              hasUrination: Value(draft.hasUrination),
-              hasDefecation: Value(draft.hasDefecation),
-              urinationDescription: Value(
-                _cleanDescription(draft.urinationDescription),
-              ),
-              defecationDescription: Value(
-                _cleanDescription(draft.defecationDescription),
-              ),
-            ),
-          );
+      final updated = await (_db.update(
+        _db.records,
+      )..where((r) => r.id.equals(id))).write(_draftCompanion(draft));
       if (updated == 0) {
         throw StateError('record $id does not exist');
       }
@@ -212,6 +189,16 @@ class RecordRepository {
       );
     }
   }
+
+  RecordsCompanion _draftCompanion(RecordDraft draft) => RecordsCompanion(
+    occurredAt: Value(draft.occurredAt),
+    hasUrination: Value(draft.hasUrination),
+    hasDefecation: Value(draft.hasDefecation),
+    urinationDescription: Value(_cleanDescription(draft.urinationDescription)),
+    defecationDescription: Value(
+      _cleanDescription(draft.defecationDescription),
+    ),
+  );
 
   Future<void> _insertAssociations(int recordId, RecordDraft draft) async {
     final tagIds = {...draft.urinationTagIds, ...draft.defecationTagIds};
