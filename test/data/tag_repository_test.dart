@@ -9,6 +9,7 @@ import 'package:peepoop_log/data/models/record_models.dart';
 import 'package:peepoop_log/data/models/tag_models.dart';
 import 'package:peepoop_log/data/repositories/record_repository.dart';
 import 'package:peepoop_log/data/repositories/tag_repository.dart';
+import 'package:peepoop_log/presentation/theme/app_colors.dart';
 
 void main() {
   late AppDatabase db;
@@ -49,7 +50,7 @@ void main() {
         expect(tag.name, 'Light Yellow');
         expect(tag.normalizedName, 'light yellow');
         expect(tag.type, EventType.urination);
-        expect(TagRepository.defaultPalette, contains(tag.colorHex));
+        expect(AppColors.tagPalette, contains(tag.colorHex));
       },
     );
 

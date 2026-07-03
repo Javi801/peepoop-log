@@ -42,8 +42,7 @@ void main() {
       expect(mid.background, AppColors.pastel.background);
     });
 
-    test('tag palette exposes the six default tag colors', () {
-      expect(AppColors.pastel.tagPalette, hasLength(6));
+    test('exposes the tag fallback color', () {
       expect(AppColors.pastel.tagFallback, const Color(0xFFFFE8A3));
     });
   });

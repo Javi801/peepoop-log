@@ -44,12 +44,8 @@ class AppColors extends ThemeExtension<AppColors> {
     required this.shadowButton,
     required this.shadowFab,
     required this.shadowModal,
-    required this.tagYellow,
-    required this.tagBlue,
-    required this.tagGreen,
-    required this.tagRed,
-    required this.tagPurple,
-    required this.tagPink,
+    required this.tagFallback,
+    required this.cuteIconBackground,
   });
 
   final Brightness brightness;
@@ -123,28 +119,23 @@ class AppColors extends ThemeExtension<AppColors> {
   final Color shadowFab;
   final Color shadowModal;
 
-  final Color tagYellow;
-  final Color tagBlue;
-  final Color tagGreen;
-  final Color tagRed;
-  final Color tagPurple;
-  final Color tagPink;
-
-  /// Pool used when auto-assigning a color to a newly created tag.
-  List<Color> get tagPalette => [
-    tagYellow,
-    tagBlue,
-    tagGreen,
-    tagRed,
-    tagPurple,
-    tagPink,
-  ];
-
-  /// Fallback when a tag has no valid color stored.
-  Color get tagFallback => tagYellow;
+  /// Fallback when a tag has no valid color stored. The palette offered when
+  /// creating tags is [tagPalette].
+  final Color tagFallback;
 
   /// Background of the small rounded emoji icons next to toggles.
-  Color get cuteIconBackground => tagYellow;
+  final Color cuteIconBackground;
+
+  /// Palette offered when creating tags, as hex strings because tag colors
+  /// are persisted on the tag itself and do not follow the theme.
+  static const tagPalette = [
+    '#FFE8A3',
+    '#CFEEFF',
+    '#D9F2C7',
+    '#FFD3D3',
+    '#EADBFF',
+    '#FFE4EC',
+  ];
 
   /// Default pastel theme.
   static const pastel = AppColors(
@@ -180,12 +171,8 @@ class AppColors extends ThemeExtension<AppColors> {
     shadowButton: Color(0x339B7BE8),
     shadowFab: Color(0x599B7BE8),
     shadowModal: Color(0x3D000000),
-    tagYellow: Color(0xFFFFE8A3),
-    tagBlue: Color(0xFFCFEEFF),
-    tagGreen: Color(0xFFD9F2C7),
-    tagRed: Color(0xFFFFD3D3),
-    tagPurple: Color(0xFFEADBFF),
-    tagPink: Color(0xFFFFE4EC),
+    tagFallback: Color(0xFFFFE8A3),
+    cuteIconBackground: Color(0xFFFFE8A3),
   );
 
   @override
@@ -222,12 +209,8 @@ class AppColors extends ThemeExtension<AppColors> {
     Color? shadowButton,
     Color? shadowFab,
     Color? shadowModal,
-    Color? tagYellow,
-    Color? tagBlue,
-    Color? tagGreen,
-    Color? tagRed,
-    Color? tagPurple,
-    Color? tagPink,
+    Color? tagFallback,
+    Color? cuteIconBackground,
   }) {
     return AppColors(
       brightness: brightness ?? this.brightness,
@@ -262,12 +245,8 @@ class AppColors extends ThemeExtension<AppColors> {
       shadowButton: shadowButton ?? this.shadowButton,
       shadowFab: shadowFab ?? this.shadowFab,
       shadowModal: shadowModal ?? this.shadowModal,
-      tagYellow: tagYellow ?? this.tagYellow,
-      tagBlue: tagBlue ?? this.tagBlue,
-      tagGreen: tagGreen ?? this.tagGreen,
-      tagRed: tagRed ?? this.tagRed,
-      tagPurple: tagPurple ?? this.tagPurple,
-      tagPink: tagPink ?? this.tagPink,
+      tagFallback: tagFallback ?? this.tagFallback,
+      cuteIconBackground: cuteIconBackground ?? this.cuteIconBackground,
     );
   }
 
@@ -311,12 +290,12 @@ class AppColors extends ThemeExtension<AppColors> {
       shadowButton: Color.lerp(shadowButton, other.shadowButton, t)!,
       shadowFab: Color.lerp(shadowFab, other.shadowFab, t)!,
       shadowModal: Color.lerp(shadowModal, other.shadowModal, t)!,
-      tagYellow: Color.lerp(tagYellow, other.tagYellow, t)!,
-      tagBlue: Color.lerp(tagBlue, other.tagBlue, t)!,
-      tagGreen: Color.lerp(tagGreen, other.tagGreen, t)!,
-      tagRed: Color.lerp(tagRed, other.tagRed, t)!,
-      tagPurple: Color.lerp(tagPurple, other.tagPurple, t)!,
-      tagPink: Color.lerp(tagPink, other.tagPink, t)!,
+      tagFallback: Color.lerp(tagFallback, other.tagFallback, t)!,
+      cuteIconBackground: Color.lerp(
+        cuteIconBackground,
+        other.cuteIconBackground,
+        t,
+      )!,
     );
   }
 }

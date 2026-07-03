@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import '../../../data/db/app_database.dart';
 import '../../../data/models/event_type.dart';
 import '../../../data/models/tag_models.dart';
-import '../../../data/repositories/tag_repository.dart';
 import '../../localization/app_strings.dart';
 import '../../scope/app_scope.dart';
 import '../../theme/theme.dart';
@@ -78,7 +77,7 @@ class _EditTagDialogState extends State<EditTagDialog> {
 
   @override
   Widget build(BuildContext context) {
-    final colors = Theme.of(context).extension<AppColors>()!;
+    final colors = context.appColors;
 
     return Dialog(
       child: Padding(
@@ -103,11 +102,15 @@ class _EditTagDialogState extends State<EditTagDialog> {
                   spacing: AppSpacing.xs,
                   runSpacing: AppSpacing.xs,
                   children: [
-                    for (final hex in TagRepository.defaultPalette)
-                      _PaletteSwatch(
-                        hex: hex,
-                        selected: _hex.text.toUpperCase() == hex,
+                    for (final hex in AppColors.tagPalette)
+                      InkWell(
+                        borderRadius: BorderRadius.circular(AppRadii.tagDot),
                         onTap: () => setState(() => _hex.text = hex),
+                        child: TagDot(
+                          colorHex: hex,
+                          size: AppSizes.paletteSwatch,
+                          selected: _hex.text.toUpperCase() == hex,
+                        ),
                       ),
                   ],
                 ),
@@ -116,17 +119,10 @@ class _EditTagDialogState extends State<EditTagDialog> {
                 label: AppStrings.editTagHexColor,
                 child: Row(
                   children: [
-                    Container(
-                      width: AppSizes.colorSwatch,
-                      height: AppSizes.colorSwatch,
-                      decoration: BoxDecoration(
-                        color: colorFromHex(
-                          _hex.text,
-                          fallback: colors.tagFallback,
-                        ),
-                        borderRadius: BorderRadius.circular(AppRadii.swatch),
-                        border: Border.all(color: colors.swatchBorder),
-                      ),
+                    TagDot(
+                      colorHex: _hex.text,
+                      size: AppSizes.colorSwatch,
+                      radius: AppRadii.swatch,
                     ),
                     const SizedBox(width: AppSpacing.rowGap),
                     Expanded(
@@ -158,40 +154,6 @@ class _EditTagDialogState extends State<EditTagDialog> {
                 ],
               ),
             ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _PaletteSwatch extends StatelessWidget {
-  const _PaletteSwatch({
-    required this.hex,
-    required this.selected,
-    required this.onTap,
-  });
-
-  final String hex;
-  final bool selected;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final colors = Theme.of(context).extension<AppColors>()!;
-
-    return InkWell(
-      borderRadius: BorderRadius.circular(AppRadii.tagDot),
-      onTap: onTap,
-      child: Container(
-        width: AppSizes.paletteSwatch,
-        height: AppSizes.paletteSwatch,
-        decoration: BoxDecoration(
-          color: colorFromHex(hex, fallback: colors.tagFallback),
-          borderRadius: BorderRadius.circular(AppRadii.tagDot),
-          border: Border.all(
-            color: selected ? colors.primaryDark : colors.swatchBorder,
-            width: selected ? 2 : 1,
           ),
         ),
       ),

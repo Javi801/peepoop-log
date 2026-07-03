@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:drift/drift.dart';
 
+import '../../presentation/theme/app_colors.dart';
 import '../db/app_database.dart';
 import '../models/event_type.dart';
 import '../models/hex_color.dart';
@@ -38,7 +39,7 @@ class TagRepository {
   }
 
   String randomColor() =>
-      defaultPalette[_random.nextInt(defaultPalette.length)];
+      AppColors.tagPalette[_random.nextInt(AppColors.tagPalette.length)];
 
   Stream<List<Tag>> watchTagsByType(EventType type) {
     final query = _db.select(_db.tags)
