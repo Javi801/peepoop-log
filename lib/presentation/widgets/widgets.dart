@@ -5,6 +5,7 @@ export 'app_buttons.dart';
 export 'app_card.dart';
 export 'app_modal.dart';
 export 'app_switch.dart';
+export 'color_picker.dart';
 export 'confirm_dialog.dart';
 export 'empty_state.dart';
 export 'labeled_field.dart';

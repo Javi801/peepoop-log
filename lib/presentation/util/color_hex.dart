@@ -15,3 +15,10 @@ Color? tryColorFromHex(String value) {
 
 Color colorFromHex(String value, {required Color fallback}) =>
     tryColorFromHex(value) ?? fallback;
+
+/// Formats [color]'s RGB channels as the canonical `#RRGGBB` uppercase hex,
+/// dropping the alpha channel to match the stored tag color format.
+String hexFromColor(Color color) {
+  final rgb = color.toARGB32() & 0xFFFFFF;
+  return '#${rgb.toRadixString(16).toUpperCase().padLeft(6, '0')}';
+}

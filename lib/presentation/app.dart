@@ -44,6 +44,7 @@ class _PeepoopLogAppState extends State<PeepoopLogApp> {
       tagRepository: _tagRepository,
       child: MaterialApp(
         title: AppStrings.appName,
+        debugShowCheckedModeBanner: false,
         theme: AppTheme.light(),
         home: FutureBuilder<void>(
           future: _databaseReady,

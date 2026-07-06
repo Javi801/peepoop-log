@@ -33,9 +33,14 @@ class TagChip extends StatelessWidget {
             const SizedBox(width: AppSpacing.xs),
             GestureDetector(
               onTap: onRemove,
-              child: Text(
-                '×',
-                style: labelStyle.copyWith(fontWeight: AppTypography.heavy),
+              // Opaque + padding enlarge the tap target beyond the glyph.
+              behavior: HitTestBehavior.opaque,
+              child: Padding(
+                padding: const EdgeInsets.all(AppSpacing.xs),
+                child: Text(
+                  '×',
+                  style: labelStyle.copyWith(fontWeight: AppTypography.heavy),
+                ),
               ),
             ),
           ],

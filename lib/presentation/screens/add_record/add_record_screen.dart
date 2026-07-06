@@ -150,6 +150,7 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
             ),
             if (_forms[type]!.enabled)
               _DetailCard(
+                type: type,
                 descriptionLabel: type.descriptionLabel,
                 descriptionHint: type.descriptionHint,
                 description: _forms[type]!.description,
@@ -174,6 +175,7 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
 /// Description and tags for one event type of the record being created.
 class _DetailCard extends StatelessWidget {
   const _DetailCard({
+    required this.type,
     required this.descriptionLabel,
     required this.descriptionHint,
     required this.description,
@@ -183,6 +185,7 @@ class _DetailCard extends StatelessWidget {
     required this.onRemoveTag,
   });
 
+  final EventType type;
   final String descriptionLabel;
   final String descriptionHint;
   final TextEditingController description;
@@ -205,7 +208,12 @@ class _DetailCard extends StatelessWidget {
               decoration: InputDecoration(hintText: descriptionHint),
             ),
           ),
-          TagInputField(label: tagLabel, onSubmitted: onAddTag),
+          TagInputField(
+            label: tagLabel,
+            type: type,
+            selectedTags: tags,
+            onSubmitted: onAddTag,
+          ),
           TagChips(tags: tags, onRemove: onRemoveTag),
         ],
       ),

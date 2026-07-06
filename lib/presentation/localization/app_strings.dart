@@ -83,6 +83,14 @@ abstract final class AppStrings {
   static const editTagColorInvalid = 'Color must be a 6-digit hex value.';
   static const editTagDuplicate = 'Tag already exists.';
   static const editTagSave = 'Save';
+  static const editTagDelete = 'Delete tag';
+  static const editTagDeleteDialogTitle = 'Delete this tag?';
+  static const editTagDeleteDialogMessage =
+      'The tag will be removed from all records that use it. '
+      'Records and descriptions will remain.';
+
+  static const colorPickerTitle = 'Pick a color';
+  static const colorPickerSelect = 'Select';
 
   static const exportTitle = 'Export';
   static const exportHeroTitle = 'Export your data';

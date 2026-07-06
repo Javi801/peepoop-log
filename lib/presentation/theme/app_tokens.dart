@@ -18,6 +18,7 @@ abstract final class AppRadii {
   static const double fab = 22;
   static const double tagDot = 11;
   static const double swatch = 18;
+  static const double colorPicker = 14;
   static const double modal = 28;
   static const double splashCard = 34;
 }
@@ -51,6 +52,10 @@ abstract final class AppSpacing {
 
   /// Screen edge padding.
   static const double lg = 16;
+
+  /// Leading inset before the app bar title; larger than the screen edge
+  /// so the title sits slightly further right.
+  static const double appBarTitle = 24;
 
   /// Modal inner padding.
   static const double xl = 20;
@@ -112,6 +117,10 @@ abstract final class AppSizes {
 
   static const double bottomNavHeight = 76;
 
+  /// Top app bar height; taller than the Material default so the title
+  /// has vertical breathing room.
+  static const double appBarHeight = 72;
+
   /// Central "+" button on the bottom navigation.
   static const double fabSize = 58;
 
@@ -133,7 +142,17 @@ abstract final class AppSizes {
 
   static const double cuteIcon = 34;
   static const double tagDot = 28;
-  static const double colorSwatch = 52;
+  static const double colorSwatch = 36;
+
+  /// Height of the saturation/value plane in the color picker dialog; its
+  /// width flexes to fill the dialog.
+  static const double colorPickerAreaHeight = 176;
+
+  /// Vertical rainbow hue bar next to the saturation/value plane.
+  static const double hueSliderWidth = 26;
+
+  /// Draggable circle handles inside the color picker.
+  static const double colorPickerHandle = 20;
 
   static const double loaderWidth = 160;
   static const double loaderHeight = 9;

@@ -55,6 +55,8 @@ abstract final class AppTheme {
         foregroundColor: colors.textPrimary,
         elevation: 0,
         centerTitle: false,
+        toolbarHeight: AppSizes.appBarHeight,
+        titleSpacing: AppSpacing.appBarTitle,
         titleTextStyle: textTheme.titleLarge,
         shape: Border(bottom: BorderSide(color: colors.border)),
       ),
