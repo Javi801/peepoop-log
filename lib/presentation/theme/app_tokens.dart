@@ -53,6 +53,10 @@ abstract final class AppSpacing {
   /// Screen edge padding.
   static const double lg = 16;
 
+  /// Leading inset before the app bar title; larger than the screen edge
+  /// so the title sits slightly further right.
+  static const double appBarTitle = 24;
+
   /// Modal inner padding.
   static const double xl = 20;
 
@@ -112,6 +116,10 @@ abstract final class AppSizes {
   static const double appMaxWidth = 430;
 
   static const double bottomNavHeight = 76;
+
+  /// Top app bar height; taller than the Material default so the title
+  /// has vertical breathing room.
+  static const double appBarHeight = 72;
 
   /// Central "+" button on the bottom navigation.
   static const double fabSize = 58;
