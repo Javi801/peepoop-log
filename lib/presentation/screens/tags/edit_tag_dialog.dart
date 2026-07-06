@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import '../../../data/db/app_database.dart';
 import '../../../data/models/event_type.dart';
@@ -38,6 +39,12 @@ class _EditTagDialogState extends State<EditTagDialog> {
   String? _error;
 
   bool get _hexValid => tryColorFromHex(_hex.text) != null;
+
+  /// Clears a stale save error so it does not linger while the user edits the
+  /// name or color that caused it.
+  void _clearError() {
+    if (_error != null) setState(() => _error = null);
+  }
 
   @override
   void dispose() {
@@ -116,7 +123,10 @@ class _EditTagDialogState extends State<EditTagDialog> {
               ),
               LabeledField(
                 label: AppStrings.editTagName,
-                child: TextField(controller: _name),
+                child: TextField(
+                  controller: _name,
+                  onChanged: (_) => _clearError(),
+                ),
               ),
               LabeledField(
                 label: AppStrings.editTagColor,
@@ -136,7 +146,17 @@ class _EditTagDialogState extends State<EditTagDialog> {
                     Expanded(
                       child: TextField(
                         controller: _hex,
-                        onChanged: (_) => setState(() {}),
+                        onChanged: (_) => setState(() => _error = null),
+                        inputFormatters: [
+                          FilteringTextInputFormatter.allow(
+                            RegExp(r'[0-9a-fA-F#]'),
+                          ),
+                          LengthLimitingTextInputFormatter(7),
+                          TextInputFormatter.withFunction(
+                            (_, value) =>
+                                value.copyWith(text: value.text.toUpperCase()),
+                          ),
+                        ],
                         decoration: InputDecoration(
                           errorText: _hexValid
                               ? null
