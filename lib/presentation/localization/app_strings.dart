@@ -21,6 +21,16 @@ abstract final class AppStrings {
   static const addRecordSave = 'Save Record';
   static const recordSaved = 'Record saved';
 
+  static const editRecordTitle = 'Edit Record';
+  static const editRecordSave = 'Save Changes';
+  static const recordUpdated = 'Record updated';
+  static const recordDeleted = 'Record deleted';
+  static const editRecordDelete = 'Delete record';
+  static const editRecordDeleteDialogTitle = 'Delete this record?';
+  static const editRecordDeleteDialogMessage =
+      'This record will be permanently removed. '
+      'This action cannot be undone.';
+
   static const urination = 'Urination';
   static const defecation = 'Defecation';
   static const urinationAndDefecation = 'Urination + Defecation';

@@ -10,9 +10,13 @@ import '../../theme/theme.dart';
 import '../../util/date_time_format.dart';
 import '../../widgets/widgets.dart';
 
-/// Form to create a record with optional urination/defecation details.
+/// Form to create a record, or edit [record] when one is provided, with
+/// optional urination/defecation details.
 class AddRecordScreen extends StatefulWidget {
-  const AddRecordScreen({super.key});
+  const AddRecordScreen({super.key, this.record});
+
+  /// Existing record to edit; null creates a new one.
+  final RecordWithTags? record;
 
   @override
   State<AddRecordScreen> createState() => _AddRecordScreenState();
@@ -31,12 +35,36 @@ class _EventForm {
 }
 
 class _AddRecordScreenState extends State<AddRecordScreen> {
-  DateTime _occurredAt = DateTime.now();
-  final Map<EventType, _EventForm> _forms = {
-    EventType.urination: _EventForm(enabled: true),
-    EventType.defecation: _EventForm(enabled: false),
-  };
+  late DateTime _occurredAt;
+  late final Map<EventType, _EventForm> _forms;
   bool _saving = false;
+
+  bool get _isEditing => widget.record != null;
+
+  @override
+  void initState() {
+    super.initState();
+    final entry = widget.record;
+    _occurredAt = entry?.record.occurredAt ?? DateTime.now();
+    _forms = {
+      for (final type in EventType.values) type: _buildForm(type, entry),
+    };
+  }
+
+  /// Seeds a form for [type] from [entry] when editing, or an empty form for
+  /// creation (only urination enabled by default).
+  _EventForm _buildForm(EventType type, RecordWithTags? entry) {
+    if (entry == null) {
+      return _EventForm(enabled: type == EventType.urination);
+    }
+    final enabled = entry.record.has(type);
+    final form = _EventForm(enabled: enabled);
+    if (enabled) {
+      form.description.text = entry.record.descriptionFor(type) ?? '';
+      form.tags.addAll(entry.tagsFor(type));
+    }
+    return form;
+  }
 
   @override
   void dispose() {
@@ -76,31 +104,60 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
 
   Future<void> _save() async {
     final repository = AppScope.of(context).recordRepository;
+    final messenger = ScaffoldMessenger.of(context);
     setState(() => _saving = true);
     try {
       // Disabled sections keep their form state so re-enabling restores it,
       // but only enabled types contribute a detail to the draft.
-      await repository.createRecord(
-        RecordDraft(
-          occurredAt: _occurredAt,
-          details: {
-            for (final entry in _forms.entries)
-              if (entry.value.enabled)
-                entry.key: EventDetail(
-                  description: entry.value.description.text,
-                  tagIds: [for (final t in entry.value.tags) t.id],
-                ),
-          },
-        ),
+      final draft = RecordDraft(
+        occurredAt: _occurredAt,
+        details: {
+          for (final entry in _forms.entries)
+            if (entry.value.enabled)
+              entry.key: EventDetail(
+                description: entry.value.description.text,
+                tagIds: [for (final t in entry.value.tags) t.id],
+              ),
+        },
       );
+      if (_isEditing) {
+        await repository.updateRecord(widget.record!.record.id, draft);
+      } else {
+        await repository.createRecord(draft);
+      }
     } finally {
       if (mounted) setState(() => _saving = false);
     }
     if (!mounted) return;
+    // Editing runs on a pushed route: pop back to history after saving.
+    if (_isEditing) {
+      Navigator.pop(context);
+      messenger.showSnackBar(
+        const SnackBar(content: Text(AppStrings.recordUpdated)),
+      );
+      return;
+    }
     setState(_reset);
-    ScaffoldMessenger.of(
+    messenger.showSnackBar(
+      const SnackBar(content: Text(AppStrings.recordSaved)),
+    );
+  }
+
+  Future<void> _delete() async {
+    final repository = AppScope.of(context).recordRepository;
+    final messenger = ScaffoldMessenger.of(context);
+    final confirmed = await showConfirmDialog(
       context,
-    ).showSnackBar(const SnackBar(content: Text(AppStrings.recordSaved)));
+      title: AppStrings.editRecordDeleteDialogTitle,
+      message: AppStrings.editRecordDeleteDialogMessage,
+    );
+    if (!confirmed || !mounted) return;
+    await repository.deleteRecord(widget.record!.record.id);
+    if (!mounted) return;
+    Navigator.pop(context);
+    messenger.showSnackBar(
+      const SnackBar(content: Text(AppStrings.recordDeleted)),
+    );
   }
 
   void _reset() {
@@ -115,11 +172,14 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
   @override
   Widget build(BuildContext context) {
     final localizations = MaterialLocalizations.of(context);
+    final colors = context.appColors;
     final canSave = _forms.values.any((f) => f.enabled) && !_saving;
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text(AppStrings.addRecordTitle),
+        title: Text(
+          _isEditing ? AppStrings.editRecordTitle : AppStrings.addRecordTitle,
+        ),
         actions: appBarActions([
           SecondaryButton(
             onPressed: () => setState(() => _occurredAt = DateTime.now()),
@@ -164,8 +224,20 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
           PrimaryButton(
             expand: true,
             onPressed: canSave ? _save : null,
-            child: const Text(AppStrings.addRecordSave),
+            child: Text(
+              _isEditing ? AppStrings.editRecordSave : AppStrings.addRecordSave,
+            ),
           ),
+          if (_isEditing)
+            Align(
+              alignment: Alignment.center,
+              child: TextButton.icon(
+                onPressed: _saving ? null : _delete,
+                style: TextButton.styleFrom(foregroundColor: colors.danger),
+                icon: const Icon(Icons.delete_outline, size: 22),
+                label: const Text(AppStrings.editRecordDelete),
+              ),
+            ),
         ],
       ),
     );

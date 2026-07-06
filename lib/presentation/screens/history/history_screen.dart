@@ -7,6 +7,7 @@ import '../../scope/app_scope.dart';
 import '../../theme/theme.dart';
 import '../../util/date_time_format.dart';
 import '../../widgets/widgets.dart';
+import '../add_record/add_record_screen.dart';
 import 'filter_sheet.dart';
 
 /// Chronological list of records with combinable filters.
@@ -85,6 +86,9 @@ class _RecordCard extends StatelessWidget {
     );
 
     return AppCard(
+      onTap: () => Navigator.of(context).push(
+        MaterialPageRoute(builder: (_) => AddRecordScreen(record: entry)),
+      ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
