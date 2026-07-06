@@ -122,6 +122,9 @@ class TagRepository {
       changes = changes.copyWith(colorHex: Value(normalizeHexColor(colorHex)));
     }
 
+    // Nothing to change: skip the empty UPDATE and return the current row.
+    if (name == null && colorHex == null) return tag;
+
     await (_db.update(_db.tags)..where((t) => t.id.equals(id))).write(changes);
     return (_db.select(_db.tags)..where((t) => t.id.equals(id))).getSingle();
   }
