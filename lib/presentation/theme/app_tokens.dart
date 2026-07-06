@@ -136,8 +136,8 @@ abstract final class AppSizes {
   static const double tagDot = 28;
   static const double colorSwatch = 52;
 
-  /// Saturation/value plane in the color picker dialog.
-  static const double colorPickerArea = 220;
+  /// Height of the saturation/value plane in the color picker dialog; its
+  /// width flexes to fill the dialog.
   static const double colorPickerAreaHeight = 176;
 
   /// Vertical rainbow hue bar next to the saturation/value plane.

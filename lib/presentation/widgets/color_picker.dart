@@ -46,12 +46,14 @@ class _ColorPickerDialogState extends State<_ColorPickerDialog> {
             const ModalTitle(AppStrings.colorPickerTitle),
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
               children: [
-                _SaturationValueArea(
-                  hsv: _hsv,
-                  onChanged: (saturation, value) => setState(
-                    () => _hsv = _hsv.withSaturation(saturation).withValue(value),
+                Expanded(
+                  child: _SaturationValueArea(
+                    hsv: _hsv,
+                    onChanged: (saturation, value) => setState(
+                      () => _hsv =
+                          _hsv.withSaturation(saturation).withValue(value),
+                    ),
                   ),
                 ),
                 const SizedBox(width: AppSpacing.rowGap),
@@ -102,11 +104,10 @@ class _SaturationValueArea extends StatelessWidget {
   final HSVColor hsv;
   final void Function(double saturation, double value) onChanged;
 
-  static const double _width = AppSizes.colorPickerArea;
   static const double _height = AppSizes.colorPickerAreaHeight;
 
-  void _handle(Offset position) {
-    final saturation = (position.dx / _width).clamp(0.0, 1.0);
+  void _handle(Offset position, double width) {
+    final saturation = (position.dx / width).clamp(0.0, 1.0);
     final value = 1 - (position.dy / _height).clamp(0.0, 1.0);
     onChanged(saturation, value);
   }
@@ -117,45 +118,53 @@ class _SaturationValueArea extends StatelessWidget {
     final hueColor = HSVColor.fromAHSV(1, hsv.hue, 1, 1).toColor();
     final borderRadius = BorderRadius.circular(AppRadii.colorPicker);
 
-    return GestureDetector(
-      onTapDown: (details) => _handle(details.localPosition),
-      onPanStart: (details) => _handle(details.localPosition),
-      onPanUpdate: (details) => _handle(details.localPosition),
-      child: SizedBox(
-        width: _width,
-        height: _height,
-        child: Stack(
-          clipBehavior: Clip.none,
-          children: [
-            DecoratedBox(
-              decoration: BoxDecoration(
-                borderRadius: borderRadius,
-                border: Border.all(color: colors.swatchBorder),
-                gradient: LinearGradient(
-                  colors: [Colors.white, hueColor],
-                ),
-              ),
-              child: DecoratedBox(
-                decoration: BoxDecoration(
-                  borderRadius: borderRadius,
-                  gradient: const LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    colors: [Colors.transparent, Colors.black],
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final width = constraints.maxWidth;
+
+        return GestureDetector(
+          onTapDown: (details) => _handle(details.localPosition, width),
+          onPanStart: (details) => _handle(details.localPosition, width),
+          onPanUpdate: (details) => _handle(details.localPosition, width),
+          child: SizedBox(
+            width: width,
+            height: _height,
+            child: Stack(
+              clipBehavior: Clip.none,
+              children: [
+                DecoratedBox(
+                  decoration: BoxDecoration(
+                    borderRadius: borderRadius,
+                    border: Border.all(color: colors.swatchBorder),
+                    gradient: LinearGradient(
+                      colors: [Colors.white, hueColor],
+                    ),
+                  ),
+                  child: DecoratedBox(
+                    decoration: BoxDecoration(
+                      borderRadius: borderRadius,
+                      gradient: const LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        colors: [Colors.transparent, Colors.black],
+                      ),
+                    ),
+                    child: const SizedBox.expand(),
                   ),
                 ),
-                child: const SizedBox.expand(),
-              ),
+                Positioned(
+                  left:
+                      hsv.saturation * width - AppSizes.colorPickerHandle / 2,
+                  top:
+                      (1 - hsv.value) * _height -
+                      AppSizes.colorPickerHandle / 2,
+                  child: _PickerHandle(fill: hsv.toColor()),
+                ),
+              ],
             ),
-            Positioned(
-              left: hsv.saturation * _width - AppSizes.colorPickerHandle / 2,
-              top:
-                  (1 - hsv.value) * _height - AppSizes.colorPickerHandle / 2,
-              child: _PickerHandle(fill: hsv.toColor()),
-            ),
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     );
   }
 }
