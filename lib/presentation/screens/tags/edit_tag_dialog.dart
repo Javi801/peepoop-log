@@ -85,6 +85,18 @@ class _EditTagDialogState extends State<EditTagDialog> {
     if (mounted) Navigator.pop(context);
   }
 
+  Future<void> _delete() async {
+    final repository = AppScope.of(context).tagRepository;
+    final confirmed = await showConfirmDialog(
+      context,
+      title: AppStrings.editTagDeleteDialogTitle,
+      message: AppStrings.editTagDeleteDialogMessage,
+    );
+    if (!confirmed || !mounted) return;
+    await repository.deleteTags([widget.tag!.id]);
+    if (mounted) Navigator.pop(context);
+  }
+
   @override
   Widget build(BuildContext context) {
     final colors = context.appColors;
@@ -154,6 +166,18 @@ class _EditTagDialogState extends State<EditTagDialog> {
                   ),
                 ],
               ),
+              if (widget.tag != null)
+                Align(
+                  alignment: Alignment.center,
+                  child: TextButton.icon(
+                    onPressed: _delete,
+                    style: TextButton.styleFrom(
+                      foregroundColor: colors.danger,
+                    ),
+                    icon: const Icon(Icons.delete_outline, size: 22),
+                    label: const Text(AppStrings.editTagDelete),
+                  ),
+                ),
             ],
           ),
         ),
