@@ -275,7 +275,7 @@ class _TagRow extends StatelessWidget {
             ),
             const SizedBox(width: AppSpacing.sm),
           ],
-          TagDot(colorHex: entry.tag.colorHex),
+          TagDot(colorHex: entry.tag.colorHex, circle: true),
           const SizedBox(width: AppSpacing.sm),
           Expanded(
             child: Column(

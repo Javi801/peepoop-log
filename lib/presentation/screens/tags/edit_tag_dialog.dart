@@ -131,15 +131,15 @@ class _EditTagDialogState extends State<EditTagDialog> {
               LabeledField(
                 label: AppStrings.editTagColor,
                 child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     InkWell(
-                      borderRadius: BorderRadius.circular(AppRadii.swatch),
+                      customBorder: const CircleBorder(),
                       onTap: _pickColor,
                       child: TagDot(
                         colorHex: _hex.text,
                         size: AppSizes.colorSwatch,
-                        radius: AppRadii.swatch,
+                        circle: true,
                       ),
                     ),
                     const SizedBox(width: AppSpacing.rowGap),

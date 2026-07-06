@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import '../theme/theme.dart';
 import '../util/color_hex.dart';
 
-/// Rounded square swatch showing a tag's stored color.
+/// Swatch showing a tag's stored color, as a rounded square or a circle.
 class TagDot extends StatelessWidget {
   const TagDot({
     super.key,
@@ -11,6 +11,7 @@ class TagDot extends StatelessWidget {
     this.size = AppSizes.tagDot,
     this.radius = AppRadii.tagDot,
     this.selected = false,
+    this.circle = false,
   });
 
   final String colorHex;
@@ -19,6 +20,9 @@ class TagDot extends StatelessWidget {
 
   /// Draws the stronger selection border used by color pickers.
   final bool selected;
+
+  /// Renders as a circle instead of a rounded square; [radius] is ignored.
+  final bool circle;
 
   @override
   Widget build(BuildContext context) {
@@ -29,7 +33,8 @@ class TagDot extends StatelessWidget {
       height: size,
       decoration: BoxDecoration(
         color: colorFromHex(colorHex, fallback: colors.tagFallback),
-        borderRadius: BorderRadius.circular(radius),
+        shape: circle ? BoxShape.circle : BoxShape.rectangle,
+        borderRadius: circle ? null : BorderRadius.circular(radius),
         border: Border.all(
           color: selected ? colors.primaryDark : colors.swatchBorder,
           width: selected ? 2 : 1,

@@ -142,7 +142,7 @@ abstract final class AppSizes {
 
   static const double cuteIcon = 34;
   static const double tagDot = 28;
-  static const double colorSwatch = 52;
+  static const double colorSwatch = 36;
 
   /// Height of the saturation/value plane in the color picker dialog; its
   /// width flexes to fill the dialog.
