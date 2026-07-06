@@ -84,6 +84,9 @@ abstract final class AppStrings {
   static const editTagDuplicate = 'Tag already exists.';
   static const editTagSave = 'Save';
 
+  static const colorPickerTitle = 'Pick a color';
+  static const colorPickerSelect = 'Select';
+
   static const exportTitle = 'Export';
   static const exportHeroTitle = 'Export your data';
   static const exportHeroBody =

@@ -18,6 +18,7 @@ abstract final class AppRadii {
   static const double fab = 22;
   static const double tagDot = 11;
   static const double swatch = 18;
+  static const double colorPicker = 14;
   static const double modal = 28;
   static const double splashCard = 34;
 }
@@ -134,6 +135,16 @@ abstract final class AppSizes {
   static const double cuteIcon = 34;
   static const double tagDot = 28;
   static const double colorSwatch = 52;
+
+  /// Saturation/value plane in the color picker dialog.
+  static const double colorPickerArea = 220;
+  static const double colorPickerAreaHeight = 176;
+
+  /// Vertical rainbow hue bar next to the saturation/value plane.
+  static const double hueSliderWidth = 26;
+
+  /// Draggable circle handles inside the color picker.
+  static const double colorPickerHandle = 20;
 
   static const double loaderWidth = 160;
   static const double loaderHeight = 9;
