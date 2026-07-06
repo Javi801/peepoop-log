@@ -70,18 +70,25 @@ class _TagsScreenState extends State<TagsScreen> {
       appBar: AppBar(
         title: const Text(AppStrings.tagsTitle),
         actions: appBarActions([
-          SecondaryButton(
-            onPressed: () => setState(() {
-              _deleteMode = !_deleteMode;
-              _selected.clear();
-            }),
-            child: Text(
-              _deleteMode ? AppStrings.cancel : AppStrings.tagsDelete,
-            ),
-          ),
-          SecondaryButton(
-            onPressed: () => _openEditor(null),
-            child: const Text(AppStrings.tagsNew),
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              _IconActionButton(
+                onPressed: () => setState(() {
+                  _deleteMode = !_deleteMode;
+                  _selected.clear();
+                }),
+                tooltip:
+                    _deleteMode ? AppStrings.cancel : AppStrings.tagsDelete,
+                icon: _deleteMode ? Icons.close : Icons.delete_outline,
+              ),
+              const SizedBox(width: AppSpacing.xs),
+              _IconActionButton(
+                onPressed: () => _openEditor(null),
+                tooltip: AppStrings.tagsNew,
+                icon: Icons.add,
+              ),
+            ],
           ),
         ]),
       ),
@@ -116,6 +123,51 @@ class _TagsScreenState extends State<TagsScreen> {
             ],
           );
         },
+      ),
+    );
+  }
+}
+
+/// Square, rounded icon button for the top bar (add / delete).
+class _IconActionButton extends StatelessWidget {
+  const _IconActionButton({
+    required this.onPressed,
+    required this.tooltip,
+    required this.icon,
+  });
+
+  final VoidCallback? onPressed;
+  final String tooltip;
+  final IconData icon;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.appColors;
+    final radius = BorderRadius.circular(AppRadii.input);
+
+    return Tooltip(
+      message: tooltip,
+      child: Material(
+        color: colors.primarySoft,
+        shape: RoundedRectangleBorder(
+          borderRadius: radius,
+          side: BorderSide(color: colors.primaryDark, width: 1.5),
+        ),
+        child: InkWell(
+          onTap: onPressed,
+          borderRadius: radius,
+          child: SizedBox(
+            width: 44,
+            height: 44,
+            child: Center(
+              child: Icon(
+                icon,
+                size: 24,
+                color: colors.primaryDark,
+              ),
+            ),
+          ),
+        ),
       ),
     );
   }
