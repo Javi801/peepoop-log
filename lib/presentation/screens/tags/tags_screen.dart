@@ -30,6 +30,7 @@ class _TagsScreenState extends State<TagsScreen> {
     setState(() {
       _type = type;
       _selected.clear();
+      _deleteMode = false;
       _tags = AppScope.of(context).tagRepository.watchTagsWithUsage(type);
     });
   }
