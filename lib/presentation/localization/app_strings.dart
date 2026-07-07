@@ -15,8 +15,7 @@ abstract final class AppStrings {
   static const splashLoading = 'Loading your data...';
 
   static const addRecordTitle = 'Add Record';
-  static const addRecordNow = 'Now';
-  static const addRecordDateTime = 'Date and time';
+  static const addRecordDateTime = 'Date & time';
   static const addRecordDateTimeSeparator = ' · ';
   static const addRecordSave = 'Save Record';
   static const recordSaved = 'Record saved';

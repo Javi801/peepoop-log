@@ -180,64 +180,133 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
         title: Text(
           _isEditing ? AppStrings.editRecordTitle : AppStrings.addRecordTitle,
         ),
-        actions: appBarActions([
-          SecondaryButton(
-            onPressed: () => setState(() => _occurredAt = DateTime.now()),
-            child: const Text(AppStrings.addRecordNow),
-          ),
-        ]),
       ),
-      body: ListView(
-        padding: AppInsets.screen,
+      body: Stack(
         children: [
-          AppCard(
-            child: PickerField(
-              label: AppStrings.addRecordDateTime,
-              text:
-                  '${localizations.formatShortDate(_occurredAt)}'
-                  '${AppStrings.addRecordDateTimeSeparator}'
-                  '${formatHourMinute(_occurredAt)}',
-              onTap: _pickDateTime,
+          ListView(
+            padding: AppInsets.screen,
+            children: [
+              LabeledField(
+                label: AppStrings.addRecordDateTime,
+                child: InkWell(
+                  borderRadius: BorderRadius.circular(AppRadii.input),
+                  onTap: _pickDateTime,
+                  child: InputDecorator(
+                    decoration: const InputDecoration(),
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.calendar_today_outlined,
+                          size: 20,
+                          color: colors.textMuted,
+                        ),
+                        const SizedBox(width: AppSpacing.sm),
+                        Text(localizations.formatShortDate(_occurredAt)),
+                        const Spacer(),
+                        Text(formatHourMinute(_occurredAt)),
+                        const SizedBox(width: AppSpacing.sm),
+                        Icon(
+                          Icons.access_time,
+                          size: 20,
+                          color: colors.textMuted,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+              for (final type in EventType.values) ...[
+                Divider(
+                  height: AppSpacing.md * 2,
+                  thickness: 1,
+                  color: colors.border,
+                ),
+                GestureDetector(
+                  behavior: HitTestBehavior.opaque,
+                  onTap: () => setState(
+                    () => _forms[type]!.enabled = !_forms[type]!.enabled,
+                  ),
+                  child: Row(
+                    children: [
+                      Container(
+                        width: AppSizes.cuteIcon,
+                        height: AppSizes.cuteIcon,
+                        decoration: BoxDecoration(
+                          color: colors.cuteIconBackground,
+                          borderRadius: BorderRadius.circular(
+                            AppRadii.cuteIcon,
+                          ),
+                        ),
+                        child: Center(
+                          child: Text(
+                            type.icon,
+                            style: AppTypography.emojiIcon,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: AppSpacing.sm),
+                      Expanded(
+                        child: Text(type.label, style: AppTypography.bodyBold),
+                      ),
+                      AppSwitch(
+                        value: _forms[type]!.enabled,
+                        onChanged: (value) =>
+                            setState(() => _forms[type]!.enabled = value),
+                      ),
+                    ],
+                  ),
+                ),
+                if (_forms[type]!.enabled) ...[
+                  const SizedBox(height: AppSpacing.md),
+                  _DetailFields(
+                    type: type,
+                    descriptionLabel: type.descriptionLabel,
+                    descriptionHint: type.descriptionHint,
+                    description: _forms[type]!.description,
+                    tagLabel: type.tagsLabel,
+                    tags: _forms[type]!.tags,
+                    onAddTag: (name) => _addTag(name, type),
+                    onRemoveTag: (tag) =>
+                        setState(() => _forms[type]!.tags.remove(tag)),
+                  ),
+                ],
+              ],
+              if (_isEditing)
+                Align(
+                  alignment: Alignment.center,
+                  child: TextButton.icon(
+                    onPressed: _saving ? null : _delete,
+                    style: TextButton.styleFrom(foregroundColor: colors.danger),
+                    icon: const Icon(Icons.delete_outline, size: 22),
+                    label: const Text(AppStrings.editRecordDelete),
+                  ),
+                ),
+            ],
+          ),
+          // Save stays docked above the footer; the form scrolls beneath it.
+          Positioned(
+            left: 0,
+            right: 0,
+            bottom: 0,
+            child: Container(
+              color: colors.background,
+              padding: const EdgeInsets.fromLTRB(
+                AppSpacing.lg,
+                AppSpacing.md,
+                AppSpacing.lg,
+                AppSpacing.md,
+              ),
+              child: PrimaryButton(
+                expand: true,
+                onPressed: canSave ? _save : null,
+                child: Text(
+                  _isEditing
+                      ? AppStrings.editRecordSave
+                      : AppStrings.addRecordSave,
+                ),
+              ),
             ),
           ),
-          for (final type in EventType.values) ...[
-            ToggleCard(
-              label: type.label,
-              icon: type.icon,
-              value: _forms[type]!.enabled,
-              onChanged: (value) =>
-                  setState(() => _forms[type]!.enabled = value),
-            ),
-            if (_forms[type]!.enabled)
-              _DetailCard(
-                type: type,
-                descriptionLabel: type.descriptionLabel,
-                descriptionHint: type.descriptionHint,
-                description: _forms[type]!.description,
-                tagLabel: type.tagsLabel,
-                tags: _forms[type]!.tags,
-                onAddTag: (name) => _addTag(name, type),
-                onRemoveTag: (tag) =>
-                    setState(() => _forms[type]!.tags.remove(tag)),
-              ),
-          ],
-          PrimaryButton(
-            expand: true,
-            onPressed: canSave ? _save : null,
-            child: Text(
-              _isEditing ? AppStrings.editRecordSave : AppStrings.addRecordSave,
-            ),
-          ),
-          if (_isEditing)
-            Align(
-              alignment: Alignment.center,
-              child: TextButton.icon(
-                onPressed: _saving ? null : _delete,
-                style: TextButton.styleFrom(foregroundColor: colors.danger),
-                icon: const Icon(Icons.delete_outline, size: 22),
-                label: const Text(AppStrings.editRecordDelete),
-              ),
-            ),
         ],
       ),
     );
@@ -245,8 +314,8 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
 }
 
 /// Description and tags for one event type of the record being created.
-class _DetailCard extends StatelessWidget {
-  const _DetailCard({
+class _DetailFields extends StatelessWidget {
+  const _DetailFields({
     required this.type,
     required this.descriptionLabel,
     required this.descriptionHint,
@@ -268,27 +337,25 @@ class _DetailCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AppCard(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          LabeledField(
-            label: descriptionLabel,
-            child: TextField(
-              controller: description,
-              maxLines: 3,
-              decoration: InputDecoration(hintText: descriptionHint),
-            ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        LabeledField(
+          label: descriptionLabel,
+          child: TextField(
+            controller: description,
+            maxLines: 3,
+            decoration: InputDecoration(hintText: descriptionHint),
           ),
-          TagInputField(
-            label: tagLabel,
-            type: type,
-            selectedTags: tags,
-            onSubmitted: onAddTag,
-          ),
-          TagChips(tags: tags, onRemove: onRemoveTag),
-        ],
-      ),
+        ),
+        TagInputField(
+          label: tagLabel,
+          type: type,
+          selectedTags: tags,
+          onSubmitted: onAddTag,
+        ),
+        TagChips(tags: tags, onRemove: onRemoveTag),
+      ],
     );
   }
 }
