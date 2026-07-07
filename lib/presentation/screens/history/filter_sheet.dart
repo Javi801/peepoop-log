@@ -10,6 +10,27 @@ import '../../util/date_time_format.dart';
 import '../../util/set_toggle.dart';
 import '../../widgets/widgets.dart';
 
+/// Corner radius for the filter fields and inline panels — squarer than the
+/// default input radius so they match the history record cards.
+const _kFilterInputRadius = 12.0;
+
+/// Input decoration with the squared [_kFilterInputRadius] borders, overriding
+/// the app-wide rounder default only within this sheet.
+InputDecoration _filterInputDecoration(AppColors colors) {
+  final border = OutlineInputBorder(
+    borderRadius: BorderRadius.circular(_kFilterInputRadius),
+    borderSide: BorderSide(color: colors.border),
+  );
+  return InputDecoration(
+    enabledBorder: border,
+    border: border,
+    focusedBorder: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(_kFilterInputRadius),
+      borderSide: BorderSide(color: colors.primary),
+    ),
+  );
+}
+
 /// Filter editor shown in a modal sheet; pops with the new [RecordFilter]
 /// on Apply, or with null when dismissed.
 class FilterSheet extends StatefulWidget {
@@ -210,6 +231,7 @@ class _FilterSheetState extends State<FilterSheet> {
 
 /// Left-aligned modal heading (H2): a step below the screen (H1) titles, so
 /// the sheet reads as a section within History rather than its own screen.
+/// A close (X) button sits at the trailing edge to dismiss the sheet.
 class _FilterHeading extends StatelessWidget {
   const _FilterHeading(this.text);
 
@@ -221,12 +243,26 @@ class _FilterHeading extends StatelessWidget {
 
     return Padding(
       padding: AppInsets.modalTitle,
-      child: Text(
-        text,
-        style: AppTypography.modalTitle.copyWith(
-          color: colors.textPrimary,
-          fontSize: 17,
-        ),
+      child: Row(
+        children: [
+          Expanded(
+            child: Text(
+              text,
+              style: AppTypography.modalTitle.copyWith(
+                color: colors.textPrimary,
+                fontSize: 17,
+              ),
+            ),
+          ),
+          IconButton(
+            onPressed: () => Navigator.pop(context),
+            tooltip: AppStrings.close,
+            visualDensity: VisualDensity.compact,
+            padding: EdgeInsets.zero,
+            constraints: const BoxConstraints(),
+            icon: Icon(Icons.close, color: colors.textMuted),
+          ),
+        ],
       ),
     );
   }
@@ -261,10 +297,10 @@ class _InlineDropdown extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         InkWell(
-          borderRadius: BorderRadius.circular(AppRadii.input),
+          borderRadius: BorderRadius.circular(_kFilterInputRadius),
           onTap: onTap,
           child: InputDecorator(
-            decoration: const InputDecoration(),
+            decoration: _filterInputDecoration(colors),
             child: Row(
               children: [
                 Expanded(child: Text(text)),
@@ -282,7 +318,7 @@ class _InlineDropdown extends StatelessWidget {
             clipBehavior: Clip.antiAlias,
             decoration: BoxDecoration(
               color: colors.surface,
-              borderRadius: BorderRadius.circular(AppRadii.input),
+              borderRadius: BorderRadius.circular(_kFilterInputRadius),
               border: Border.all(color: colors.border),
             ),
             child: child,
@@ -384,20 +420,17 @@ class _DateRangeField extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = context.appColors;
 
-    return Padding(
-      padding: const EdgeInsets.only(bottom: AppSpacing.fieldGap),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(AppRadii.input),
-        onTap: onTap,
-        child: InputDecorator(
-          decoration: const InputDecoration(),
-          child: Row(
-            children: [
-              Icon(Icons.calendar_today, size: 18, color: colors.textMuted),
-              const SizedBox(width: AppSpacing.rowGap),
-              Expanded(child: Text(text)),
-            ],
-          ),
+    return InkWell(
+      borderRadius: BorderRadius.circular(_kFilterInputRadius),
+      onTap: onTap,
+      child: InputDecorator(
+        decoration: _filterInputDecoration(colors),
+        child: Row(
+          children: [
+            Icon(Icons.calendar_today, size: 18, color: colors.textMuted),
+            const SizedBox(width: AppSpacing.rowGap),
+            Expanded(child: Text(text)),
+          ],
         ),
       ),
     );
@@ -439,26 +472,29 @@ class _TypeToggle extends StatelessWidget {
       );
     }
 
+    final shape = RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(_kFilterInputRadius),
+      side: BorderSide(
+        color: included ? colors.border : colors.switchTrackOff,
+      ),
+    );
+
     return Material(
       color: included ? colors.surface : colors.surfaceSoft,
-      shape: StadiumBorder(
-        side: BorderSide(
-          color: included ? colors.border : colors.switchTrackOff,
-        ),
-      ),
+      shape: shape,
       child: InkWell(
-        customBorder: const StadiumBorder(),
+        customBorder: shape,
         onTap: onTap,
         child: Padding(
           padding: AppInsets.tab,
           child: Stack(
             alignment: Alignment.center,
             children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
+              Column(
+                mainAxisSize: MainAxisSize.min,
                 children: [
                   iconGlyph,
-                  const SizedBox(width: AppSpacing.xs),
+                  const SizedBox(height: AppSpacing.xs),
                   Text(
                     label,
                     style: AppTypography.buttonLabel.copyWith(
