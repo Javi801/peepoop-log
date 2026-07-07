@@ -46,9 +46,10 @@ class _HistoryScreenState extends State<HistoryScreen> {
       appBar: AppBar(
         title: const Text(AppStrings.historyTitle),
         actions: appBarActions([
-          SecondaryButton(
+          IconActionButton(
             onPressed: _openFilters,
-            child: const Text(AppStrings.historyFilters),
+            tooltip: AppStrings.historyFilters,
+            icon: Icons.filter_list,
           ),
         ]),
       ),

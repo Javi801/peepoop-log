@@ -46,9 +46,15 @@ abstract final class AppStrings {
   static const historyEmpty = 'No records found.';
 
   static const filtersTitle = 'Filters';
+  static const filtersSortBy = 'Sort by';
+  static const filtersSortNewest = 'Newest first';
+  static const filtersSortOldest = 'Oldest first';
+  static const filtersDateRange = 'Date range';
+  static const filtersType = 'Type';
   static const filtersFrom = 'From';
   static const filtersTo = 'To';
   static const filtersTags = 'Tags';
+  static const filtersTagsHint = 'Select tags';
   static const filtersClear = 'Clear';
   static const filtersApply = 'Apply';
   static const filtersAny = 'Any';
