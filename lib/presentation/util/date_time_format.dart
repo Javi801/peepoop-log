@@ -4,3 +4,13 @@ String formatHourMinute(DateTime dateTime) {
   final minute = dateTime.minute.toString().padLeft(2, '0');
   return '$hour:$minute';
 }
+
+const _monthAbbreviations = <String>[
+  'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', //
+  'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec', //
+];
+
+/// Abbreviated `Mon D, YYYY` (e.g. `Jun 1, 2026`), used in the date-range
+/// filter field.
+String formatMonthDayYear(DateTime date) =>
+    '${_monthAbbreviations[date.month - 1]} ${date.day}, ${date.year}';

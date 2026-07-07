@@ -133,6 +133,10 @@ abstract final class AppSizes {
   /// Width of the time column in history cards.
   static const double historyTimeColumn = 58;
 
+  /// Max height of the expanded tag dropdown in the history filter sheet;
+  /// keeps about two tags visible and scrolls the rest.
+  static const double filterTagPanelMaxHeight = 132;
+
   /// Tappable palette swatch in the tag color picker.
   static const double paletteSwatch = 36;
 
