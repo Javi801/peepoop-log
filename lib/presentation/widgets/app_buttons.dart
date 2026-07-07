@@ -89,6 +89,52 @@ class SecondaryButton extends StatelessWidget {
   }
 }
 
+/// Square, rounded icon button for the top bar (filter / add / delete).
+class IconActionButton extends StatelessWidget {
+  const IconActionButton({
+    super.key,
+    required this.onPressed,
+    required this.tooltip,
+    required this.icon,
+  });
+
+  final VoidCallback? onPressed;
+  final String tooltip;
+  final IconData icon;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.appColors;
+    final radius = BorderRadius.circular(AppRadii.input);
+
+    return Tooltip(
+      message: tooltip,
+      child: Material(
+        color: colors.primarySoft,
+        shape: RoundedRectangleBorder(
+          borderRadius: radius,
+          side: BorderSide(color: colors.primaryDark, width: 1.5),
+        ),
+        child: InkWell(
+          onTap: onPressed,
+          borderRadius: radius,
+          child: SizedBox(
+            width: 44,
+            height: 44,
+            child: Center(
+              child: Icon(
+                icon,
+                size: 24,
+                color: colors.primaryDark,
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 /// AppBar `actions` with the shared layout: buttons centered vertically,
 /// [AppSpacing.sm] between them and [AppSpacing.lg] before the screen edge.
 List<Widget> appBarActions(List<Widget> buttons) {
