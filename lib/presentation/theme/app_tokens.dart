@@ -154,9 +154,9 @@ abstract final class AppSizes {
   /// Tappable palette swatch in the tag color picker.
   static const double paletteSwatch = 36;
 
-  static const double switchWidth = 48;
-  static const double switchHeight = 28;
-  static const double switchKnob = 22;
+  static const double switchWidth = 42;
+  static const double switchHeight = 24;
+  static const double switchKnob = 18;
 
   static const double cuteIcon = 34;
   static const double tagDot = 28;
