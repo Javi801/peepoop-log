@@ -44,6 +44,9 @@ abstract final class AppStrings {
   static const historyTitle = 'History';
   static const historyFilters = 'Filters';
   static const historyEmpty = 'No records found.';
+  static const historyToday = 'Today';
+  static const historyYesterday = 'Yesterday';
+  static const historyEdit = 'Edit record';
 
   static const filtersTitle = 'Filters';
   static const filtersSortBy = 'Sort by';
@@ -118,6 +121,7 @@ abstract final class AppStrings {
   static const tagInputAddTooltip = 'Add tag';
 
   static const cancel = 'Cancel';
+  static const close = 'Close';
   static const confirmDelete = 'Delete';
 
   static String recordTypeLabel({

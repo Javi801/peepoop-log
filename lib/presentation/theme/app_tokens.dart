@@ -130,8 +130,22 @@ abstract final class AppSizes {
   /// Center slot in the nav bar reserved for the overhanging "+" button.
   static const double navPlusSlot = 76;
 
-  /// Width of the time column in history cards.
-  static const double historyTimeColumn = 58;
+  /// Width of the time column at the left edge of the history timeline.
+  static const double historyTimeColumn = 46;
+
+  /// Fixed width of the day-header date pill so it stays the same regardless
+  /// of the label; sized for the widest date (`Mon DD, YYYY`).
+  static const double historyDateChipWidth = 108;
+
+  /// Width of the gutter holding the timeline's connecting line and dots.
+  static const double historyTimelineGutter = 24;
+
+  /// Diameter of the filled dot marking each record on the timeline.
+  static const double historyTimelineDot = 12;
+
+  /// Distance from the top of a timeline row down to the dot, aligning it
+  /// with the time label and the card title.
+  static const double historyTimelineDotInset = 17;
 
   /// Max height of the expanded tag dropdown in the history filter sheet;
   /// keeps about two tags visible and scrolls the rest.

@@ -14,3 +14,12 @@ const _monthAbbreviations = <String>[
 /// filter field.
 String formatMonthDayYear(DateTime date) =>
     '${_monthAbbreviations[date.month - 1]} ${date.day}, ${date.year}';
+
+/// Whole calendar days between the [date] and [reference], ignoring the time
+/// of day. `0` when they fall on the same day, `1` when [date] is the day
+/// before [reference], and so on.
+int calendarDaysAgo(DateTime date, DateTime reference) {
+  final d = DateTime(date.year, date.month, date.day);
+  final r = DateTime(reference.year, reference.month, reference.day);
+  return r.difference(d).inDays;
+}
