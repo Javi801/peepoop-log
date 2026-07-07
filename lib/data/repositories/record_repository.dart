@@ -109,9 +109,12 @@ class RecordRepository {
       query.where(existsQuery(matching));
     }
 
+    final mode = filter.sort == RecordSort.oldestFirst
+        ? OrderingMode.asc
+        : OrderingMode.desc;
     query.orderBy([
-      OrderingTerm.desc(_db.records.occurredAt),
-      OrderingTerm.desc(_db.records.id),
+      OrderingTerm(expression: _db.records.occurredAt, mode: mode),
+      OrderingTerm(expression: _db.records.id, mode: mode),
       OrderingTerm.asc(_db.tags.normalizedName),
     ]);
     return query;

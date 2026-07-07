@@ -43,6 +43,9 @@ extension RecordRowEvents on RecordRow {
   };
 }
 
+/// Chronological ordering applied to the filtered records.
+enum RecordSort { newestFirst, oldestFirst }
+
 /// Combinable history filters.
 ///
 /// Event type semantics: a record is visible only when every event type it
@@ -56,6 +59,7 @@ class RecordFilter {
     this.from,
     this.to,
     this.tagIds = const [],
+    this.sort = RecordSort.newestFirst,
   });
 
   final bool includeUrination;
@@ -63,4 +67,5 @@ class RecordFilter {
   final DateTime? from;
   final DateTime? to;
   final List<int> tagIds;
+  final RecordSort sort;
 }
