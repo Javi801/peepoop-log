@@ -61,8 +61,8 @@ class _HomeShellState extends State<HomeShell> {
   }
 }
 
-/// Four emoji destinations around a central "+" button that overhangs the
-/// bar by [AppSizes.fabOverhang].
+/// Four emoji destinations around a central round "+" button, all sitting in
+/// line within the bar.
 class _BottomNavBar extends StatelessWidget {
   const _BottomNavBar({required this.current, required this.onSelect});
 
@@ -75,51 +75,44 @@ class _BottomNavBar extends StatelessWidget {
     final bottomInset = MediaQuery.paddingOf(context).bottom;
 
     return SizedBox(
-      height: AppSizes.fabOverhang + AppSizes.bottomNavHeight + bottomInset,
-      child: Stack(
-        children: [
-          Positioned.fill(
-            top: AppSizes.fabOverhang,
-            child: Container(
-              // Flat surface for now; the translucent blurred bar ships
-              // together with the decorative backgrounds.
-              decoration: BoxDecoration(
-                color: colors.surface,
-                border: Border(top: BorderSide(color: colors.border)),
+      height: AppSizes.bottomNavHeight + bottomInset,
+      child: Container(
+        // Flat surface for now; the translucent blurred bar ships
+        // together with the decorative backgrounds.
+        decoration: BoxDecoration(
+          color: colors.surface,
+          border: Border(top: BorderSide(color: colors.border)),
+        ),
+        padding: EdgeInsets.only(bottom: bottomInset),
+        child: Row(
+          children: [
+            for (final destination in const [
+              HomeDestination.history,
+              HomeDestination.tags,
+            ])
+              _NavItem(
+                destination: destination,
+                selected: current == destination,
+                onSelect: onSelect,
               ),
-              padding: EdgeInsets.only(bottom: bottomInset),
-              child: Row(
-                children: [
-                  for (final destination in const [
-                    HomeDestination.history,
-                    HomeDestination.tags,
-                  ])
-                    _NavItem(
-                      destination: destination,
-                      selected: current == destination,
-                      onSelect: onSelect,
-                    ),
-                  const SizedBox(width: AppSizes.navPlusSlot),
-                  for (final destination in const [
-                    HomeDestination.export,
-                    HomeDestination.settings,
-                  ])
-                    _NavItem(
-                      destination: destination,
-                      selected: current == destination,
-                      onSelect: onSelect,
-                    ),
-                ],
+            Expanded(
+              child: Center(
+                child: _PlusButton(
+                  onTap: () => onSelect(HomeDestination.addRecord),
+                ),
               ),
             ),
-          ),
-          Align(
-            alignment: Alignment.topCenter,
-            child: _PlusButton(
-              onTap: () => onSelect(HomeDestination.addRecord),
-            ),
-          ),
-        ],
+            for (final destination in const [
+              HomeDestination.export,
+              HomeDestination.settings,
+            ])
+              _NavItem(
+                destination: destination,
+                selected: current == destination,
+                onSelect: onSelect,
+              ),
+          ],
+        ),
       ),
     );
   }
@@ -170,8 +163,7 @@ class _PlusButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = context.appColors;
-    final decorations = context.appDecorations;
-    final radius = BorderRadius.circular(AppRadii.fab);
+    final radius = BorderRadius.circular(AppRadii.pill);
 
     return Semantics(
       button: true,
@@ -180,9 +172,8 @@ class _PlusButton extends StatelessWidget {
         width: AppSizes.fabSize,
         height: AppSizes.fabSize,
         decoration: BoxDecoration(
-          gradient: decorations.primaryAction,
+          color: colors.primary,
           borderRadius: radius,
-          boxShadow: decorations.fabShadow,
         ),
         child: Material(
           color: Colors.transparent,
