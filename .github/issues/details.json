@@ -82,5 +82,35 @@
   },
   "Document future import, statistics, and structured observation scope": {
     "body": "## Context\nARCHITECTURE.md lists possible future features outside the current MVP.\n\n## Acceptance criteria\n- Future considerations are documented separately from MVP requirements.\n- Import from CSV, statistics/trends, tag categories, structured observations, advanced filtering, and iOS widget support are clearly marked as future unless promoted by decision.\n- No current MVP issue accidentally depends on these future features."
+  },
+  "Fix history timeline time labels misaligned with dots": {
+    "body": "## Context\nIn the history timeline the time label at the left of each row sits near the top of the row, while the timeline dot in the gutter is offset lower, so the time does not visually line up with the dot it belongs to.\n\n## Acceptance criteria\n- Each record's time label is vertically aligned with its timeline dot.\n- Alignment holds for the first record, the last record, and single-record days.\n- The day-header pill and its connector stay centered on the timeline line.\n- No regression in row height or card spacing."
+  },
+  "Refine typography scale and derive it from the active theme": {
+    "body": "## Context\nText styles are hand-tuned fixed constants in AppTypography and are theme-independent. Sizes need another pass for hierarchy and legibility, and typography should be able to change with the selected theme.\n\n## Acceptance criteria\n- The type scale is reviewed and adjusted for clearer hierarchy and legibility.\n- Text styles are resolved from the active theme where it matters, not only from global constants.\n- Switching theme can change typography (size, weight, or color) without editing each widget.\n- All screens render without overflow or clipping after the change."
+  },
+  "Replace emoji glyphs with image assets": {
+    "body": "## Context\nNavigation icons, event-type icons, and hero illustrations are Unicode emojis defined in app_symbols.dart, which render inconsistently across devices and EMUI.\n\n## Acceptance criteria\n- Navigation, event-type (urination/defecation), and hero glyphs use bundled image assets instead of emoji.\n- Assets render crisply across screen densities.\n- Assets adapt to the active theme where appropriate (for example tinting).\n- No functional emoji remain in the interactive UI.\n- Assets are bundled locally with no network or Google Play Services dependency."
+  },
+  "Support multiple themes with a persisted theme switcher": {
+    "body": "## Context\nThe app ships a single pastel palette. Users should be able to choose among themes, and the choice should persist locally.\n\n## Acceptance criteria\n- A theme registry exposes more than one selectable theme built on the existing AppColors token structure.\n- Settings includes a control to switch theme.\n- The selected theme persists across app restarts using local storage only.\n- All screens react to the change without a manual restart.\n- No cloud, analytics, or remote dependency is introduced."
+  },
+  "Add a green theme variant": {
+    "body": "## Context\nA green palette is wanted alongside the default pastel theme.\n\n## Acceptance criteria\n- A green AppColors palette is defined following the existing token structure.\n- The theme is selectable from the theme switcher.\n- Contrast and legibility are acceptable across all screens, including tags, cards, and modals.\n- Depends on the theme switcher issue being in place."
+  },
+  "Polish the default pastel theme": {
+    "body": "## Context\nThe current pastel theme needs a visual refinement pass covering color balance, contrast, and shadows.\n\n## Acceptance criteria\n- Palette values are reviewed for contrast and consistency.\n- Shadows, borders, and surfaces are harmonized across cards, modals, and the nav bar.\n- Changes stay within the existing AppColors token structure so other themes can follow the same shape.\n- No regressions in readability on any screen."
+  },
+  "Stop the docked Save button from covering form content": {
+    "body": "## Context\nOn the add/edit record screen the Save button is docked at the bottom inside an opaque full-width container that overlaps the scrolling form beneath it, hiding content.\n\n## Acceptance criteria\n- Form content is fully reachable and never hidden behind the Save button.\n- The Save button no longer sits on an opaque bar that covers content, or the form reserves enough bottom space so nothing is obscured.\n- Behavior is correct for both creating and editing a record.\n- The last fields and the delete action (when editing) remain fully visible."
+  },
+  "Reduce card corner radius to a squarer shape": {
+    "body": "## Context\nDefault cards use a 24px corner radius that reads as very round; history cards already override to a squarer 12px.\n\n## Acceptance criteria\n- The default card radius is reduced for a less rounded look.\n- Card radius is consistent across screens, or intentionally differentiated per surface.\n- Related radii (inputs, modals) are reviewed so the shapes stay coherent.\n- No layout breakage from the smaller radius."
+  },
+  "Add CSV data import": {
+    "body": "## Context\nUsers want to import previously exported data. Note: CSV import is currently listed as out of scope for the MVP in REQUIREMENTS.md section 7 and in the README roadmap, so this requires a scope decision before implementation.\n\n## Acceptance criteria\n- A decision is recorded to move CSV import out of Out of Scope for MVP.\n- Import reads the CSV export format (occurred_at,type,description,tags with semicolon-separated tags).\n- Rows are recombined into records (two rows sharing a timestamp become one record with both events) or an explicit import model is defined.\n- Tags are matched to existing tags by normalized name and event type, and created when missing.\n- Import runs fully offline via the system file picker with minimal permissions.\n- REQUIREMENTS.md and README are updated to reflect the new scope."
+  },
+  "Set a custom app launcher icon": {
+    "body": "## Context\nThe app still uses the default Flutter launcher icon on Android and iOS.\n\n## Acceptance criteria\n- A custom launcher icon is set for Android (including an adaptive icon) and iOS.\n- The icon renders correctly on EMUI devices.\n- Icon generation is reproducible via a documented command or tool configuration.\n- No Google Play Services dependency is introduced by the icon setup."
   }
 }
