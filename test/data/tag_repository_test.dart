@@ -9,7 +9,6 @@ import 'package:peepoop_log/data/models/record_models.dart';
 import 'package:peepoop_log/data/models/tag_models.dart';
 import 'package:peepoop_log/data/repositories/record_repository.dart';
 import 'package:peepoop_log/data/repositories/tag_repository.dart';
-import 'package:peepoop_log/presentation/theme/app_colors.dart';
 
 void main() {
   late AppDatabase db;
@@ -38,40 +37,41 @@ void main() {
     });
   });
 
-  group('ensureTag', () {
+  group('createTag with reuseExisting', () {
     test(
-      'creates a new tag with a palette color and normalized name',
+      'creates a new tag with a random color and normalized name',
       () async {
-        final tag = await repository.ensureTag(
-          ' Light Yellow ',
-          EventType.urination,
+        final tag = await repository.createTag(
+          name: ' Light Yellow ',
+          type: EventType.urination,
+          reuseExisting: true,
         );
 
         expect(tag.name, 'Light Yellow');
         expect(tag.normalizedName, 'light yellow');
         expect(tag.type, EventType.urination);
-        expect(AppColors.tagPalette, contains(tag.colorHex));
+        expect(tag.colorHex, matches(r'^#[0-9A-F]{6}$'));
       },
     );
 
     test('reuses an existing tag ignoring case and whitespace', () async {
-      final original = await repository.ensureTag('pain', EventType.urination);
-      final reused = await repository.ensureTag('  PAIN ', EventType.urination);
+      final original = await repository.createTag(name: 'pain', type: EventType.urination, reuseExisting: true);
+      final reused = await repository.createTag(name: '  PAIN ', type: EventType.urination, reuseExisting: true);
 
       expect(reused.id, original.id);
       expect(await db.select(db.tags).get(), hasLength(1));
     });
 
     test('creates independent tags per event type', () async {
-      final pee = await repository.ensureTag('pain', EventType.urination);
-      final poop = await repository.ensureTag('pain', EventType.defecation);
+      final pee = await repository.createTag(name: 'pain', type: EventType.urination, reuseExisting: true);
+      final poop = await repository.createTag(name: 'pain', type: EventType.defecation, reuseExisting: true);
 
       expect(pee.id, isNot(poop.id));
     });
 
     test('rejects empty names', () async {
       await expectLater(
-        repository.ensureTag('  ', EventType.urination),
+        repository.createTag(name: '  ', type: EventType.urination, reuseExisting: true),
         throwsArgumentError,
       );
     });
@@ -147,10 +147,10 @@ void main() {
   group('watchTagsWithUsage', () {
     test('orders by usage count and includes unused tags', () async {
       final records = RecordRepository(db);
-      final pain = await repository.ensureTag('pain', EventType.urination);
-      final urgent = await repository.ensureTag('urgent', EventType.urination);
-      await repository.ensureTag('unused', EventType.urination);
-      await repository.ensureTag('poop tag', EventType.defecation);
+      final pain = await repository.createTag(name: 'pain', type: EventType.urination, reuseExisting: true);
+      final urgent = await repository.createTag(name: 'urgent', type: EventType.urination, reuseExisting: true);
+      await repository.createTag(name: 'unused', type: EventType.urination, reuseExisting: true);
+      await repository.createTag(name: 'poop tag', type: EventType.defecation, reuseExisting: true);
 
       for (var i = 0; i < 2; i++) {
         await records.createRecord(
@@ -181,7 +181,7 @@ void main() {
   group('deleteTags', () {
     test('removes associations but keeps records', () async {
       final records = RecordRepository(db);
-      final pain = await repository.ensureTag('pain', EventType.urination);
+      final pain = await repository.createTag(name: 'pain', type: EventType.urination, reuseExisting: true);
       final recordId = await records.createRecord(
         RecordDraft(
           occurredAt: DateTime.utc(2026, 6, 19),

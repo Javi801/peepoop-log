@@ -94,7 +94,9 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
   }
 
   Future<void> _addTag(String name, EventType type) async {
-    final tag = await AppScope.of(context).tagRepository.ensureTag(name, type);
+    final tag = await AppScope.of(
+      context,
+    ).tagRepository.createTag(name: name, type: type, reuseExisting: true);
     if (!mounted) return;
     setState(() {
       final tags = _forms[type]!.tags;

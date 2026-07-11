@@ -2,7 +2,6 @@ import 'dart:math';
 
 import 'package:drift/drift.dart';
 
-import '../../presentation/theme/app_colors.dart';
 import '../db/app_database.dart';
 import '../models/event_type.dart';
 import '../models/hex_color.dart';
@@ -29,8 +28,11 @@ class TagRepository {
     return normalized;
   }
 
-  String randomColor() =>
-      AppColors.tagPalette[_random.nextInt(AppColors.tagPalette.length)];
+  /// A fully random opaque color as a canonical `#RRGGBB` string.
+  String randomColor() {
+    final rgb = _random.nextInt(0x1000000);
+    return '#${rgb.toRadixString(16).padLeft(6, '0').toUpperCase()}';
+  }
 
   Stream<List<Tag>> watchTagsByType(EventType type) {
     final query = _db.select(_db.tags)
@@ -70,22 +72,22 @@ class TagRepository {
     );
   }
 
-  /// Reuses the existing tag matching the normalized name and [type], or
-  /// creates it with a random color. Used when typing tags on a record.
-  Future<Tag> ensureTag(String name, EventType type) async {
-    final trimmed = _requireName(name);
-    final existing = await _findByNormalizedName(normalizeName(trimmed), type);
-    if (existing != null) return existing;
-    return _insert(trimmed, type, randomColor());
-  }
-
+  /// Creates a tag of [type] enforcing the unique normalized-name-per-type
+  /// rule. When a match already exists it throws [DuplicateTagException],
+  /// unless [reuseExisting] is true, in which case the existing tag is
+  /// returned instead — this is what record editors use to add a tag by name
+  /// without caring whether it already exists. A random color is assigned when
+  /// [colorHex] is omitted.
   Future<Tag> createTag({
     required String name,
     required EventType type,
     String? colorHex,
+    bool reuseExisting = false,
   }) async {
     final trimmed = _requireName(name);
-    if (await _findByNormalizedName(normalizeName(trimmed), type) != null) {
+    final existing = await _findByNormalizedName(normalizeName(trimmed), type);
+    if (existing != null) {
+      if (reuseExisting) return existing;
       throw DuplicateTagException(trimmed, type);
     }
     final color = colorHex == null

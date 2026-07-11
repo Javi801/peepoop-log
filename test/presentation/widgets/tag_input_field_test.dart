@@ -82,9 +82,9 @@ void main() {
   testWidgets('typing shows matching existing tags in a dropdown', (
     tester,
   ) async {
-    await tags.ensureTag('light yellow', EventType.urination);
-    await tags.ensureTag('dark yellow', EventType.urination);
-    await tags.ensureTag('urgent', EventType.urination);
+    await tags.createTag(name: 'light yellow', type: EventType.urination, reuseExisting: true);
+    await tags.createTag(name: 'dark yellow', type: EventType.urination, reuseExisting: true);
+    await tags.createTag(name: 'urgent', type: EventType.urination, reuseExisting: true);
 
     await tester.pumpWidget(field());
     await tester.pump(); // let the tags stream deliver.
@@ -100,7 +100,7 @@ void main() {
   testWidgets('selecting a suggestion submits it and clears the field', (
     tester,
   ) async {
-    await tags.ensureTag('light yellow', EventType.urination);
+    await tags.createTag(name: 'light yellow', type: EventType.urination, reuseExisting: true);
 
     await tester.pumpWidget(field());
     await tester.pump();
