@@ -101,7 +101,7 @@ Rules:
 ```sql
 CREATE TABLE records (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
-  occurred_at INTEGER NOT NULL, -- unix epoch, UTC
+  occurred_at INTEGER NOT NULL, -- unix epoch seconds (Drift dateTime); the local instant, not forced to UTC
   has_urination INTEGER NOT NULL DEFAULT 0,
   has_defecation INTEGER NOT NULL DEFAULT 0,
   urination_description TEXT,
@@ -119,7 +119,8 @@ CREATE TABLE tags (
   normalized_name TEXT NOT NULL,
   type TEXT NOT NULL CHECK (type IN ('urination', 'defecation')),
   color_hex TEXT NOT NULL,
-  UNIQUE (normalized_name, type)
+  UNIQUE (normalized_name, type),
+  CHECK (length(trim(name)) > 0)
 );
 
 CREATE TABLE record_tags (
@@ -152,32 +153,48 @@ Main responsibilities:
 
 ### Application Layer
 
-Contains use cases and business logic.
+Holds stateless services that transform data but do not own persistence. In the
+current implementation this layer is intentionally thin: it contains the CSV
+exporter (`CsvExporter`), a pure function that turns records into CSV text.
 
-Examples:
-
-* Create record.
-* Edit record.
-* Delete one record.
-* Delete multiple records.
-* Delete all records.
-* Create or resolve tags from user input.
-* Normalize tag names.
-* Export records to CSV.
-* Apply filters.
+Most write and validation logic — creating, editing, and deleting records;
+resolving and normalizing tags from user input; building and applying filters —
+lives in the repositories of the data layer rather than in a separate use-case
+layer. For an app of this size, keeping that logic on the repositories avoids a
+redundant indirection layer.
 
 ### Data Layer
 
-Contains SQLite access and local repositories.
+Contains SQLite access and local repositories. The repositories are also where
+record/tag business rules (shape validation, tag-type matching, normalized-name
+uniqueness, filtering) are enforced.
 
 Examples:
 
 * Record repository.
 * Tag repository.
-* Export repository.
-* Database migrations.
+* The Drift database definition and its migration strategy.
+
+There is no dedicated export repository: CSV building is a pure service in the
+application layer (`CsvExporter`), and it reads records through the record
+repository. The database is at schema version 1 with no migration steps yet; the
+migration strategy is in place for future schema changes.
 
 ## Main Screens
+
+### Navigation Shell
+
+The app boots into a splash screen that opens the database, then hosts five
+top-level destinations behind a shared bottom navigation bar:
+
+* Add Record (the central "+" action).
+* History.
+* Tags.
+* Export.
+* Settings.
+
+Each destination is a root screen kept alive in an `IndexedStack`, so switching
+tabs preserves each screen's state.
 
 ### Quick Record Screen
 
@@ -253,12 +270,20 @@ Features:
 
 Features:
 
-* Manual CSV export.
 * Delete all records with confirmation.
 * Privacy statement.
 * App version.
 * Owner/developer information.
 * Contact option for feedback, bug reports, or feature requests.
+
+CSV export is not part of Settings; it is its own top-level destination (see the
+Export Screen below), which keeps the primary action visible in the navigation
+bar instead of nested inside Settings.
+
+### Export Screen
+
+A dedicated destination that builds the CSV from all records and hands it to the
+system share sheet. See the [CSV Export](#csv-export) section for the row format.
 
 ## Launcher Widget
 
