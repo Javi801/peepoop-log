@@ -29,9 +29,9 @@ abstract final class AppTypography {
   );
 
   /// Small uppercase-feeling label above form fields.
-  static const TextStyle fieldLabel = TextStyle(fontSize: 12, fontWeight: bold);
+  static const TextStyle fieldLabel = TextStyle(fontSize: 13, fontWeight: bold);
 
-  static const TextStyle body = TextStyle(fontSize: 16);
+  static const TextStyle body = TextStyle(fontSize: 14);
 
   /// Emphasized [body] variant for card titles and row labels.
   static const TextStyle bodyBold = TextStyle(fontSize: 16, fontWeight: bold);
