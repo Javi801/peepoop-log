@@ -315,26 +315,35 @@ class _TypeSelectButton extends StatelessWidget {
       ),
     );
 
-    return Material(
-      color: selected ? colors.primarySoft : colors.surface,
-      shape: shape,
-      child: InkWell(
-        customBorder: shape,
-        onTap: onTap,
-        child: Padding(
-          padding: AppInsets.tab,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(icon, style: AppTypography.emojiIcon),
-              const SizedBox(height: AppSpacing.xs),
-              Text(
-                label,
-                style: AppTypography.buttonLabel.copyWith(
-                  color: selected ? colors.primaryDark : colors.textPrimary,
-                ),
-              ),
-            ],
+    // Square button that scales with the available half-width; the emoji is
+    // sized as a fraction of that so it grows with the screen.
+    return AspectRatio(
+      aspectRatio: 1,
+      child: Material(
+        color: selected ? colors.primarySoft : colors.surface,
+        shape: shape,
+        child: InkWell(
+          customBorder: shape,
+          onTap: onTap,
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              return Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    icon,
+                    style: TextStyle(fontSize: constraints.maxWidth * 0.34),
+                  ),
+                  const SizedBox(height: AppSpacing.sm),
+                  Text(
+                    label,
+                    style: AppTypography.buttonLabel.copyWith(
+                      color: selected ? colors.primaryDark : colors.textPrimary,
+                    ),
+                  ),
+                ],
+              );
+            },
           ),
         ),
       ),
