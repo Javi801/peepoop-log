@@ -55,7 +55,9 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
   /// creation (only urination enabled by default).
   _EventForm _buildForm(EventType type, RecordWithTags? entry) {
     if (entry == null) {
-      return _EventForm(enabled: type == EventType.urination);
+      // New records start with both types selected; the user deselects the
+      // one they are not logging.
+      return _EventForm(enabled: true);
     }
     final enabled = entry.record.has(type);
     final form = _EventForm(enabled: enabled);
@@ -165,7 +167,7 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
   void _reset() {
     _occurredAt = DateTime.now();
     _forms.forEach((type, form) {
-      form.enabled = type == EventType.urination;
+      form.enabled = true;
       form.description.clear();
       form.tags.clear();
     });
@@ -183,133 +185,158 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
           _isEditing ? AppStrings.editRecordTitle : AppStrings.addRecordTitle,
         ),
       ),
-      body: Stack(
+      body: ListView(
+        padding: AppInsets.screen,
         children: [
-          ListView(
-            padding: AppInsets.screen,
-            children: [
-              LabeledField(
-                label: AppStrings.addRecordDateTime,
-                child: InkWell(
-                  borderRadius: BorderRadius.circular(AppRadii.input),
-                  onTap: _pickDateTime,
-                  child: InputDecorator(
-                    decoration: const InputDecoration(),
-                    child: Row(
-                      children: [
-                        Icon(
-                          Icons.calendar_today_outlined,
-                          size: 20,
-                          color: colors.textMuted,
-                        ),
-                        const SizedBox(width: AppSpacing.sm),
-                        Text(localizations.formatShortDate(_occurredAt)),
-                        const Spacer(),
-                        Text(formatHourMinute(_occurredAt)),
-                        const SizedBox(width: AppSpacing.sm),
-                        Icon(
-                          Icons.access_time,
-                          size: 20,
-                          color: colors.textMuted,
-                        ),
-                      ],
+          LabeledField(
+            label: AppStrings.addRecordDateTime,
+            child: InkWell(
+              borderRadius: BorderRadius.circular(AppRadii.input),
+              onTap: _pickDateTime,
+              child: InputDecorator(
+                decoration: const InputDecoration(),
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.calendar_today_outlined,
+                      size: 20,
+                      color: colors.textMuted,
                     ),
-                  ),
-                ),
-              ),
-              for (final type in EventType.values) ...[
-                Divider(
-                  height: AppSpacing.md * 2,
-                  thickness: 1,
-                  color: colors.border,
-                ),
-                GestureDetector(
-                  behavior: HitTestBehavior.opaque,
-                  onTap: () => setState(
-                    () => _forms[type]!.enabled = !_forms[type]!.enabled,
-                  ),
-                  child: Row(
-                    children: [
-                      Container(
-                        width: AppSizes.cuteIcon,
-                        height: AppSizes.cuteIcon,
-                        decoration: BoxDecoration(
-                          color: colors.cuteIconBackground,
-                          borderRadius: BorderRadius.circular(
-                            AppRadii.cuteIcon,
-                          ),
-                        ),
-                        child: Center(
-                          child: Text(
-                            type.icon,
-                            style: AppTypography.emojiIcon,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: AppSpacing.sm),
-                      Expanded(
-                        child: Text(type.label, style: AppTypography.bodyBold),
-                      ),
-                      AppSwitch(
-                        value: _forms[type]!.enabled,
-                        onChanged: (value) =>
-                            setState(() => _forms[type]!.enabled = value),
-                      ),
-                    ],
-                  ),
-                ),
-                if (_forms[type]!.enabled) ...[
-                  const SizedBox(height: AppSpacing.md),
-                  _DetailFields(
-                    type: type,
-                    descriptionLabel: type.descriptionLabel,
-                    descriptionHint: type.descriptionHint,
-                    description: _forms[type]!.description,
-                    tagLabel: type.tagsLabel,
-                    tags: _forms[type]!.tags,
-                    onAddTag: (name) => _addTag(name, type),
-                    onRemoveTag: (tag) =>
-                        setState(() => _forms[type]!.tags.remove(tag)),
-                  ),
-                ],
-              ],
-              if (_isEditing)
-                Align(
-                  alignment: Alignment.center,
-                  child: TextButton.icon(
-                    onPressed: _saving ? null : _delete,
-                    style: TextButton.styleFrom(foregroundColor: colors.danger),
-                    icon: const Icon(Icons.delete_outline, size: 22),
-                    label: const Text(AppStrings.editRecordDelete),
-                  ),
-                ),
-            ],
-          ),
-          // Save stays docked above the footer; the form scrolls beneath it.
-          Positioned(
-            left: 0,
-            right: 0,
-            bottom: 0,
-            child: Container(
-              color: colors.background,
-              padding: const EdgeInsets.fromLTRB(
-                AppSpacing.lg,
-                AppSpacing.md,
-                AppSpacing.lg,
-                AppSpacing.md,
-              ),
-              child: PrimaryButton(
-                expand: true,
-                onPressed: canSave ? _save : null,
-                child: Text(
-                  _isEditing
-                      ? AppStrings.editRecordSave
-                      : AppStrings.addRecordSave,
+                    const SizedBox(width: AppSpacing.sm),
+                    Text(localizations.formatShortDate(_occurredAt)),
+                    const Spacer(),
+                    Text(formatHourMinute(_occurredAt)),
+                    const SizedBox(width: AppSpacing.sm),
+                    Icon(
+                      Icons.access_time,
+                      size: 20,
+                      color: colors.textMuted,
+                    ),
+                  ],
                 ),
               ),
             ),
           ),
+          const SizedBox(height: AppSpacing.md),
+          // Type selector: pick urination, defecation, or both by selecting
+          // both. At least one must stay selected for the record to save.
+          Row(
+            children: [
+              for (final type in EventType.values) ...[
+                if (type != EventType.values.first)
+                  const SizedBox(width: AppSpacing.tabGap),
+                Expanded(
+                  child: _TypeSelectButton(
+                    icon: type.icon,
+                    label: type.label,
+                    selected: _forms[type]!.enabled,
+                    onTap: () => setState(
+                      () => _forms[type]!.enabled = !_forms[type]!.enabled,
+                    ),
+                  ),
+                ),
+              ],
+            ],
+          ),
+          // Only selected types show their detail fields below the selector.
+          for (final type in EventType.values)
+            if (_forms[type]!.enabled) ...[
+              Divider(
+                height: AppSpacing.md * 2,
+                thickness: 1,
+                color: colors.border,
+              ),
+              Text(type.label, style: AppTypography.bodyBold),
+              const SizedBox(height: AppSpacing.md),
+              _DetailFields(
+                type: type,
+                descriptionLabel: type.descriptionLabel,
+                descriptionHint: type.descriptionHint,
+                description: _forms[type]!.description,
+                tagLabel: type.tagsLabel,
+                tags: _forms[type]!.tags,
+                onAddTag: (name) => _addTag(name, type),
+                onRemoveTag: (tag) =>
+                    setState(() => _forms[type]!.tags.remove(tag)),
+              ),
+            ],
+          if (_isEditing)
+            Align(
+              alignment: Alignment.center,
+              child: TextButton.icon(
+                onPressed: _saving ? null : _delete,
+                style: TextButton.styleFrom(foregroundColor: colors.danger),
+                icon: const Icon(Icons.delete_outline, size: 22),
+                label: const Text(AppStrings.editRecordDelete),
+              ),
+            ),
+          // Save flows at the end of the form and scrolls with the content.
+          const SizedBox(height: AppSpacing.md),
+          PrimaryButton(
+            expand: true,
+            onPressed: canSave ? _save : null,
+            child: Text(
+              _isEditing
+                  ? AppStrings.editRecordSave
+                  : AppStrings.addRecordSave,
+            ),
+          ),
         ],
+      ),
+    );
+  }
+}
+
+/// Segmented selector button choosing whether the record includes an event
+/// type. Selected buttons take the primary highlight; both may be selected at
+/// once to log urination and defecation together.
+class _TypeSelectButton extends StatelessWidget {
+  const _TypeSelectButton({
+    required this.icon,
+    required this.label,
+    required this.selected,
+    required this.onTap,
+  });
+
+  final String icon;
+  final String label;
+  final bool selected;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.appColors;
+
+    final shape = RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(AppRadii.toggleCard),
+      side: BorderSide(
+        color: selected ? colors.primary : colors.border,
+        width: selected ? 1.5 : 1,
+      ),
+    );
+
+    return Material(
+      color: selected ? colors.primarySoft : colors.surface,
+      shape: shape,
+      child: InkWell(
+        customBorder: shape,
+        onTap: onTap,
+        child: Padding(
+          padding: AppInsets.tab,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(icon, style: AppTypography.emojiIcon),
+              const SizedBox(height: AppSpacing.xs),
+              Text(
+                label,
+                style: AppTypography.buttonLabel.copyWith(
+                  color: selected ? colors.primaryDark : colors.textPrimary,
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
