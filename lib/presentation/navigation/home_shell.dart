@@ -44,18 +44,37 @@ class HomeShell extends StatefulWidget {
 class _HomeShellState extends State<HomeShell> {
   HomeDestination _destination = HomeDestination.addRecord;
 
+  // Bumped every time the add-record tab is opened. Keying its subtree on this
+  // rebuilds the form from scratch, so unsaved input from a previous visit is
+  // discarded instead of being restored by the kept-alive IndexedStack child.
+  int _addRecordEpoch = 0;
+
+  void _select(HomeDestination destination) {
+    setState(() {
+      if (destination == HomeDestination.addRecord) _addRecordEpoch++;
+      _destination = destination;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: IndexedStack(
         index: _destination.index,
         children: [
-          for (final destination in HomeDestination.values) destination.screen,
+          for (final destination in HomeDestination.values)
+            if (destination == HomeDestination.addRecord)
+              KeyedSubtree(
+                key: ValueKey(_addRecordEpoch),
+                child: destination.screen,
+              )
+            else
+              destination.screen,
         ],
       ),
       bottomNavigationBar: _BottomNavBar(
         current: _destination,
-        onSelect: (destination) => setState(() => _destination = destination),
+        onSelect: _select,
       ),
     );
   }
