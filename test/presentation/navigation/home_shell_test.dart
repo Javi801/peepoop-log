@@ -36,14 +36,14 @@ void main() {
       find.descendant(of: find.byType(AppBar), matching: find.text(title));
 
   testWidgets('starts on the Add Record screen', (tester) async {
-    unmountWidgetTreeAfterTest(tester);
     await pumpShell(tester);
 
     expect(appBarTitle('Add Record'), findsOneWidget);
+
+    await unmountWidgetTree(tester);
   });
 
   testWidgets('bottom nav switches between the root screens', (tester) async {
-    unmountWidgetTreeAfterTest(tester);
     await pumpShell(tester);
 
     final destinations = [
@@ -59,10 +59,11 @@ void main() {
 
       expect(appBarTitle(destination.title), findsOneWidget);
     }
+
+    await unmountWidgetTree(tester);
   });
 
   testWidgets('central plus button returns to Add Record', (tester) async {
-    unmountWidgetTreeAfterTest(tester);
     await pumpShell(tester);
 
     await tester.tap(find.text(HomeDestination.history.title));
@@ -73,5 +74,7 @@ void main() {
     await tester.pump();
 
     expect(appBarTitle('Add Record'), findsOneWidget);
+
+    await unmountWidgetTree(tester);
   });
 }
