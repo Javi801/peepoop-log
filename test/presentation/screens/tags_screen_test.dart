@@ -68,7 +68,6 @@ void main() {
       .at(index);
 
   testWidgets('lists tags of the active tab with usage counts', (tester) async {
-    unmountWidgetTreeAfterTest(tester);
     await seed();
     await tester.pumpWidget(app());
     await tester.pump();
@@ -80,21 +79,24 @@ void main() {
     expect(find.text('0 uses'), findsOneWidget);
 
     await tester.tap(find.text('Poop'));
+    // Switching tabs starts a fresh stream: one pump rebuilds, one delivers.
+    await tester.pump();
     await tester.pump();
 
     expect(find.text('normal'), findsOneWidget);
     expect(find.text('urgent'), findsNothing);
+
+    await unmountWidgetTree(tester);
   });
 
   testWidgets('creates a tag for the active tab from the editor', (
     tester,
   ) async {
-    unmountWidgetTreeAfterTest(tester);
     await seed();
     await tester.pumpWidget(app());
     await tester.pump();
 
-    await tester.tap(find.text('+ New Tag'));
+    await tester.tap(find.byTooltip('+ New Tag'));
     await tester.pumpAndSettle();
 
     expect(find.text('New Tag'), findsOneWidget);
@@ -105,15 +107,16 @@ void main() {
 
     expect(find.byType(EditTagDialog), findsNothing);
     expect(find.text('clear'), findsOneWidget);
+
+    await unmountWidgetTree(tester);
   });
 
   testWidgets('rejects duplicate names within the same type', (tester) async {
-    unmountWidgetTreeAfterTest(tester);
     await seed();
     await tester.pumpWidget(app());
     await tester.pump();
 
-    await tester.tap(find.text('+ New Tag'));
+    await tester.tap(find.byTooltip('+ New Tag'));
     await tester.pumpAndSettle();
     await tester.enterText(dialogField(0), 'URGENT ');
     await tester.tap(find.text('Save'));
@@ -121,10 +124,11 @@ void main() {
 
     expect(find.text('Tag already exists.'), findsOneWidget);
     expect(find.byType(EditTagDialog), findsOneWidget);
+
+    await unmountWidgetTree(tester);
   });
 
   testWidgets('edits a tag from its row', (tester) async {
-    unmountWidgetTreeAfterTest(tester);
     await seed();
     await tester.pumpWidget(app());
     await tester.pump();
@@ -140,17 +144,18 @@ void main() {
 
     expect(find.text('very urgent'), findsOneWidget);
     expect(find.text('urgent'), findsNothing);
+
+    await unmountWidgetTree(tester);
   });
 
   testWidgets('delete mode removes the selected tags after confirmation', (
     tester,
   ) async {
-    unmountWidgetTreeAfterTest(tester);
     await seed();
     await tester.pumpWidget(app());
     await tester.pump();
 
-    await tester.tap(find.text('Delete'));
+    await tester.tap(find.byTooltip('Delete'));
     await tester.pump();
 
     expect(find.text('○'), findsNWidgets(2));
@@ -169,5 +174,7 @@ void main() {
     expect(find.text('light yellow'), findsOneWidget);
     // Delete mode exits after deleting.
     expect(find.text('○'), findsNothing);
+
+    await unmountWidgetTree(tester);
   });
 }
