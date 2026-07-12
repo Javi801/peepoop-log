@@ -95,35 +95,50 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
     });
   }
 
-  Future<void> _addTag(String name, EventType type) async {
-    final tag = await AppScope.of(
-      context,
-    ).tagRepository.createTag(name: name, type: type, reuseExisting: true);
-    if (!mounted) return;
+  /// Adds [tag] to [type]'s pending selection. The tag is not persisted here;
+  /// new tags (id `0`) are created only when the record is saved. Dedupes by
+  /// normalized name because unsaved tags share the placeholder id `0`.
+  void _addTag(Tag tag, EventType type) {
     setState(() {
       final tags = _forms[type]!.tags;
-      if (!tags.any((t) => t.id == tag.id)) tags.add(tag);
+      if (!tags.any((t) => t.normalizedName == tag.normalizedName)) {
+        tags.add(tag);
+      }
     });
   }
 
   Future<void> _save() async {
-    final repository = AppScope.of(context).recordRepository;
+    final scope = AppScope.of(context);
+    final repository = scope.recordRepository;
+    final tagRepository = scope.tagRepository;
     final messenger = ScaffoldMessenger.of(context);
     setState(() => _saving = true);
     try {
       // Disabled sections keep their form state so re-enabling restores it,
       // but only enabled types contribute a detail to the draft.
-      final draft = RecordDraft(
-        occurredAt: _occurredAt,
-        details: {
-          for (final entry in _forms.entries)
-            if (entry.value.enabled)
-              entry.key: EventDetail(
-                description: entry.value.description.text,
-                tagIds: [for (final t in entry.value.tags) t.id],
-              ),
-        },
-      );
+      final details = <EventType, EventDetail>{};
+      for (final entry in _forms.entries) {
+        if (!entry.value.enabled) continue;
+        // Pending tags are persisted now, on save, rather than when selected:
+        // existing tags keep their id, new ones (id 0) are created here.
+        final tagIds = <int>[];
+        for (final tag in entry.value.tags) {
+          final id = tag.id != 0
+              ? tag.id
+              : (await tagRepository.createTag(
+                  name: tag.name,
+                  type: entry.key,
+                  colorHex: tag.colorHex,
+                  reuseExisting: true,
+                )).id;
+          tagIds.add(id);
+        }
+        details[entry.key] = EventDetail(
+          description: entry.value.description.text,
+          tagIds: tagIds,
+        );
+      }
+      final draft = RecordDraft(occurredAt: _occurredAt, details: details);
       if (_isEditing) {
         await repository.updateRecord(widget.record!.record.id, draft);
       } else {
@@ -255,7 +270,7 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
                 description: _forms[type]!.description,
                 tagLabel: type.tagsLabel,
                 tags: _forms[type]!.tags,
-                onAddTag: (name) => _addTag(name, type),
+                onAddTag: (tag) => _addTag(tag, type),
                 onRemoveTag: (tag) =>
                     setState(() => _forms[type]!.tags.remove(tag)),
               ),
@@ -370,7 +385,7 @@ class _DetailFields extends StatelessWidget {
   final TextEditingController description;
   final String tagLabel;
   final List<Tag> tags;
-  final ValueChanged<String> onAddTag;
+  final ValueChanged<Tag> onAddTag;
   final ValueChanged<Tag> onRemoveTag;
 
   @override
@@ -390,7 +405,7 @@ class _DetailFields extends StatelessWidget {
           label: tagLabel,
           type: type,
           selectedTags: tags,
-          onSubmitted: onAddTag,
+          onAdd: onAddTag,
         ),
         TagChips(tags: tags, onRemove: onRemoveTag),
       ],

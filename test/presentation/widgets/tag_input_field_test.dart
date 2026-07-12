@@ -10,18 +10,20 @@ import 'package:peepoop_log/presentation/scope/app_scope.dart';
 import 'package:peepoop_log/presentation/theme/theme.dart';
 import 'package:peepoop_log/presentation/widgets/widgets.dart';
 
+import '../../support/widget_cleanup.dart';
+
 void main() {
   late AppDatabase db;
   late RecordRepository records;
   late TagRepository tags;
-  late List<String> submitted;
+  late List<Tag> added;
 
   setUp(() {
     driftRuntimeOptions.dontWarnAboutMultipleDatabases = true;
     db = AppDatabase(NativeDatabase.memory());
     records = RecordRepository(db);
     tags = TagRepository(db);
-    submitted = [];
+    added = [];
   });
 
   tearDown(() => db.close());
@@ -35,7 +37,7 @@ void main() {
         body: TagInputField(
           label: 'Urination tags',
           type: EventType.urination,
-          onSubmitted: submitted.add,
+          onAdd: added.add,
         ),
       ),
     ),
@@ -53,8 +55,10 @@ void main() {
     await tester.testTextInput.receiveAction(TextInputAction.done);
     await tester.pump();
 
-    expect(submitted, ['light yellow']);
+    expect(added.map((t) => t.name), ['light yellow']);
     expect(fieldText(tester), isEmpty);
+
+    await unmountWidgetTree(tester);
   });
 
   testWidgets('the + button submits too', (tester) async {
@@ -64,8 +68,10 @@ void main() {
     await tester.tap(find.byTooltip('Add tag'));
     await tester.pump();
 
-    expect(submitted, ['urgent']);
+    expect(added.map((t) => t.name), ['urgent']);
     expect(fieldText(tester), isEmpty);
+
+    await unmountWidgetTree(tester);
   });
 
   testWidgets('blank input is ignored', (tester) async {
@@ -76,7 +82,9 @@ void main() {
     await tester.tap(find.byTooltip('Add tag'));
     await tester.pump();
 
-    expect(submitted, isEmpty);
+    expect(added, isEmpty);
+
+    await unmountWidgetTree(tester);
   });
 
   testWidgets('typing shows matching existing tags in a dropdown', (
@@ -95,6 +103,8 @@ void main() {
     expect(find.text('light yellow'), findsOneWidget);
     expect(find.text('dark yellow'), findsOneWidget);
     expect(find.text('urgent'), findsNothing);
+
+    await unmountWidgetTree(tester);
   });
 
   testWidgets('selecting a suggestion submits it and clears the field', (
@@ -111,7 +121,9 @@ void main() {
     await tester.tap(find.text('light yellow'));
     await tester.pump();
 
-    expect(submitted, ['light yellow']);
+    expect(added.map((t) => t.name), ['light yellow']);
     expect(fieldText(tester), isEmpty);
+
+    await unmountWidgetTree(tester);
   });
 }
