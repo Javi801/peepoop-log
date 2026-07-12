@@ -33,11 +33,28 @@ void main() {
     child: MaterialApp(theme: AppTheme.light(), home: const AddRecordScreen()),
   );
 
+  // The square type-selector buttons make the form taller than the default
+  // 600px test viewport, and the ListView builds off-screen fields lazily;
+  // a taller view keeps every field reachable by the finders.
+  Future<void> pumpApp(WidgetTester tester) async {
+    tester.view.physicalSize = const Size(800, 1600);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.reset);
+    await tester.pumpWidget(app());
+  }
+
+  // The selector button and the section heading both render the type label;
+  // the selector Row sits above the sections, so `.first` is the button.
+  Finder typeButton(String label) => find.text(label).first;
+
   testWidgets(
     'saves a urination record with description and tag, then resets',
     (tester) async {
-      unmountWidgetTreeAfterTest(tester);
-      await tester.pumpWidget(app());
+      await pumpApp(tester);
+
+      // Both types start selected; deselect defecation to log urination only.
+      await tester.tap(typeButton('Defecation'));
+      await tester.pump();
 
       await tester.enterText(find.byType(TextField).first, 'No discomfort.');
       await tester.enterText(
@@ -76,26 +93,40 @@ void main() {
       // Let the snackbar expire so no timers are pending at teardown.
       await tester.pump(const Duration(seconds: 5));
       await tester.pumpAndSettle();
+
+      // Dispose in-body so the drift stream timers of the tag fields are
+      // drained before the framework's end-of-test timer check.
+      await unmountWidgetTree(tester);
     },
   );
 
-  testWidgets('defecation section appears when toggled', (tester) async {
-    unmountWidgetTreeAfterTest(tester);
-    await tester.pumpWidget(app());
+  testWidgets('defecation section hides and reappears when toggled', (
+    tester,
+  ) async {
+    await pumpApp(tester);
+
+    // Both sections start visible.
+    expect(find.text('Defecation description'), findsOneWidget);
+
+    await tester.tap(typeButton('Defecation'));
+    await tester.pump();
 
     expect(find.text('Defecation description'), findsNothing);
 
-    await tester.tap(find.text('Defecation'));
+    await tester.tap(typeButton('Defecation'));
     await tester.pump();
 
     expect(find.text('Defecation description'), findsOneWidget);
+
+    await unmountWidgetTree(tester);
   });
 
   testWidgets('save is disabled with both event types off', (tester) async {
-    unmountWidgetTreeAfterTest(tester);
-    await tester.pumpWidget(app());
+    await pumpApp(tester);
 
-    await tester.tap(find.text('Urination'));
+    await tester.tap(typeButton('Urination'));
+    await tester.pump();
+    await tester.tap(typeButton('Defecation'));
     await tester.pump();
 
     await tester.ensureVisible(find.text('Save Record'));
@@ -104,5 +135,7 @@ void main() {
 
     expect(find.text('Record saved'), findsNothing);
     expect(await records.getRecords(), isEmpty);
+
+    await unmountWidgetTree(tester);
   });
 }
