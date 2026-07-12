@@ -112,5 +112,8 @@
   },
   "Set a custom app launcher icon": {
     "body": "## Context\nThe app still uses the default Flutter launcher icon on Android and iOS.\n\n## Acceptance criteria\n- A custom launcher icon is set for Android (including an adaptive icon) and iOS.\n- The icon renders correctly on EMUI devices.\n- Icon generation is reproducible via a documented command or tool configuration.\n- No Google Play Services dependency is introduced by the icon setup."
+  },
+  "Fix tag delete mode missing select-all and still allowing tag creation": {
+    "body": "## Context\nOn the tag management screen, entering delete mode lets the user tap tags one by one to select them for deletion, but there are two problems. There is no way to select all tags at once, so clearing a long list means tapping every tag individually. In addition, the New tag (+) action stays active while delete mode is on, so a user can create a new tag in the middle of an unfinished delete selection, which mixes two conflicting actions.\n\n## Acceptance criteria\n- Delete mode offers a select-all control that selects every tag in the current event-type tab.\n- Selecting all can be toggled off to clear the selection again.\n- Select-all respects the active tab and does not select tags from the other event type.\n- The New tag (+) action is disabled or hidden while delete mode is active, so tags cannot be created during an unfinished delete selection.\n- Leaving delete mode restores the New tag action and clears any pending selection."
   }
 }

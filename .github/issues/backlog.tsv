@@ -37,3 +37,4 @@ Stop the docked Save button from covering form content			Backlog						UI, UX
 Reduce card corner radius to a squarer shape			Backlog						UI, enhancement
 Add CSV data import			Backlog						Data, decision-needed, feature
 Set a custom app launcher icon			Backlog						UI, enhancement
+Fix tag delete mode missing select-all and still allowing tag creation			Backlog						bug, UI, UX
