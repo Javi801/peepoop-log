@@ -18,11 +18,21 @@ Future<T?> showAppModalSheet<T>({
       final colors = context.appColors;
       final decorations = context.appDecorations;
 
+      // Float the sheet above the bottom navigation bar so the footer stays
+      // visible (darkened by the barrier) rather than covered. The keyboard,
+      // when open, takes precedence over that reserved footer space.
+      final keyboard = MediaQuery.viewInsetsOf(context).bottom;
+      final footerHeight =
+          AppSizes.fabOverhang +
+          AppSizes.bottomNavHeight +
+          MediaQuery.paddingOf(context).bottom;
+
       return Padding(
         padding: EdgeInsets.only(
-          bottom: MediaQuery.viewInsetsOf(context).bottom,
+          bottom: keyboard > 0 ? keyboard : footerHeight,
         ),
         child: SafeArea(
+          bottom: false,
           child: Padding(
             padding: AppInsets.modalMargin,
             child: ConstrainedBox(
@@ -41,6 +51,45 @@ Future<T?> showAppModalSheet<T>({
                 child: SingleChildScrollView(child: builder(context)),
               ),
             ),
+          ),
+        ),
+      );
+    },
+  );
+}
+
+/// Shows [builder]'s content in a floating card centered on the screen, using
+/// the same rounded, shadowed surface as [showAppModalSheet]. Use for modals
+/// that present information rather than anchoring to the bottom of the screen.
+Future<T?> showAppCenteredModal<T>({
+  required BuildContext context,
+  required WidgetBuilder builder,
+}) {
+  return showDialog<T>(
+    context: context,
+    builder: (context) {
+      final colors = context.appColors;
+      final decorations = context.appDecorations;
+
+      return Dialog(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        insetPadding: AppInsets.modalMargin,
+        child: ConstrainedBox(
+          constraints: BoxConstraints(
+            maxHeight:
+                MediaQuery.sizeOf(context).height *
+                AppEffects.modalMaxHeightFraction,
+          ),
+          child: Container(
+            width: double.infinity,
+            decoration: BoxDecoration(
+              color: colors.surface,
+              borderRadius: BorderRadius.circular(AppRadii.modal),
+              boxShadow: decorations.modalShadow,
+            ),
+            padding: AppInsets.modal,
+            child: SingleChildScrollView(child: builder(context)),
           ),
         ),
       );

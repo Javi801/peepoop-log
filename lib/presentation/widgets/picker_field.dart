@@ -16,6 +16,20 @@ Future<DateTime?> showAppDatePicker(
   );
 }
 
+/// [showDateRangePicker] with the app-wide selectable date range; opens the
+/// classic calendar that highlights every day between the two picked dates.
+Future<DateTimeRange?> showAppDateRangePicker(
+  BuildContext context, {
+  DateTimeRange? initialRange,
+}) {
+  return showDateRangePicker(
+    context: context,
+    initialDateRange: initialRange,
+    firstDate: DateTime(2000),
+    lastDate: DateTime(2100),
+  );
+}
+
 /// Read-only labeled input that opens a picker when tapped.
 class PickerField extends StatelessWidget {
   const PickerField({

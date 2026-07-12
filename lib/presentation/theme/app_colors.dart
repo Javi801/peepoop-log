@@ -119,23 +119,11 @@ class AppColors extends ThemeExtension<AppColors> {
   final Color shadowFab;
   final Color shadowModal;
 
-  /// Fallback when a tag has no valid color stored. The palette offered when
-  /// creating tags is [tagPalette].
+  /// Fallback when a tag has no valid color stored.
   final Color tagFallback;
 
   /// Background of the small rounded emoji icons next to toggles.
   final Color cuteIconBackground;
-
-  /// Palette offered when creating tags, as hex strings because tag colors
-  /// are persisted on the tag itself and do not follow the theme.
-  static const tagPalette = [
-    '#FFE8A3',
-    '#CFEEFF',
-    '#D9F2C7',
-    '#FFD3D3',
-    '#EADBFF',
-    '#FFE4EC',
-  ];
 
   /// Default pastel theme.
   static const pastel = AppColors(

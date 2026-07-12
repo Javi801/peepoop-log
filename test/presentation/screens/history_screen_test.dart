@@ -58,22 +58,31 @@ void main() {
     child: MaterialApp(theme: AppTheme.light(), home: const HistoryScreen()),
   );
 
-  Future<void> pumpModal(WidgetTester tester) async {
+  Future<void> pumpApp(WidgetTester tester) => tester.pumpWidget(app());
+
+  // The sheet body scrolls inside the modal, so its lower controls may sit
+  // below the fold; scroll them into view before tapping.
+  Future<void> tapSheetButton(WidgetTester tester, String label) async {
+    await tester.ensureVisible(find.text(label));
     await tester.pump();
-    await tester.pump(const Duration(milliseconds: 300));
+    await tester.tap(find.text(label));
   }
 
-  testWidgets('shows records with time, type, tags and description', (
-    tester,
-  ) async {
+  Future<void> pumpModal(WidgetTester tester) async {
+    await tester.pump();
+    await tester.pumpAndSettle();
+  }
+
+  testWidgets('shows records with time, type and tags', (tester) async {
     await seed();
-    await tester.pumpWidget(app());
+    await pumpApp(tester);
     await tester.pump();
 
+    // Descriptions are not on the collapsed card; they live in the details
+    // sheet (covered by record_details_sheet_test).
     expect(find.text('08:30'), findsOneWidget);
     expect(find.text('Urination'), findsOneWidget);
     expect(find.text('urgent'), findsOneWidget);
-    expect(find.text('Slight urgency.'), findsOneWidget);
     expect(find.text('22:10'), findsOneWidget);
     expect(find.text('Defecation'), findsOneWidget);
 
@@ -81,7 +90,7 @@ void main() {
   });
 
   testWidgets('shows the empty state without records', (tester) async {
-    await tester.pumpWidget(app());
+    await pumpApp(tester);
     await tester.pump();
 
     expect(find.text('No records found.'), findsOneWidget);
@@ -91,26 +100,26 @@ void main() {
 
   testWidgets('event type filters hide matching records', (tester) async {
     await seed();
-    await tester.pumpWidget(app());
+    await pumpApp(tester);
     await tester.pump();
 
-    await tester.tap(find.text('Filters'));
+    await tester.tap(find.byTooltip('Filters'));
     await pumpModal(tester);
 
     // The sheet overlays the list, so its toggles are the last matches.
     await tester.tap(find.text('Urination').last);
     await tester.pump();
-    await tester.tap(find.text('Apply'));
+    await tapSheetButton(tester, 'Apply');
     await pumpModal(tester);
 
     expect(find.text('urgent'), findsNothing);
     expect(find.text('Defecation'), findsOneWidget);
 
-    await tester.tap(find.text('Filters'));
+    await tester.tap(find.byTooltip('Filters'));
     await pumpModal(tester);
     await tester.tap(find.text('Defecation').last);
     await tester.pump();
-    await tester.tap(find.text('Apply'));
+    await tapSheetButton(tester, 'Apply');
     await pumpModal(tester);
 
     expect(find.text('No records found.'), findsOneWidget);
@@ -120,16 +129,16 @@ void main() {
 
   testWidgets('clear resets the filters in the sheet', (tester) async {
     await seed();
-    await tester.pumpWidget(app());
+    await pumpApp(tester);
     await tester.pump();
 
-    await tester.tap(find.text('Filters'));
+    await tester.tap(find.byTooltip('Filters'));
     await pumpModal(tester);
     await tester.tap(find.text('Urination').last);
     await tester.pump();
-    await tester.tap(find.text('Clear'));
+    await tapSheetButton(tester, 'Clear');
     await tester.pump();
-    await tester.tap(find.text('Apply'));
+    await tapSheetButton(tester, 'Apply');
     await pumpModal(tester);
 
     expect(find.text('Urination'), findsOneWidget);

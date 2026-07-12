@@ -23,8 +23,8 @@ void main() {
 
   group('createRecord', () {
     test('persists the record with tags split by event type', () async {
-      final yellow = await tags.ensureTag('yellow', EventType.urination);
-      final smell = await tags.ensureTag('smell', EventType.defecation);
+      final yellow = await tags.createTag(name: 'yellow', type: EventType.urination, reuseExisting: true);
+      final smell = await tags.createTag(name: 'smell', type: EventType.defecation, reuseExisting: true);
 
       final id = await repository.createRecord(
         RecordDraft(
@@ -74,7 +74,7 @@ void main() {
     });
 
     test('rejects tags whose type does not match the detail', () async {
-      final smell = await tags.ensureTag('smell', EventType.defecation);
+      final smell = await tags.createTag(name: 'smell', type: EventType.defecation, reuseExisting: true);
       await expectLater(
         repository.createRecord(
           RecordDraft(
@@ -105,8 +105,8 @@ void main() {
 
   group('updateRecord', () {
     test('replaces fields and tag associations', () async {
-      final yellow = await tags.ensureTag('yellow', EventType.urination);
-      final urgent = await tags.ensureTag('urgent', EventType.urination);
+      final yellow = await tags.createTag(name: 'yellow', type: EventType.urination, reuseExisting: true);
+      final urgent = await tags.createTag(name: 'urgent', type: EventType.urination, reuseExisting: true);
       final id = await repository.createRecord(
         RecordDraft(
           occurredAt: DateTime.utc(2026, 6, 19, 8, 30),
@@ -139,7 +139,7 @@ void main() {
     });
 
     test('clears details when an event type is deselected', () async {
-      final yellow = await tags.ensureTag('yellow', EventType.urination);
+      final yellow = await tags.createTag(name: 'yellow', type: EventType.urination, reuseExisting: true);
       final id = await repository.createRecord(
         RecordDraft(
           occurredAt: DateTime.utc(2026, 6, 19),
@@ -189,8 +189,8 @@ void main() {
     late Tag smell;
 
     setUp(() async {
-      yellow = await tags.ensureTag('yellow', EventType.urination);
-      smell = await tags.ensureTag('smell', EventType.defecation);
+      yellow = await tags.createTag(name: 'yellow', type: EventType.urination, reuseExisting: true);
+      smell = await tags.createTag(name: 'smell', type: EventType.defecation, reuseExisting: true);
 
       peeOnly = await repository.createRecord(
         RecordDraft(
@@ -298,7 +298,7 @@ void main() {
     });
 
     test('deleteAllData clears records and tags', () async {
-      final yellow = await tags.ensureTag('yellow', EventType.urination);
+      final yellow = await tags.createTag(name: 'yellow', type: EventType.urination, reuseExisting: true);
       await repository.createRecord(
         RecordDraft(
           occurredAt: DateTime.utc(2026, 6, 19),

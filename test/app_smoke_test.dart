@@ -8,7 +8,6 @@ import 'support/widget_cleanup.dart';
 
 void main() {
   testWidgets('boots from the splash into the home shell', (tester) async {
-    unmountWidgetTreeAfterTest(tester);
     driftRuntimeOptions.dontWarnAboutMultipleDatabases = true;
     final db = AppDatabase(NativeDatabase.memory());
     addTearDown(db.close);
@@ -21,5 +20,10 @@ void main() {
 
     expect(find.text('Loading your data...'), findsNothing);
     expect(find.text('Add Record'), findsOneWidget);
+
+    // The root screens the shell keeps alive each open a Drift query stream;
+    // dispose the tree in-body so their pending timers are drained before the
+    // framework's end-of-test timer check.
+    await unmountWidgetTree(tester);
   });
 }

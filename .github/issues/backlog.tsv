@@ -26,4 +26,15 @@ Avoid Google, Meta, Firebase, analytics, and remote services			Backlog						Data
 Minimize mobile permissions for storage and export			Backlog						decision-needed, UX	
 Add app version and owner/developer information			Backlog						documentation, UI	
 Add feedback, bug report, or feature request contact option			Backlog						feature, UX	
-Document future import, statistics, and structured observation scope			Backlog						documentation, decision-needed	
+Document future import, statistics, and structured observation scope			Backlog						documentation, decision-needed
+Fix history timeline time labels misaligned with dots			Backlog						bug, UI
+Refine typography scale and derive it from the active theme			Backlog						UI, enhancement
+Replace emoji glyphs with image assets			Backlog						UI, enhancement
+Support multiple themes with a persisted theme switcher			Backlog						feature, UI, UX
+Add a green theme variant			Backlog						UI, enhancement
+Polish the default pastel theme			Backlog						UI, enhancement
+Stop the docked Save button from covering form content			Backlog						UI, UX
+Reduce card corner radius to a squarer shape			Backlog						UI, enhancement
+Add CSV data import			Backlog						Data, decision-needed, feature
+Set a custom app launcher icon			Backlog						UI, enhancement
+Fix tag delete mode missing select-all and still allowing tag creation			Backlog						bug, UI, UX

@@ -15,11 +15,20 @@ abstract final class AppStrings {
   static const splashLoading = 'Loading your data...';
 
   static const addRecordTitle = 'Add Record';
-  static const addRecordNow = 'Now';
-  static const addRecordDateTime = 'Date and time';
+  static const addRecordDateTime = 'Date & time';
   static const addRecordDateTimeSeparator = ' · ';
   static const addRecordSave = 'Save Record';
   static const recordSaved = 'Record saved';
+
+  static const editRecordTitle = 'Edit Record';
+  static const editRecordSave = 'Save Changes';
+  static const recordUpdated = 'Record updated';
+  static const recordDeleted = 'Record deleted';
+  static const editRecordDelete = 'Delete record';
+  static const editRecordDeleteDialogTitle = 'Delete this record?';
+  static const editRecordDeleteDialogMessage =
+      'This record will be permanently removed. '
+      'This action cannot be undone.';
 
   static const urination = 'Urination';
   static const defecation = 'Defecation';
@@ -34,11 +43,20 @@ abstract final class AppStrings {
   static const historyTitle = 'History';
   static const historyFilters = 'Filters';
   static const historyEmpty = 'No records found.';
+  static const historyToday = 'Today';
+  static const historyYesterday = 'Yesterday';
+  static const historyEdit = 'Edit record';
 
   static const filtersTitle = 'Filters';
+  static const filtersSortBy = 'Sort by';
+  static const filtersSortNewest = 'Newest first';
+  static const filtersSortOldest = 'Oldest first';
+  static const filtersDateRange = 'Date range';
+  static const filtersType = 'Type';
   static const filtersFrom = 'From';
   static const filtersTo = 'To';
   static const filtersTags = 'Tags';
+  static const filtersTagsHint = 'Select tags';
   static const filtersClear = 'Clear';
   static const filtersApply = 'Apply';
   static const filtersAny = 'Any';
@@ -102,6 +120,7 @@ abstract final class AppStrings {
   static const tagInputAddTooltip = 'Add tag';
 
   static const cancel = 'Cancel';
+  static const close = 'Close';
   static const confirmDelete = 'Delete';
 
   static String recordTypeLabel({

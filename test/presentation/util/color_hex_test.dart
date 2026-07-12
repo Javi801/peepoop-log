@@ -28,4 +28,23 @@ void main() {
     );
     expect(colorFromHex('not-a-color', fallback: fallback), fallback);
   });
+
+  group('hexFromColor', () {
+    test('formats RGB channels as uppercase #RRGGBB', () {
+      expect(hexFromColor(const Color(0xFFD9F2C7)), '#D9F2C7');
+    });
+
+    test('drops the alpha channel', () {
+      expect(hexFromColor(const Color(0x80A1B2C3)), '#A1B2C3');
+    });
+
+    test('zero-pads channels below 0x10', () {
+      expect(hexFromColor(const Color(0xFF010203)), '#010203');
+    });
+
+    test('round-trips with tryColorFromHex', () {
+      expect(tryColorFromHex(hexFromColor(const Color(0xFF4B7A2F))),
+          const Color(0xFF4B7A2F));
+    });
+  });
 }

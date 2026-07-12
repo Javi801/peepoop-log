@@ -10,9 +10,13 @@ import '../../theme/theme.dart';
 import '../../util/date_time_format.dart';
 import '../../widgets/widgets.dart';
 
-/// Form to create a record with optional urination/defecation details.
+/// Form to create a record, or edit [record] when one is provided, with
+/// optional urination/defecation details.
 class AddRecordScreen extends StatefulWidget {
-  const AddRecordScreen({super.key});
+  const AddRecordScreen({super.key, this.record});
+
+  /// Existing record to edit; null creates a new one.
+  final RecordWithTags? record;
 
   @override
   State<AddRecordScreen> createState() => _AddRecordScreenState();
@@ -31,12 +35,38 @@ class _EventForm {
 }
 
 class _AddRecordScreenState extends State<AddRecordScreen> {
-  DateTime _occurredAt = DateTime.now();
-  final Map<EventType, _EventForm> _forms = {
-    EventType.urination: _EventForm(enabled: true),
-    EventType.defecation: _EventForm(enabled: false),
-  };
+  late DateTime _occurredAt;
+  late final Map<EventType, _EventForm> _forms;
   bool _saving = false;
+
+  bool get _isEditing => widget.record != null;
+
+  @override
+  void initState() {
+    super.initState();
+    final entry = widget.record;
+    _occurredAt = entry?.record.occurredAt ?? DateTime.now();
+    _forms = {
+      for (final type in EventType.values) type: _buildForm(type, entry),
+    };
+  }
+
+  /// Seeds a form for [type] from [entry] when editing, or an empty form for
+  /// creation (only urination enabled by default).
+  _EventForm _buildForm(EventType type, RecordWithTags? entry) {
+    if (entry == null) {
+      // New records start with both types selected; the user deselects the
+      // one they are not logging.
+      return _EventForm(enabled: true);
+    }
+    final enabled = entry.record.has(type);
+    final form = _EventForm(enabled: enabled);
+    if (enabled) {
+      form.description.text = entry.record.descriptionFor(type) ?? '';
+      form.tags.addAll(entry.tagsFor(type));
+    }
+    return form;
+  }
 
   @override
   void dispose() {
@@ -65,48 +95,94 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
     });
   }
 
-  Future<void> _addTag(String name, EventType type) async {
-    final tag = await AppScope.of(context).tagRepository.ensureTag(name, type);
-    if (!mounted) return;
+  /// Adds [tag] to [type]'s pending selection. The tag is not persisted here;
+  /// new tags (id `0`) are created only when the record is saved. Dedupes by
+  /// normalized name because unsaved tags share the placeholder id `0`.
+  void _addTag(Tag tag, EventType type) {
     setState(() {
       final tags = _forms[type]!.tags;
-      if (!tags.any((t) => t.id == tag.id)) tags.add(tag);
+      if (!tags.any((t) => t.normalizedName == tag.normalizedName)) {
+        tags.add(tag);
+      }
     });
   }
 
   Future<void> _save() async {
-    final repository = AppScope.of(context).recordRepository;
+    final scope = AppScope.of(context);
+    final repository = scope.recordRepository;
+    final tagRepository = scope.tagRepository;
+    final messenger = ScaffoldMessenger.of(context);
     setState(() => _saving = true);
     try {
       // Disabled sections keep their form state so re-enabling restores it,
       // but only enabled types contribute a detail to the draft.
-      await repository.createRecord(
-        RecordDraft(
-          occurredAt: _occurredAt,
-          details: {
-            for (final entry in _forms.entries)
-              if (entry.value.enabled)
-                entry.key: EventDetail(
-                  description: entry.value.description.text,
-                  tagIds: [for (final t in entry.value.tags) t.id],
-                ),
-          },
-        ),
-      );
+      final details = <EventType, EventDetail>{};
+      for (final entry in _forms.entries) {
+        if (!entry.value.enabled) continue;
+        // Pending tags are persisted now, on save, rather than when selected:
+        // existing tags keep their id, new ones (id 0) are created here.
+        final tagIds = <int>[];
+        for (final tag in entry.value.tags) {
+          final id = tag.id != 0
+              ? tag.id
+              : (await tagRepository.createTag(
+                  name: tag.name,
+                  type: entry.key,
+                  colorHex: tag.colorHex,
+                  reuseExisting: true,
+                )).id;
+          tagIds.add(id);
+        }
+        details[entry.key] = EventDetail(
+          description: entry.value.description.text,
+          tagIds: tagIds,
+        );
+      }
+      final draft = RecordDraft(occurredAt: _occurredAt, details: details);
+      if (_isEditing) {
+        await repository.updateRecord(widget.record!.record.id, draft);
+      } else {
+        await repository.createRecord(draft);
+      }
     } finally {
       if (mounted) setState(() => _saving = false);
     }
     if (!mounted) return;
+    // Editing runs on a pushed route: pop back to history after saving.
+    if (_isEditing) {
+      Navigator.pop(context);
+      messenger.showSnackBar(
+        const SnackBar(content: Text(AppStrings.recordUpdated)),
+      );
+      return;
+    }
     setState(_reset);
-    ScaffoldMessenger.of(
+    messenger.showSnackBar(
+      const SnackBar(content: Text(AppStrings.recordSaved)),
+    );
+  }
+
+  Future<void> _delete() async {
+    final repository = AppScope.of(context).recordRepository;
+    final messenger = ScaffoldMessenger.of(context);
+    final confirmed = await showConfirmDialog(
       context,
-    ).showSnackBar(const SnackBar(content: Text(AppStrings.recordSaved)));
+      title: AppStrings.editRecordDeleteDialogTitle,
+      message: AppStrings.editRecordDeleteDialogMessage,
+    );
+    if (!confirmed || !mounted) return;
+    await repository.deleteRecord(widget.record!.record.id);
+    if (!mounted) return;
+    Navigator.pop(context);
+    messenger.showSnackBar(
+      const SnackBar(content: Text(AppStrings.recordDeleted)),
+    );
   }
 
   void _reset() {
     _occurredAt = DateTime.now();
     _forms.forEach((type, form) {
-      form.enabled = type == EventType.urination;
+      form.enabled = true;
       form.description.clear();
       form.tags.clear();
     });
@@ -115,56 +191,110 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
   @override
   Widget build(BuildContext context) {
     final localizations = MaterialLocalizations.of(context);
+    final colors = context.appColors;
     final canSave = _forms.values.any((f) => f.enabled) && !_saving;
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text(AppStrings.addRecordTitle),
-        actions: appBarActions([
-          SecondaryButton(
-            onPressed: () => setState(() => _occurredAt = DateTime.now()),
-            child: const Text(AppStrings.addRecordNow),
-          ),
-        ]),
+        title: Text(
+          _isEditing ? AppStrings.editRecordTitle : AppStrings.addRecordTitle,
+        ),
       ),
       body: ListView(
         padding: AppInsets.screen,
         children: [
-          AppCard(
-            child: PickerField(
-              label: AppStrings.addRecordDateTime,
-              text:
-                  '${localizations.formatShortDate(_occurredAt)}'
-                  '${AppStrings.addRecordDateTimeSeparator}'
-                  '${formatHourMinute(_occurredAt)}',
+          LabeledField(
+            label: AppStrings.addRecordDateTime,
+            child: InkWell(
+              borderRadius: BorderRadius.circular(AppRadii.input),
               onTap: _pickDateTime,
+              child: InputDecorator(
+                decoration: const InputDecoration(),
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.calendar_today_outlined,
+                      size: 20,
+                      color: colors.textMuted,
+                    ),
+                    const SizedBox(width: AppSpacing.sm),
+                    Text(localizations.formatShortDate(_occurredAt)),
+                    const Spacer(),
+                    Text(formatHourMinute(_occurredAt)),
+                    const SizedBox(width: AppSpacing.sm),
+                    Icon(
+                      Icons.access_time,
+                      size: 20,
+                      color: colors.textMuted,
+                    ),
+                  ],
+                ),
+              ),
             ),
           ),
-          for (final type in EventType.values) ...[
-            ToggleCard(
-              label: type.label,
-              icon: type.icon,
-              value: _forms[type]!.enabled,
-              onChanged: (value) =>
-                  setState(() => _forms[type]!.enabled = value),
-            ),
-            if (_forms[type]!.enabled)
-              _DetailCard(
+          const SizedBox(height: AppSpacing.md),
+          // Type selector: pick urination, defecation, or both by selecting
+          // both. At least one must stay selected for the record to save.
+          Row(
+            children: [
+              for (final type in EventType.values) ...[
+                if (type != EventType.values.first)
+                  const SizedBox(width: AppSpacing.tabGap),
+                Expanded(
+                  child: _TypeSelectButton(
+                    icon: type.icon,
+                    label: type.label,
+                    selected: _forms[type]!.enabled,
+                    onTap: () => setState(
+                      () => _forms[type]!.enabled = !_forms[type]!.enabled,
+                    ),
+                  ),
+                ),
+              ],
+            ],
+          ),
+          // Only selected types show their detail fields below the selector.
+          for (final type in EventType.values)
+            if (_forms[type]!.enabled) ...[
+              Divider(
+                height: AppSpacing.md * 2,
+                thickness: 1,
+                color: colors.border,
+              ),
+              Text(type.label, style: AppTypography.bodyBold),
+              const SizedBox(height: AppSpacing.md),
+              _DetailFields(
                 type: type,
                 descriptionLabel: type.descriptionLabel,
                 descriptionHint: type.descriptionHint,
                 description: _forms[type]!.description,
                 tagLabel: type.tagsLabel,
                 tags: _forms[type]!.tags,
-                onAddTag: (name) => _addTag(name, type),
+                onAddTag: (tag) => _addTag(tag, type),
                 onRemoveTag: (tag) =>
                     setState(() => _forms[type]!.tags.remove(tag)),
               ),
-          ],
+            ],
+          if (_isEditing)
+            Align(
+              alignment: Alignment.center,
+              child: TextButton.icon(
+                onPressed: _saving ? null : _delete,
+                style: TextButton.styleFrom(foregroundColor: colors.danger),
+                icon: const Icon(Icons.delete_outline, size: 22),
+                label: const Text(AppStrings.editRecordDelete),
+              ),
+            ),
+          // Save flows at the end of the form and scrolls with the content.
+          const SizedBox(height: AppSpacing.md),
           PrimaryButton(
             expand: true,
             onPressed: canSave ? _save : null,
-            child: const Text(AppStrings.addRecordSave),
+            child: Text(
+              _isEditing
+                  ? AppStrings.editRecordSave
+                  : AppStrings.addRecordSave,
+            ),
           ),
         ],
       ),
@@ -172,9 +302,73 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
   }
 }
 
+/// Segmented selector button choosing whether the record includes an event
+/// type. Selected buttons take the primary highlight; both may be selected at
+/// once to log urination and defecation together.
+class _TypeSelectButton extends StatelessWidget {
+  const _TypeSelectButton({
+    required this.icon,
+    required this.label,
+    required this.selected,
+    required this.onTap,
+  });
+
+  final String icon;
+  final String label;
+  final bool selected;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.appColors;
+
+    final shape = RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(AppRadii.toggleCard),
+      side: BorderSide(
+        color: selected ? colors.primary : colors.border,
+        width: selected ? 1.5 : 1,
+      ),
+    );
+
+    // Square button that scales with the available half-width; the emoji is
+    // sized as a fraction of that so it grows with the screen.
+    return AspectRatio(
+      aspectRatio: 1,
+      child: Material(
+        color: selected ? colors.primarySoft : colors.surface,
+        shape: shape,
+        child: InkWell(
+          customBorder: shape,
+          onTap: onTap,
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              return Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    icon,
+                    style: TextStyle(fontSize: constraints.maxWidth * 0.34),
+                  ),
+                  const SizedBox(height: AppSpacing.sm),
+                  Text(
+                    label,
+                    style: AppTypography.buttonLabel.copyWith(
+                      color: selected ? colors.primaryDark : colors.textPrimary,
+                    ),
+                  ),
+                ],
+              );
+            },
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 /// Description and tags for one event type of the record being created.
-class _DetailCard extends StatelessWidget {
-  const _DetailCard({
+class _DetailFields extends StatelessWidget {
+  const _DetailFields({
     required this.type,
     required this.descriptionLabel,
     required this.descriptionHint,
@@ -191,32 +385,30 @@ class _DetailCard extends StatelessWidget {
   final TextEditingController description;
   final String tagLabel;
   final List<Tag> tags;
-  final ValueChanged<String> onAddTag;
+  final ValueChanged<Tag> onAddTag;
   final ValueChanged<Tag> onRemoveTag;
 
   @override
   Widget build(BuildContext context) {
-    return AppCard(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          LabeledField(
-            label: descriptionLabel,
-            child: TextField(
-              controller: description,
-              maxLines: 3,
-              decoration: InputDecoration(hintText: descriptionHint),
-            ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        LabeledField(
+          label: descriptionLabel,
+          child: TextField(
+            controller: description,
+            maxLines: 3,
+            decoration: InputDecoration(hintText: descriptionHint),
           ),
-          TagInputField(
-            label: tagLabel,
-            type: type,
-            selectedTags: tags,
-            onSubmitted: onAddTag,
-          ),
-          TagChips(tags: tags, onRemove: onRemoveTag),
-        ],
-      ),
+        ),
+        TagInputField(
+          label: tagLabel,
+          type: type,
+          selectedTags: tags,
+          onAdd: onAddTag,
+        ),
+        TagChips(tags: tags, onRemove: onRemoveTag),
+      ],
     );
   }
 }
